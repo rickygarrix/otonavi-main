@@ -1,60 +1,51 @@
 'use client'
 
-import { useState, useMemo, useEffect } from 'react'
+import { useMemo, useState } from 'react'
 import { motion, PanInfo, AnimatePresence } from 'framer-motion'
 import { useResultState } from '../store/useResultState'
 
 const STACK = 3
 const stackStyles = [
-  { x: 0, y: 0, scale: 1, opacity: 1, z: 40 },
+  { x: 0, y: 0, scale: 1.0, opacity: 1, z: 40 },
   { x: 40, y: -6, scale: 0.96, opacity: 0.9, z: 30 },
   { x: 80, y: -12, scale: 0.92, opacity: 0.8, z: 20 },
 ]
 
 export default function StoreCardSwiper() {
   const { stores, selectedStore, setSelectedStore } = useResultState()
-  const [activeIndex, setActiveIndex] = useState(0)
   const [isReloading, setIsReloading] = useState(false)
+  const [animPhase, setAnimPhase] = useState<'normal' | 'reverse'>('normal')
 
-  // ✅ ピン押下で対象カードを手前に
-  useEffect(() => {
-    if (!selectedStore) return
-    const index = stores.findIndex((s) => s.id === selectedStore.id)
-    if (index !== -1) setActiveIndex(index)
-  }, [selectedStore, stores])
+  const activeIndex = useMemo(() => {
+    if (!stores.length) return 0
+    if (!selectedStore) return 0
+    const i = stores.findIndex((s) => s.id === selectedStore.id)
+    return i >= 0 ? i : 0
+  }, [stores, selectedStore])
 
-  // 現在表示しているカード群（最大3枚）
   const visibleStores = useMemo(() => {
     if (!stores.length) return []
     return stores.slice(activeIndex, activeIndex + STACK)
   }, [stores, activeIndex])
 
-  // 下スワイプ → 次へ
   const goNext = () => {
-    if (activeIndex + 1 < stores.length) {
-      const nextIndex = activeIndex + 1
-      setActiveIndex(nextIndex)
-      setSelectedStore(stores[nextIndex]) // ✅ ピン連動
+    if (!stores.length) return
+    const nextIndex = activeIndex + 1
+    if (nextIndex < stores.length) {
+      setSelectedStore(stores[nextIndex])
     } else {
-      // 最後のカードの後でリロード
+      // ✅ リロード開始
       setIsReloading(true)
-      setTimeout(() => {
-        setActiveIndex(0)
-        setSelectedStore(stores[0]) // ✅ 最初のピンに戻る
-        setIsReloading(false)
-      }, 800)
+      setAnimPhase('reverse')
     }
   }
 
-  // 上スワイプ → 1つ前へ
   const goPrev = () => {
-    if (activeIndex === 0) return
+    if (!stores.length) return
     const prevIndex = Math.max(0, activeIndex - 1)
-    setActiveIndex(prevIndex)
-    setSelectedStore(stores[prevIndex]) // ✅ ピン連動
+    setSelectedStore(stores[prevIndex])
   }
 
-  // スワイプイベント
   const handleDragEnd = (_: any, info: PanInfo) => {
     const { offset, velocity } = info
     if (offset.y > 40 || velocity.y > 500) goNext()
@@ -73,7 +64,6 @@ export default function StoreCardSwiper() {
 
             const card = (
               <div className="relative w-full h-24 flex items-center overflow-hidden rounded-2xl bg-white shadow-[0_6px_12px_rgba(0,0,0,0.12)]">
-                {/* 左画像 */}
                 <div className="h-full w-24 shrink-0 overflow-hidden">
                   <img
                     src={store.image_url ?? 'https://placehold.co/120x120'}
@@ -81,12 +71,8 @@ export default function StoreCardSwiper() {
                     className="w-full h-full object-cover"
                   />
                 </div>
-
-                {/* テキスト */}
                 <div className="flex-1 px-3 py-1">
-                  <p className="text-base font-bold text-gray-900 leading-tight">
-                    {store.name}
-                  </p>
+                  <p className="text-base font-bold text-gray-900 leading-tight">{store.name}</p>
                   <p className="text-xs text-gray-600 mt-0.5">
                     {store.area?.name ?? '東京'}・{store.store_type?.label ?? 'クラブ'}
                   </p>
@@ -99,13 +85,8 @@ export default function StoreCardSwiper() {
                 key={store.id}
                 className="absolute bottom-0 left-0 right-0"
                 style={{ zIndex: style.z }}
-                initial={{ opacity: 0, y: 15 }}
-                animate={{
-                  x: style.x,
-                  y: style.y,
-                  scale: style.scale,
-                  opacity: style.opacity,
-                }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ x: style.x, y: style.y, scale: style.scale, opacity: style.opacity }}
                 exit={{ opacity: 0, y: -40, scale: 0.95 }}
                 transition={{ type: 'spring', stiffness: 280, damping: 25 }}
               >
@@ -126,16 +107,52 @@ export default function StoreCardSwiper() {
             )
           })
         ) : (
-          <motion.div
-            key="reloading"
-            className="absolute inset-0 flex items-center justify-center text-gray-500 text-sm"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            リロード中...
-          </motion.div>
+          // 🎬 パタパタ逆再生アニメーション
+          <div className="absolute bottom-0 left-0 right-0">
+            {[2, 1, 0].map((i) => (
+              <motion.div
+                key={`reverse-${i}`}
+                className="absolute bottom-0 left-0 right-0"
+                initial={{ y: -120 - i * 40, rotate: -3 + i * 2, opacity: 0 }}
+                animate={{
+                  y: [-120 - i * 40, 0],
+                  rotate: [-3 + i * 2, 0],
+                  opacity: [0, 1],
+                  transition: {
+                    delay: i * 0.25, // ← 3→2→1 の順に戻る
+                    duration: 0.6,
+                    ease: [0.25, 0.6, 0.3, 1.0],
+                  },
+                }}
+                // ✅ 1枚目（最後のアニメーション）が終わったら完了
+                onAnimationComplete={() => {
+                  if (i === 0) {
+                    setTimeout(() => {
+                      setSelectedStore(stores[0])
+                      setIsReloading(false)
+                      setAnimPhase('normal')
+                    }, 100) // ← 少し余韻
+                  }
+                }}
+              >
+                <div className="relative w-full h-24 flex items-center overflow-hidden rounded-2xl bg-white shadow-[0_6px_12px_rgba(0,0,0,0.15)]">
+                  <div className="h-full w-24 shrink-0 overflow-hidden">
+                    <img
+                      src={stores[i]?.image_url ?? 'https://placehold.co/120x120'}
+                      alt={stores[i]?.name ?? ''}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="flex-1 px-3 py-1">
+                    <p className="text-base font-bold text-gray-900 leading-tight">{stores[i]?.name}</p>
+                    <p className="text-xs text-gray-600 mt-0.5">
+                      {stores[i]?.area?.name ?? '東京'}・{stores[i]?.store_type?.label ?? 'クラブ'}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         )}
       </AnimatePresence>
     </div>

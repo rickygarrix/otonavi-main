@@ -31,12 +31,17 @@ export const useResultState = create<ResultState>((set) => ({
   isFilterModalOpen: false,
   isSortModalOpen: false,
 
+  // 🔹 アクション
   setStores: (stores) => set({ stores }),
   setSelectedStore: (store) => set({ selectedStore: store }),
   setSortOrder: (order) => set({ sortOrder: order }),
   setViewMode: (mode) => set({ viewMode: mode }),
-  toggleFilterModal: () => set((state) => ({ isFilterModalOpen: !state.isFilterModalOpen })),
-  toggleSortModal: () => set((state) => ({ isSortModalOpen: !state.isSortModalOpen })),
+  toggleFilterModal: () =>
+    set((state) => ({ isFilterModalOpen: !state.isFilterModalOpen })),
+  toggleSortModal: () =>
+    set((state) => ({ isSortModalOpen: !state.isSortModalOpen })),
+
+  // 🔹 全リセット
   reset: () =>
     set({
       stores: [],
