@@ -1,14 +1,23 @@
 'use client'
 
-import { Filter } from 'lucide-react'
+import React from 'react'
+import { FunnelIcon } from '@heroicons/react/24/outline'
 
-export default function FilterButton({ onClick }: { onClick: () => void }) {
+interface FilterButtonProps {
+  onClick?: () => void
+}
+
+/**
+ * 🔍 絞り込みボタン（右上）
+ */
+export default function FilterButton({ onClick }: FilterButtonProps) {
   return (
     <button
       onClick={onClick}
-      className="bg-white/80 backdrop-blur-sm rounded-full shadow px-2.5 py-2 flex items-center justify-center hover:bg-white transition"
+      className="flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-md hover:bg-gray-100 active:scale-95 transition-all duration-150"
+      aria-label="フィルターを開く"
     >
-      <Filter className="w-5 h-5 text-gray-800" />
+      <FunnelIcon className="w-5 h-5 text-gray-700" />
     </button>
   )
 }

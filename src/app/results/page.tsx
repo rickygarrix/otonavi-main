@@ -1,20 +1,19 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useState, useEffect } from 'react'
 import { useResultState } from './store/useResultState'
 import MapView from './components/MapView'
 import StoreCardSwiper from './components/StoreCardSwiper'
 import StoreGridList from './components/StoreGridList'
-import ReturnHomeButton from '@/app/components/Header/ReturnHomeButton'
 import FilterButton from './components/FilterButton'
+import ReturnHomeButton from '@/app/components/Header/ReturnHomeButton'
 
 export default function ResultPage() {
-  const { stores, setStores, selectedStore } = useResultState()
   const [isListVisible, setIsListVisible] = useState(false)
+  const { stores, setStores, selectedStore, setSelectedStore } = useResultState()
 
-  const sortMode: 'price' = 'price'
-
+  /** ✅ 初期ダミーデータ */
   useEffect(() => {
     const dummyStores = [
       {
@@ -23,7 +22,7 @@ export default function ResultPage() {
         area: { name: '渋谷区' },
         store_type: { label: 'クラブ' },
         walk_minutes: 3,
-        price_range: { label: 'リーズナブル' },
+        price_range: { label: '高め' },
         latitude: 35.6595,
         longitude: 139.7005,
         image_url:
@@ -35,7 +34,7 @@ export default function ResultPage() {
         area: { name: '新宿区' },
         store_type: { label: 'バー' },
         walk_minutes: 10,
-        price_range: { label: 'プレミアム' },
+        price_range: { label: '中間' },
         latitude: 35.6938,
         longitude: 139.7034,
         image_url:
@@ -47,7 +46,7 @@ export default function ResultPage() {
         area: { name: '港区' },
         store_type: { label: 'ラウンジ' },
         walk_minutes: 6,
-        price_range: { label: 'スタンダード' },
+        price_range: { label: '低め' },
         latitude: 35.6581,
         longitude: 139.7516,
         image_url:
@@ -59,7 +58,7 @@ export default function ResultPage() {
         area: { name: '中目黒' },
         store_type: { label: 'カフェ' },
         walk_minutes: 12,
-        price_range: { label: 'ラグジュアリー' },
+        price_range: { label: '高め' },
         latitude: 35.6432,
         longitude: 139.6981,
         image_url:
@@ -67,69 +66,77 @@ export default function ResultPage() {
       },
     ]
 
-    const priceOrder = ['リーズナブル', 'スタンダード', 'プレミアム', 'ラグジュアリー']
-
+    const priceOrder: Record<string, number> = { 低め: 0, 中間: 1, 高め: 2 }
     const sorted = [...dummyStores].sort((a, b) => {
-      const aLabel = a.price_range?.label?.trim() ?? ''
-      const bLabel = b.price_range?.label?.trim() ?? ''
-      return priceOrder.indexOf(aLabel) - priceOrder.indexOf(bLabel)
+      const aRank = priceOrder[a.price_range?.label?.trim() ?? ''] ?? 999
+      const bRank = priceOrder[b.price_range?.label?.trim() ?? ''] ?? 999
+      return aRank - bRank
     })
 
     setStores(sorted)
-  }, [setStores])
+    setSelectedStore(sorted[0])
+  }, [setStores, setSelectedStore])
 
+  /** ✅ 現在のインデックス */
   const currentIndex = stores.findIndex((s) => s.id === selectedStore?.id)
   const total = stores.length
 
   return (
     <div className="relative h-screen w-screen overflow-hidden bg-gray-50">
       {/* 🗺️ 背景マップ */}
-      <MapView sortMode="price" />
-
-      {/* 📍 上部ヘッダー */}
-      <div className="absolute top-4 left-0 right-0 z-40 flex items-center justify-between px-4">
-        <ReturnHomeButton />
-        <div className="flex-1" />
-        <FilterButton onClick={() => alert('検索条件モーダルを開く予定')} />
+      <div className="absolute inset-0 z-0 pointer-events-auto">
+        <MapView sortMode="price" />
       </div>
 
-      {/* 🪄 店舗カード（チラ見せ演出） */}
-      <div className="absolute bottom-[100px] left-0 right-0 z-20">
-        <StoreCardSwiper />
+      {/* 📍 上部ヘッダー */}
+      <div className="absolute top-4 left-0 right-0 z-40 flex items-center justify-between px-4 pointer-events-auto">
+        <ReturnHomeButton />
+        <div className="flex-1" />
+        <FilterButton onClick={() => alert('フィルター開く予定')} />
+      </div>
+
+      {/* 🪄 店舗カード */}
+      <div className="absolute bottom-[100px] left-0 right-0 z-20 pointer-events-none">
+        <div className="pointer-events-auto">
+          <StoreCardSwiper />
+        </div>
       </div>
 
       {/* 🔢 ページ番号 */}
       {selectedStore && (
-        <div className="absolute bottom-[150px] right-6 z-30 bg-white/90 text-[11px] font-medium px-2.5 py-1 rounded-full shadow">
+        <div className="absolute bottom-[150px] right-6 z-30 bg-white/90 text-[11px] font-medium px-2.5 py-1 rounded-full shadow pointer-events-none">
           {currentIndex + 1} / {total}
         </div>
       )}
 
-      {/* ⬆️ 下部スライドバー */}
+      {/* 📜 下部スライドリスト（画面最下部に固定） */}
       <motion.div
-        className="absolute bottom-0 left-0 right-0 z-30 bg-white rounded-t-3xl shadow-[0_-2px_10px_rgba(0,0,0,0.1)]"
-        animate={{ height: isListVisible ? '100%' : '90px' }}
+        className="fixed left-0 right-0 bottom-0 z-10 bg-white rounded-t-3xl shadow-[0_-2px_10px_rgba(0,0,0,0.1)] pointer-events-auto overflow-hidden"
+        initial={false}
+        animate={{
+          // ✅ リスト閉じ時：下に完全固定
+          height: isListVisible ? 'calc(100vh - 100px)' : '110px',
+          bottom: isListVisible ? 0 : 0,
+        }}
         transition={{ duration: 0.35, ease: 'easeInOut' }}
+        drag="y"
+        dragConstraints={{ top: 0, bottom: 0 }}
+        onDragEnd={(_, info) => {
+          if (info.offset.y < -40 || info.velocity.y < -400) setIsListVisible(true)
+          if (info.offset.y > 40 || info.velocity.y > 400) setIsListVisible(false)
+        }}
       >
         {/* グリップバー */}
-        <motion.div
-          className="mx-auto mt-2 h-1.5 w-10 rounded-full bg-gray-300 cursor-grab active:cursor-grabbing"
-          drag="y"
-          dragConstraints={{ top: 0, bottom: 0 }}
-          onDragEnd={(_, info) => {
-            if (info.offset.y < -40 || info.velocity.y < -400) setIsListVisible(true)
-            if (info.offset.y > 40 || info.velocity.y > 400) setIsListVisible(false)
-          }}
-        />
+        <div className="mx-auto mt-2 h-1.5 w-10 rounded-full bg-gray-300 cursor-grab active:cursor-grabbing" />
 
         {/* 件数表示 */}
         <div className="flex items-center justify-center py-2">
           <p className="text-sm font-semibold text-gray-800">
-            {total}件見つかりました
+            {total}件見つかりました（値段が低い順）
           </p>
         </div>
 
-        {/* 📜 リスト */}
+        {/* 📜 リスト本体 */}
         <AnimatePresence>
           {isListVisible && (
             <motion.div
