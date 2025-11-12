@@ -1,8 +1,8 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { motion, PanInfo, AnimatePresence } from 'framer-motion'
-import { useResultState } from '../store/useResultState'
+import type { Store } from '../types/storeTypes'
 
 /** 最大スタック数（前面+2枚） */
 const STACK = 3
@@ -13,8 +13,21 @@ const stackStyles = [
   { x: 80, y: -12, scale: 0.92, opacity: 0.8, z: 20 },
 ]
 
-export default function StoreCardSwiper() {
-  const { stores, selectedStore, setSelectedStore } = useResultState()
+type Props = {
+  stores: Store[]
+  onChange?: (store: Store) => void
+  onSelect?: (store: Store) => void // ✅ タップ時のみ詳細を出す
+}
+
+export default function StoreCardSwiper({ stores, onChange, onSelect }: Props) {
+  const [selectedStore, setSelectedStore] = useState<Store | null>(null)
+
+  /** 初期選択（右下の1/4用。モーダルは出さない） */
+  useEffect(() => {
+    if (stores.length && !selectedStore) {
+      setSelectedStore(stores[0])
+    }
+  }, [stores, selectedStore])
 
   /** 現在のインデックス */
   const activeIndex = useMemo(() => {
@@ -36,19 +49,18 @@ export default function StoreCardSwiper() {
   const goNext = () => {
     if (!stores.length) return
     const nextIndex = activeIndex + 1
-    if (nextIndex >= stores.length) {
-      // ✅ 最後のカードをめくったらループ
-      setSelectedStore(stores[0])
-    } else {
-      setSelectedStore(stores[nextIndex])
-    }
+    const next = nextIndex >= stores.length ? stores[0] : stores[nextIndex]
+    setSelectedStore(next)
+    onChange?.(next)
   }
 
   /** 前へ（スワイプ上） */
   const goPrev = () => {
     if (!stores.length) return
     const prevIndex = Math.max(0, activeIndex - 1)
-    setSelectedStore(stores[prevIndex])
+    const prev = stores[prevIndex]
+    setSelectedStore(prev)
+    onChange?.(prev)
   }
 
   /** スワイプ操作 */
@@ -89,6 +101,7 @@ export default function StoreCardSwiper() {
                   onDragEnd={handleDragEnd}
                   whileDrag={{ scale: 1.03 }}
                   className="cursor-grab active:cursor-grabbing"
+                  onClick={() => onSelect?.(store)} // ✅ タップ時のみ詳細表示
                 >
                   <Card store={store} />
                 </motion.div>
@@ -106,7 +119,7 @@ export default function StoreCardSwiper() {
 }
 
 /** ✅ カードコンポーネント */
-function Card({ store }: { store: any }) {
+function Card({ store }: { store: Store }) {
   return (
     <div className="relative w-[360px] h-[120px] rounded-xl bg-white flex overflow-hidden shadow-[0px_1px_2px_rgba(0,0,0,0.1),0px_0px_4px_rgba(0,0,0,0.1)]">
       {/* 左：画像 */}

@@ -1,17 +1,15 @@
 'use client'
 
 import { create } from 'zustand'
-import type { Store } from '../types/storeTypes'  // ← 型をインポート
+import type { Store } from '../types/storeTypes'
 
-/** Zustandの状態定義 */
-interface ResultState {
+type ResultState = {
   stores: Store[]
   selectedStore: Store | null
   setStores: (stores: Store[]) => void
   setSelectedStore: (store: Store | null) => void
 }
 
-/** Zustandストア本体 */
 export const useResultState = create<ResultState>((set) => ({
   stores: [],
   selectedStore: null,

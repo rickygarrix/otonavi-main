@@ -1,20 +1,27 @@
 'use client'
-import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion'
+
+import { motion, useMotionValue, animate } from 'framer-motion'
 import { useEffect, useState } from 'react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 import { useResultState } from './store/useResultState'
 import MapView from './components/MapView'
 import StoreCardSwiper from './components/StoreCardSwiper'
 import StoreGridList from './components/StoreGridList'
+import StoreDetailModal from './components/StoreDetailModal'
 import FilterButton from './components/FilterButton'
 import ReturnHomeButton from '@/app/components/Header/ReturnHomeButton'
+import type { Store } from './types/storeTypes'
 
 export default function ResultPage() {
   const [isListVisible, setIsListVisible] = useState(false)
-  const { stores, setStores, selectedStore, setSelectedStore } = useResultState()
+  const [selectedStore, setSelectedStore] = useState<Store | null>(null)
+  const { stores, setStores } = useResultState()
+  const y = useMotionValue(0)
+  const [windowHeight, setWindowHeight] = useState(0)
 
-  /** ✅ 初期ダミーデータ */
+  /** ✅ ダミーデータ */
   useEffect(() => {
-    const dummyStores = [
+    const dummyStores: Store[] = [
       {
         id: '1',
         name: 'CLUB IKO',
@@ -67,45 +74,38 @@ export default function ResultPage() {
 
     const priceOrder: Record<string, number> = { 低め: 0, 中間: 1, 高め: 2 }
     const sorted = [...dummyStores].sort((a, b) => {
-      const aRank = priceOrder[a.price_range?.label?.trim() ?? ''] ?? 999
-      const bRank = priceOrder[b.price_range?.label?.trim() ?? ''] ?? 999
+      const aRank = priceOrder[a.price_range?.label ?? ''] ?? 999
+      const bRank = priceOrder[b.price_range?.label ?? ''] ?? 999
       return aRank - bRank
     })
 
     setStores(sorted)
-    setSelectedStore(sorted[0])
-  }, [setStores, setSelectedStore])
+  }, [setStores])
 
-  const currentIndex = stores.findIndex((s) => s.id === selectedStore?.id)
   const total = stores.length
 
-  // 🎯 モーダルのY位置をMotionValueで制御
-  const y = useMotionValue(0)
-  const [windowHeight, setWindowHeight] = useState(0)
-
+  /** 🧮 初期位置設定 */
   useEffect(() => {
-    setWindowHeight(window.innerHeight)
-  }, [])
+    const h = window.innerHeight
+    setWindowHeight(h)
+    y.set(h * 0.9)
+  }, [y])
 
-  const fullyOpenY = 0
-  const closedY = windowHeight * 0.75 // 画面の55%くらいまで下げる
-  const currentY = useTransform(y, [fullyOpenY, closedY], [fullyOpenY, closedY])
+  const openY = 80
+  const closedY = windowHeight * 0.9
 
-  const handleDragEnd = (_: any, info: any) => {
-    const velocity = info.velocity.y
-    const offset = info.offset.y
-    if (offset > 100 || velocity > 400) {
-      setIsListVisible(false)
-      y.set(closedY)
-    } else if (offset < -100 || velocity < -400) {
-      setIsListVisible(true)
-      y.set(fullyOpenY)
-    }
+  /** 🎬 開閉アニメーション */
+  const toggleList = () => {
+    const target = isListVisible ? closedY : openY
+    setIsListVisible(!isListVisible)
+
+    animate(y, target, {
+      type: 'spring',
+      stiffness: 260,
+      damping: 30,
+      mass: 0.7,
+    })
   }
-
-  useEffect(() => {
-    y.set(isListVisible ? fullyOpenY : closedY)
-  }, [isListVisible, closedY, fullyOpenY, y])
 
   return (
     <div className="relative h-screen w-screen overflow-hidden bg-gray-50">
@@ -115,51 +115,67 @@ export default function ResultPage() {
       </div>
 
       {/* 📍 上部ヘッダー */}
-      <div className="absolute top-4 left-0 right-0 z-40 flex items-center justify-between px-4 pointer-events-auto">
+      <div className="absolute top-4 left-0 right-0 z-40 flex justify-between px-4 pointer-events-auto">
         <ReturnHomeButton />
-        <div className="flex-1" />
         <FilterButton onClick={() => alert('フィルター開く予定')} />
       </div>
 
-      {/* 🪄 店舗カード */}
-      <div className="absolute bottom-[100px] left-0 right-0 z-20 pointer-events-none">
-        <div className="pointer-events-auto">
-          <StoreCardSwiper />
-        </div>
-      </div>
-
-      {/* 🔢 ページ番号 */}
-      {selectedStore && (
-        <div className="absolute bottom-[150px] right-6 z-30 bg-white/90 text-[11px] font-medium px-2.5 py-1 rounded-full shadow pointer-events-none">
-          {currentIndex + 1} / {total}
+      {/* 🪄 カードスワイパー（閉じている時のみ） */}
+      {!isListVisible && (
+        <div className="absolute bottom-[100px] left-0 right-0 z-20 pointer-events-none">
+          <div className="pointer-events-auto">
+            <StoreCardSwiper
+              stores={stores}
+              onChange={() => { }} // ✅ スワイプで詳細開かない
+              onSelect={(store) => setSelectedStore(store)} // ✅ タップ時のみ開く
+            />
+          </div>
         </div>
       )}
 
-      {/* 📜 下部スライドリスト（指追従でスムーズに動く） */}
-      <motion.div
-        drag="y"
-        dragConstraints={{ top: fullyOpenY, bottom: closedY }}
-        style={{
-          y: currentY,
-          zIndex: 50,
-          height: 'calc(100vh - 100px)',
-        }}
-        onDragEnd={handleDragEnd}
-        className="fixed left-0 right-0 bottom-0 bg-white rounded-t-3xl shadow-[0_-2px_10px_rgba(0,0,0,0.1)] pointer-events-auto"
-      >
+      {/* 🔢 ページ番号 */}
+      {!isListVisible && stores.length > 0 && (
+        <div className="absolute bottom-[150px] right-6 z-20 bg-white/90 text-[11px] font-medium px-2.5 py-1 rounded-full shadow pointer-events-none">
+          {stores.findIndex((s) => s.id === selectedStore?.id) + 1 || 1} / {stores.length}
+        </div>
+      )}
 
-        {/* 件数表示 */}
-        <div className="flex items-center justify-center py-2">
-          <p className="text-sm font-semibold text-gray-800">
-            {total}件見つかりました（値段が低い順）
+      {/* 📜 モーダル（件数＋ボタン含む） */}
+      <motion.div
+        style={{ y, zIndex: 30, height: '100vh' }}
+        className="fixed left-0 right-0 bottom-0 bg-white rounded-t-3xl shadow-[0_-2px_10px_rgba(0,0,0,0.1)] pointer-events-auto flex flex-col"
+      >
+        {/* 件数＋トグル */}
+        <div className="flex items-center justify-center py-3 border-b border-gray-100 sticky top-0 bg-white z-10">
+          <p className="text-[15px] font-semibold text-gray-900">
+            {total}件見つかりました
           </p>
+          <button
+            onClick={toggleList}
+            className="ml-2 rounded-full hover:bg-gray-100 transition p-1"
+            aria-label="リスト開閉"
+          >
+            {isListVisible ? (
+              <ChevronDown size={20} strokeWidth={2.2} />
+            ) : (
+              <ChevronUp size={20} strokeWidth={2.2} />
+            )}
+          </button>
         </div>
 
-        {/* 📜 リスト本体 */}
-        <div className="overflow-y-auto h-[calc(100%-60px)] pt-2 pb-20">
-          <StoreGridList />
+        {/* 店舗リスト */}
+        <div className="overflow-y-auto flex-1 pt-2 pb-20 scrollbar-hide">
+          <StoreGridList onSelect={(store) => setSelectedStore(store)} />
         </div>
       </motion.div>
+
+      {/* 🏪 店舗詳細モーダル（タップ時のみ開く） */}
+      {selectedStore && (
+        <StoreDetailModal
+          store={selectedStore}
+          onClose={() => setSelectedStore(null)}
+        />
+      )}
     </div>
   )
 }
