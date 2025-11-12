@@ -6,14 +6,12 @@ import type { Store } from '../types/storeTypes'
 
 interface MapViewProps {
   sortMode: 'price' | 'station'
+  stores: Store[]
 }
 
-/**
- * Google Map 表示コンポーネント
- */
-export default function MapView({ sortMode }: MapViewProps) {
+export default function MapView({ sortMode, stores }: MapViewProps) {
   const mapRef = useRef<HTMLDivElement | null>(null)
-  const { stores, selectedStore, setSelectedStore } = useResultState()
+  const { selectedStore, setSelectedStore } = useResultState()  // ✅ stores は props からのみ受け取る！
 
   useEffect(() => {
     if (!mapRef.current || stores.length === 0) return
@@ -22,9 +20,8 @@ export default function MapView({ sortMode }: MapViewProps) {
       await loadGoogleMapsApi()
       if (!window.google?.maps) return
 
-      const first = stores[0]
       const map = new window.google.maps.Map(mapRef.current!, {
-        center: { lat: first.latitude, lng: first.longitude },
+        center: { lat: stores[0].latitude, lng: stores[0].longitude },
         zoom: 13,
         mapTypeControl: false,
         streetViewControl: false,
@@ -34,7 +31,7 @@ export default function MapView({ sortMode }: MapViewProps) {
       const bounds = new window.google.maps.LatLngBounds()
       const markers: google.maps.Marker[] = []
 
-      // ✅ ピンを生成
+      // ✅ ソート済み stores に基づいてピン配置
       stores.forEach((store) => {
         const marker = new window.google.maps.Marker({
           position: { lat: store.latitude, lng: store.longitude },
@@ -46,43 +43,49 @@ export default function MapView({ sortMode }: MapViewProps) {
           },
         })
 
-        // ✅ クリックで選択
         marker.addListener('click', () => {
           setSelectedStore(store)
-          // 🔵 ピン更新即時反映
           updateMarkerIcons(markers, store)
+          map.panTo({ lat: store.latitude, lng: store.longitude })
         })
 
         markers.push(marker)
         bounds.extend(marker.getPosition()!)
       })
 
-      map.fitBounds(bounds)
+      map.fitBounds(bounds, { top: 40, right: 40, bottom: 80, left: 40 })
 
-        // ✅ 生成結果を保存
         ; (mapRef.current as any)._mapInstance = map
         ; (mapRef.current as any)._markers = markers
 
-      // ✅ 初期時点で1件目を選択 + 即座にピン更新
-      const initial = stores[0]
-      setSelectedStore(initial)
+      // ✅ 修正：selectedStore が未設定なら props の先頭（＝安い順1件目）を選ぶ
+      const initial = selectedStore ?? stores[0]
       updateMarkerIcons(markers, initial)
+      if (!selectedStore) setSelectedStore(initial)
     }
 
     initMap()
   }, [stores])
 
-  // ✅ selectedStore の変更時にも反映
+  // ✅ 選択切り替え時（ピン同期）
   useEffect(() => {
+    const map: google.maps.Map = (mapRef.current as any)?._mapInstance
     const markers: google.maps.Marker[] = (mapRef.current as any)?._markers
-    if (!markers) return
+    if (!map || !markers) return
+
     updateMarkerIcons(markers, selectedStore)
+
+    if (selectedStore) {
+      const pos = new window.google.maps.LatLng(selectedStore.latitude, selectedStore.longitude)
+      const bounds = map.getBounds()
+      if (!bounds || !bounds.contains(pos)) map.panTo(pos)
+    }
   }, [selectedStore])
 
   return <div ref={mapRef} className="absolute inset-0" />
 }
 
-/** ✅ ピンの色変更関数 */
+/** ピン更新関数 */
 function updateMarkerIcons(markers: google.maps.Marker[], activeStore?: Store | null) {
   markers.forEach((marker) => {
     const isActive = marker.getTitle() === activeStore?.name
@@ -95,20 +98,16 @@ function updateMarkerIcons(markers: google.maps.Marker[], activeStore?: Store | 
   })
 }
 
-/** ✅ Google Maps API ロード関数 */
+/** Google Maps API ロード */
 async function loadGoogleMapsApi(): Promise<void> {
   if (typeof window === 'undefined') return
-  if (window.google?.maps) return // すでにロード済みならスキップ
-
+  if (window.google?.maps) return
   return new Promise((resolve, reject) => {
-    const existingScript = document.querySelector(
-      'script[src^="https://maps.googleapis.com/maps/api/js"]'
-    )
-    if (existingScript) {
-      existingScript.addEventListener('load', () => resolve())
+    const existing = document.querySelector('script[src^="https://maps.googleapis.com/maps/api/js"]')
+    if (existing) {
+      existing.addEventListener('load', () => resolve())
       return
     }
-
     const script = document.createElement('script')
     script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`
     script.async = true
