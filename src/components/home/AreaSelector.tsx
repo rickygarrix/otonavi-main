@@ -1,59 +1,63 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import PrefectureChip from './PrefectureChip'
 import { supabase } from '@/lib/supabase'
+import PrefectureChip from './PrefectureChip'
 
 type Prefecture = {
   id: string
   name_ja: string
-  region: string | null
+  region: string
 }
 
 type Area = {
   id: string
   name: string
   prefecture_id: string
+  is_23ward: boolean
 }
 
-export default function AreaSelector() {
+type Props = {
+  onChange: (pref: string | null, area: string | null) => void
+}
+
+export default function AreaSelector({ onChange }: Props) {
   const [prefectures, setPrefectures] = useState<Prefecture[]>([])
   const [areas, setAreas] = useState<Area[]>([])
-
   const [selectedPrefecture, setSelectedPrefecture] = useState<Prefecture | null>(null)
   const [selectedArea, setSelectedArea] = useState<Area | null>(null)
 
-  // ============================
-  // ① 都道府県を取得
-  // ============================
+  // 都道府県読み込み
   useEffect(() => {
-    const loadPrefectures = async () => {
+    const load = async () => {
       const { data, error } = await supabase
         .from('prefectures')
         .select('*')
         .order('code')
 
-      if (error) {
-        console.error(error)
-        return
-      }
-
+      if (error) return console.error(error)
       setPrefectures(data)
 
-      // 初期選択 "東京都"
+      // 初期値：東京都
       const tokyo = data.find((p) => p.name_ja === '東京都') ?? null
       setSelectedPrefecture(tokyo)
+      onChange(tokyo?.name_ja ?? null, null)
     }
 
-    loadPrefectures()
-  }, [])
+    load()
+  }, [onChange])
 
-  // ============================
-  // ② 都道府県選択 → エリアを取得
-  // ============================
+  // エリア読み込み
   useEffect(() => {
-    const loadAreas = async () => {
+    const load = async () => {
       if (!selectedPrefecture) return
+
+      if (selectedPrefecture.name_ja !== '東京都') {
+        setAreas([])
+        setSelectedArea(null)
+        onChange(selectedPrefecture.name_ja, null)
+        return
+      }
 
       const { data, error } = await supabase
         .from('areas')
@@ -61,89 +65,119 @@ export default function AreaSelector() {
         .eq('prefecture_id', selectedPrefecture.id)
         .order('name')
 
-      if (error) {
-        console.error(error)
-        return
-      }
-
+      if (error) return console.error(error)
       setAreas(data)
 
-      // 初期選択：渋谷区ぽいのがあれば選ぶ
-      const first = data.find((a) => a.name.includes('渋谷')) ?? data[0] ?? null
+      // 初期値は渋谷 or 23区の先頭
+      const first =
+        data.find((a) => a.name.includes('渋谷')) ??
+        data.find((a) => a.is_23ward) ??
+        data[0] ??
+        null
+
       setSelectedArea(first)
+      onChange(selectedPrefecture.name_ja, first?.name ?? null)
     }
 
-    loadAreas()
-  }, [selectedPrefecture])
+    load()
+  }, [selectedPrefecture, onChange])
 
-  // ============================
-  // 都道府県をエリアでグルーピング
-  // ============================
+  // 地方ごとに分類
   const grouped = prefectures.reduce((acc: Record<string, Prefecture[]>, p) => {
-    const region = p.region ?? 'その他'
-    if (!acc[region]) acc[region] = []
-    acc[region].push(p)
+    if (!acc[p.region]) acc[p.region] = []
+    acc[p.region].push(p)
     return acc
   }, {})
+
+  const REGION_ORDER = [
+    '北海道・東北',
+    '関東',
+    '中部',
+    '近畿',
+    '中国',
+    '四国',
+    '九州・沖縄'
+  ]
+
+  const tokyoWards = areas.filter((a) => a.is_23ward)
+  const tokyoOthers = areas.filter((a) => !a.is_23ward)
 
   return (
     <div className="w-full px-6 py-6">
 
-      {/* タイトル */}
-      <h2 className="text-lg font-bold text-slate-900 mb-2">店舗情報</h2>
+      <h2 className="text-lg font-bold text-slate-900 mb-6">
+        店舗情報
+      </h2>
 
-      <div className="text-slate-500 text-sm mb-6">
-        エリア
-        <span className="text-blue-600 font-medium">
-          {selectedPrefecture?.name_ja} {selectedArea?.name ?? ''}
-        </span>
-      </div>
+      {REGION_ORDER.map((region) => {
+        const list = grouped[region]
+        if (!list) return null
 
-      {/* ============================= */}
-      {/* 都道府県一覧（グループ別） */}
-      {/* ============================= */}
-      {Object.entries(grouped).map(([region, list]) => (
-        <div key={region} className="mb-8">
-          <h3 className="font-semibold text-slate-800 mb-3">{region}</h3>
+        return (
+          <div key={region} className="mb-10">
+            <h3 className="font-semibold text-slate-800 mb-3">
+              {region}（{list.length}県）
+            </h3>
 
-          <div className="grid grid-cols-3 gap-3">
-            {list.map((p) => (
-              <PrefectureChip
-                key={p.id}
-                label={p.name_ja}
-                selected={selectedPrefecture?.id === p.id}
-                onClick={() => {
-                  setSelectedPrefecture(p)
-                  setSelectedArea(null)
-                }}
-              />
-            ))}
+            <div className="grid grid-cols-3 gap-3">
+              {list.map((p) => (
+                <PrefectureChip
+                  key={p.id}
+                  label={p.name_ja}
+                  selected={selectedPrefecture?.id === p.id}
+                  onClick={() => {
+                    setSelectedPrefecture(p)
+                    setSelectedArea(null)
+                  }}
+                />
+              ))}
+            </div>
+
+            {/* 東京都の時だけ表示 */}
+            {region === '関東' && selectedPrefecture?.name_ja === '東京都' && (
+              <>
+                {tokyoWards.length > 0 && (
+                  <div className="mt-8">
+                    <h3 className="font-semibold text-slate-800 mb-3">東京23区</h3>
+                    <div className="grid grid-cols-3 gap-3">
+                      {tokyoWards.map((a) => (
+                        <PrefectureChip
+                          key={a.id}
+                          label={a.name}
+                          selected={selectedArea?.id === a.id}
+                          onClick={() => {
+                            setSelectedArea(a)
+                            onChange(selectedPrefecture.name_ja, a.name)
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {tokyoOthers.length > 0 && (
+                  <div className="mt-8">
+                    <h3 className="font-semibold text-slate-800 mb-3">東京23区以外</h3>
+                    <div className="grid grid-cols-3 gap-3">
+                      {tokyoOthers.map((a) => (
+                        <PrefectureChip
+                          key={a.id}
+                          label={a.name}
+                          selected={selectedArea?.id === a.id}
+                          onClick={() => {
+                            setSelectedArea(a)
+                            onChange(selectedPrefecture.name_ja, a.name)
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
           </div>
-        </div>
-      ))}
-
-      {/* ============================= */}
-      {/* 選択された都道府県のエリア一覧 */}
-      {/* ============================= */}
-      {selectedPrefecture && (
-        <>
-          <h3 className="font-semibold text-slate-800 mb-3 mt-4">
-            {selectedPrefecture.name_ja} のエリア
-          </h3>
-
-          <div className="grid grid-cols-3 gap-3 mb-8">
-            {areas.map((a) => (
-              <PrefectureChip
-                key={a.id}
-                label={a.name}
-                selected={selectedArea?.id === a.id}
-                onClick={() => setSelectedArea(a)}
-              />
-            ))}
-          </div>
-
-        </>
-      )}
+        )
+      })}
     </div>
   )
 }
