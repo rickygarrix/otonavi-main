@@ -1,9 +1,7 @@
-// src/components/SearchResultPanel.tsx
 "use client"
 
-import { X } from "lucide-react"
 import type { HomeStore } from "@/types/store"
-import StoreCard from "@/components/store/StoreCard"  // ★ 追加
+import Image from "next/image"
 
 type Props = {
   isOpen: boolean
@@ -30,40 +28,89 @@ export default function SearchResultPanel({
         flex flex-col
       `}
     >
-      {/* --- Header --- */}
-      <div className="flex items-center gap-4 px-4 py-3 border-b">
-        <button onClick={onClose}>
-          <X className="w-6 h-6 text-slate-700" />
+
+      {/* ==================================================== */}
+      {/* 🎨 Figma再現 ヘッダー */}
+      {/* ==================================================== */}
+      <div className="px-4 py-4 flex items-center gap-4 border-b">
+
+        {/* 左丸アイコン */}
+        <button onClick={onClose} className="active:scale-95">
+          <div className="w-14 h-14 rounded-full flex justify-center items-center">
+
+            {/* 内側の半透明円 */}
+            <div
+              className="
+                w-14 h-14 bg-white/10 rounded-full
+                shadow-[0px_2px_4px_rgba(0,0,0,0.1)]
+                outline outline-1 outline-white/10 outline-offset-[-1px]
+                backdrop-blur-sm flex justify-center items-center
+              "
+            >
+              {/* ロゴ（mix-blend-differenceで白黒反転） */}
+              <div className="w-8 h-8 relative mix-blend-difference">
+                <Image
+                  src="/logo4.svg"
+                  alt="back"
+                  fill
+                  className="object-contain"
+                />
+              </div>
+            </div>
+          </div>
         </button>
 
-        <div className="text-lg font-semibold text-slate-900">
-          {stores.length}件の店舗
+        {/* 件数 */}
+        <div className="flex flex-col justify-center items-start">
+          <div className="text-slate-900 font-bold text-lg tracking-widest leading-none">
+            {stores.length}
+            <span className="text-[10px] font-bold tracking-wide ml-1">
+              件
+            </span>
+          </div>
+        </div>
+
+        {/* 選択中フィルタ */}
+        <div className="flex-1 text-blue-800 text-xs leading-4 line-clamp-2">
+          {selectedFilters.join(", ")}
         </div>
       </div>
 
-      {/* --- Filters --- */}
-      {selectedFilters.length > 0 && (
-        <div className="px-4 py-3 flex flex-wrap gap-2 border-b bg-slate-50">
-          {selectedFilters.map((f, i) => (
-            <span
-              key={i}
-              className="text-sm px-3 py-1 bg-blue-50 text-blue-600 rounded-full border border-blue-200"
-            >
-              {f}
-            </span>
-          ))}
-        </div>
-      )}
 
-      {/* --- 店舗一覧 --- */}
+      {/* ==================================================== */}
+      {/* 🏠 店舗一覧 */}
+      {/* ==================================================== */}
       <div className="overflow-y-auto px-4 py-4">
         <div className="grid grid-cols-2 gap-4">
           {stores.map((s) => (
-            <StoreCard
+            <button
               key={s.id}
-              store={s}
-              onClick={() => onSelectStore(s)}  // ← 詳細パネルへ
-            />
+              onClick={() => onSelectStore(s)}
+              className="text-left"
+            >
+              <div className="w-full bg-white rounded-xl shadow-sm border hover:shadow-md transition">
+
+                {/* 画像 */}
+                <div className="w-full h-32 bg-slate-100 rounded-t-xl overflow-hidden">
+                  <img
+                    src={s.image_url ?? "/default_shop.svg"}
+                    alt={s.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+
+                {/* テキスト */}
+                <div className="p-3">
+                  <div className="font-semibold text-sm text-slate-900 line-clamp-1">
+                    {s.name}
+                  </div>
+                  <div className="text-xs text-slate-500 mt-1 line-clamp-1">
+                    {s.prefecture} {s.area} ・ {s.type}
+                  </div>
+                </div>
+
+              </div>
+            </button>
           ))}
         </div>
       </div>

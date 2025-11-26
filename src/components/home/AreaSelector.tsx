@@ -39,9 +39,8 @@ export default function AreaSelector({ onChange }: Props) {
       setPrefectures(data)
 
       // 初期値：東京都
-      const tokyo = data.find((p) => p.name_ja === '東京都') ?? null
-      setSelectedPrefecture(tokyo)
-      onChange(tokyo?.name_ja ?? null, null)
+      setSelectedPrefecture(null)
+      onChange(null, null)
     }
 
     load()
@@ -68,15 +67,8 @@ export default function AreaSelector({ onChange }: Props) {
       if (error) return console.error(error)
       setAreas(data)
 
-      // 初期値は渋谷 or 23区の先頭
-      const first =
-        data.find((a) => a.name.includes('渋谷')) ??
-        data.find((a) => a.is_23ward) ??
-        data[0] ??
-        null
-
-      setSelectedArea(first)
-      onChange(selectedPrefecture.name_ja, first?.name ?? null)
+      setSelectedArea(null)
+      onChange(selectedPrefecture.name_ja, null)
     }
 
     load()

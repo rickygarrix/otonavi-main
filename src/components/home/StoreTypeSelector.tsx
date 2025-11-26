@@ -28,9 +28,8 @@ export default function StoreTypeSelector({ onChange }: Props) {
       if (error) return console.error(error)
       setTypes(data ?? [])
 
-      const first = data?.[0] ?? null
-      setSelected(first)
-      onChange(first?.label ?? null)
+      setSelected(null)
+      onChange(null)
     }
 
     load()
