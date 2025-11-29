@@ -1,5 +1,8 @@
+// ===============================
+// useHomeStores から取り込む型
+// ===============================
 export type OpenHour = {
-  day_of_week: string // mon / tue / wed ...
+  day_of_week: number
   open_time: string | null
   close_time: string | null
   last_order_time: string | null
@@ -7,7 +10,7 @@ export type OpenHour = {
 }
 
 export type SpecialOpenHour = {
-  date: string // YYYY-MM-DD
+  date: string
   open_time: string | null
   close_time: string | null
   last_order_time: string | null
@@ -15,6 +18,9 @@ export type SpecialOpenHour = {
   reason: string | null
 }
 
+// ===============================
+// HomeStore 型（🔥 全フィルタ完全対応）
+// ===============================
 export type HomeStore = {
   id: string
   name: string
@@ -23,6 +29,7 @@ export type HomeStore = {
   prefecture: string | null
   area: string | null
   type: string | null
+
   image_url: string | null
   description: string | null
 
@@ -38,4 +45,22 @@ export type HomeStore = {
 
   open_hours: OpenHour[]
   special_hours: SpecialOpenHour[]
+
+  // ---------- 既存 ----------
+  event_trend_keys: string[]
+  rule_keys: string[]
+  hasAward: boolean
+  hasMedia: boolean
+
+  // ---------- 🔥 新規フィルタ ----------
+  seat_type_keys: string[]
+  smoking_keys: string[]
+  environment_keys: string[]
+  other_keys: string[]
+  baggage_keys: string[]
+  security_keys: string[]
+  toilet_keys: string[]
+  floor_keys: string[]
+
+  size_key: string | null // 単一選択（小箱/中箱/大箱）
 }
