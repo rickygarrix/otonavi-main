@@ -22,7 +22,7 @@ export type SpecialOpenHour = {
 }
 
 // ===============================
-// HomeStore（🔥 全フィルタ完全対応）
+// HomeStore（🔥 全フィルタ対応完全版）
 // ===============================
 export type HomeStore = {
   id: string
@@ -57,7 +57,7 @@ export type HomeStore = {
   special_hours: SpecialOpenHour[]
 
   // ======================================================
-  // 既存 M2M
+  // 既存 M2M（イベント / ルール / 設備）
   // ======================================================
   event_trend_keys: string[]
   rule_keys: string[]
@@ -71,36 +71,49 @@ export type HomeStore = {
   floor_keys: string[]
 
   // ======================================================
-  // 🔥 新規 M2M
+  // 🔥 新規 M2M（料金系）
   // ======================================================
-  pricing_system_keys: string[]     // 料金システム
-  discount_keys: string[]           // ディスカウント
-  vip_keys: string[]                // VIP 要素
-  payment_method_keys: string[]     // 支払い方法
+  pricing_system_keys: string[]
+  discount_keys: string[]
+  vip_keys: string[]
+  payment_method_keys: string[]
 
   // ======================================================
-  // 🔥 音響・照明チーム
+  // 🔥 音響・照明・演出
   // ======================================================
-  sound_keys: string[]              // 音響
-  lighting_keys: string[]           // 照明
-  production_keys: string[]         // 演出
+  sound_keys: string[]
+  lighting_keys: string[]
+  production_keys: string[]
 
   // ======================================================
-  // 🔥 客層・雰囲気チーム
+  // 🔥 客層・雰囲気
   // ======================================================
-  customer_keys: string[]           // 客層
-  atmosphere_keys: string[]         // 雰囲気
+  customer_keys: string[]
+  atmosphere_keys: string[]
 
   // ======================================================
-  // 🔥 接客（stores.hospitality）単一
+  // 🔥 フード・サービス
   // ======================================================
-  hospitality_key: string | null    // friendly / cool / professional など
+  food_keys: string[]
+  service_keys: string[]
+
+  // ======================================================
+  // 🔥 接客（単一）
+  // ======================================================
+  hospitality_key: string | null
   hospitality_label: string | null
+
+  // ======================================================
+  // 🔥 ドリンク（M2M）カテゴリ別
+  // ======================================================
+  drink_keys: string[]               // 全 key（例: ["beer_craft", "wine_sparkling"]）
+  drink_categories: Record<string, string[]>
+
 
   // ---------- 単一 ----------
   size_key: string | null
 
-  // ---------- 既存 ----------
+  // ---------- 実績 ----------
   hasAward: boolean
   hasMedia: boolean
 }

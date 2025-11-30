@@ -4,9 +4,9 @@ import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
 import Chip from "@/components/ui/Chip"
 
-// ===================================================
-// マスタ行の型
-// ===================================================
+// -------------------------------
+// マスタ型
+// -------------------------------
 type Item = {
   id: string
   key?: string | null
@@ -15,9 +15,9 @@ type Item = {
   is_active: boolean
 }
 
-// ===================================================
-// Props 型
-// ===================================================
+// -------------------------------
+// Props
+// -------------------------------
 type BaseProps = {
   title: string
   table: string
@@ -35,20 +35,22 @@ type MultiProps = BaseProps & {
 
 type Props = SingleProps | MultiProps
 
-// ===================================================
+// -------------------------------
 // Component
-// ===================================================
+// -------------------------------
 export default function GenericSelector(props: Props) {
   const { title, table, selection, onChange } = props
 
   const [items, setItems] = useState<Item[]>([])
+
+  // selection により型を分岐
   const [selected, setSelected] = useState<string | string[] | null>(
     selection === "single" ? null : []
   )
 
-  // ===================================================
-  // 🔹 Supabase マスタ読み込み
-  // ===================================================
+  // -------------------------------
+  // マスタ読込
+  // -------------------------------
   useEffect(() => {
     const load = async () => {
       const { data, error } = await supabase
@@ -68,9 +70,23 @@ export default function GenericSelector(props: Props) {
     load()
   }, [table])
 
-  // ===================================================
-  // 🔹 選択トグル
-  // ===================================================
+  // -------------------------------
+  // テーブル切替時に値をリセット
+  // -------------------------------
+  useEffect(() => {
+    if (selection === "single") {
+      setSelected(null)
+      onChange(null)
+    } else {
+      setSelected([])
+      onChange([])
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [table])
+
+  // -------------------------------
+  // 選択トグル
+  // -------------------------------
   const toggle = (id: string) => {
     if (selection === "single") {
       const next = selected === id ? null : id
@@ -79,24 +95,24 @@ export default function GenericSelector(props: Props) {
       return
     }
 
-    // multi 選択
     const prev = Array.isArray(selected) ? selected : []
     const next = prev.includes(id)
-      ? prev.filter((x) => x !== id)
+      ? prev.filter((v) => v !== id)
       : [...prev, id]
 
     setSelected(next)
     onChange(next)
   }
 
+  // 選択判定
   const isSelected = (id: string) =>
     selection === "single"
       ? selected === id
       : Array.isArray(selected) && selected.includes(id)
 
-  // ===================================================
-  // 🔹 選択中項目の説明文を生成（single & multi 対応）
-  // ===================================================
+  // -------------------------------
+  // description 表示
+  // -------------------------------
   const selectedDescriptions = (() => {
     if (!items.some((i) => i.description)) return null
 
@@ -105,19 +121,17 @@ export default function GenericSelector(props: Props) {
       return found?.description ?? null
     }
 
-    // multi: 選択した複数 description を結合
-    const selectedIds = Array.isArray(selected) ? selected : []
-    const descs = selectedIds
+    const ids = Array.isArray(selected) ? selected : []
+    const descs = ids
       .map((id) => items.find((i) => i.id === id)?.description)
       .filter(Boolean)
 
-    if (descs.length === 0) return null
-    return descs.join(" / ")
+    return descs.length > 0 ? descs.join(" / ") : null
   })()
 
-  // ===================================================
-  // 🔹 UI
-  // ===================================================
+  // -------------------------------
+  // UI
+  // -------------------------------
   return (
     <div className="w-full px-6 py-6">
       <h2 className="text-lg font-bold text-slate-900 mb-6">{title}</h2>
@@ -133,7 +147,6 @@ export default function GenericSelector(props: Props) {
         ))}
       </div>
 
-      {/* 🔥 description がある項目のみ説明文表示 */}
       {selectedDescriptions && (
         <p className="text-xs text-gray-500 mt-4 leading-relaxed">
           {selectedDescriptions}
