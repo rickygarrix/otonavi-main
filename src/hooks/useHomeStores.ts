@@ -23,6 +23,8 @@ export function useHomeStores() {
           instagram_url,
           x_url,
           facebook_url,
+          store_type_id,
+
           tiktok_url,
           official_site_url,
 
@@ -126,6 +128,11 @@ export function useHomeStores() {
 
           prefecture: s.prefecture?.name_ja ?? null,
           area: s.area?.name ?? null,
+
+          // 🔥 修正：store_type_id を返す
+          store_type_id: s.store_type_id ?? null,
+
+          // 🔥 今まで返していた type も残してOK（ラベル）
           type: s.store_type?.label ?? null,
 
           image_url: imageUrl,
@@ -148,7 +155,7 @@ export function useHomeStores() {
           hasAward: Array.isArray(s.awards) && s.awards.length > 0,
           hasMedia: Array.isArray(s.media) && s.media.length > 0,
 
-          // -------- 🔥 新規フィルタすべて --------
+          // -------- 新規フィルタ --------
           seat_type_keys: arr(s.seat_types, 'seat_type_definitions'),
           smoking_keys: arr(s.smoking, 'smoking_definitions'),
           environment_keys: arr(s.environments, 'environment_definitions'),
