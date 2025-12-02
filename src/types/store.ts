@@ -1,29 +1,3 @@
-// ===============================
-// OpenHour
-// ===============================
-export type OpenHour = {
-  day_of_week: number
-  open_time: string | null
-  close_time: string | null
-  last_order_time: string | null
-  is_closed: boolean
-}
-
-// ===============================
-// SpecialOpenHour
-// ===============================
-export type SpecialOpenHour = {
-  date: string
-  open_time: string | null
-  close_time: string | null
-  last_order_time: string | null
-  is_closed: boolean
-  reason: string | null
-}
-
-// ===============================
-// HomeStore（🔥 全フィルタ対応完全版）
-// ===============================
 export type HomeStore = {
   id: string
   name: string
@@ -32,15 +6,13 @@ export type HomeStore = {
   prefecture: string | null
   area: string | null
 
-  // ---------- 店舗タイプ（単一） ----------
   store_type_id: string | null
-  type: string | null // ラベル
+  type: string | null
 
-  // ---------- 価格帯（単一） ----------
   price_range_id: string | null
   price_range_label: string | null
 
-  image_url: string | null
+  image_url: string
   description: string | null
 
   instagram_url: string | null
@@ -53,67 +25,86 @@ export type HomeStore = {
   google_map_url: string | null
   address: string | null
 
-  open_hours: OpenHour[]
-  special_hours: SpecialOpenHour[]
+  open_hours: any[]
+  special_hours: any[]
 
-  // ======================================================
-  // 既存 M2M（イベント / ルール / 設備）
-  // ======================================================
+  hasAward: boolean
+  hasMedia: boolean
+
+  /* --- M2M: keys + labels --- */
   event_trend_keys: string[]
+  event_trend_labels: string[]
+
   rule_keys: string[]
+  rule_labels: string[]
+
   seat_type_keys: string[]
+  seat_type_labels: string[]
+
   smoking_keys: string[]
+  smoking_labels: string[]
+
   environment_keys: string[]
+  environment_labels: string[]
+
   other_keys: string[]
+  other_labels: string[]
+
   baggage_keys: string[]
+  baggage_labels: string[]
+
   security_keys: string[]
+  security_labels: string[]
+
   toilet_keys: string[]
+  toilet_labels: string[]
+
   floor_keys: string[]
+  floor_labels: string[]
 
-  // ======================================================
-  // 🔥 新規 M2M（料金系）
-  // ======================================================
   pricing_system_keys: string[]
+  pricing_system_labels: string[]
+
   discount_keys: string[]
+  discount_labels: string[]
+
   vip_keys: string[]
+  vip_labels: string[]
+
   payment_method_keys: string[]
+  payment_method_labels: string[]
 
-  // ======================================================
-  // 🔥 音響・照明・演出
-  // ======================================================
   sound_keys: string[]
+  sound_labels: string[]
+
   lighting_keys: string[]
+  lighting_labels: string[]
+
   production_keys: string[]
+  production_labels: string[]
 
-  // ======================================================
-  // 🔥 客層・雰囲気
-  // ======================================================
   customer_keys: string[]
+  customer_labels: string[]
+
   atmosphere_keys: string[]
+  atmosphere_labels: string[]
 
-  // ======================================================
-  // 🔥 フード・サービス
-  // ======================================================
   food_keys: string[]
-  service_keys: string[]
+  food_labels: string[]
 
-  // ======================================================
-  // 🔥 接客（単一）
-  // ======================================================
+  service_keys: string[]
+  service_labels: string[]
+
+  /* --- drink --- */
+  drink_keys: string[]
+  drink_labels: string[]
+  drink_categories: Record<string, { keys: string[]; labels: string[] }>
+
+  /* --- hospitality (単一) --- */
   hospitality_key: string | null
   hospitality_label: string | null
 
-  // ======================================================
-  // 🔥 ドリンク（M2M）カテゴリ別
-  // ======================================================
-  drink_keys: string[]               // 全 key（例: ["beer_craft", "wine_sparkling"]）
-  drink_categories: Record<string, string[]>
-
-
-  // ---------- 単一 ----------
+  /* --- size（単一） --- */
   size_key: string | null
-
-  // ---------- 実績 ----------
-  hasAward: boolean
-  hasMedia: boolean
+  size_label: string | null
 }
