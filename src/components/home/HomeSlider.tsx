@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import HomeStoreCard from './HomeStoreCard'
+import HomeStoreCard from '../store/HomeStoreCard'
 import type { HomeStore } from '@/types/store'
 
 type Props = {

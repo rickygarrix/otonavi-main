@@ -98,24 +98,39 @@ export default function StoreDetailPanel({
       ]
 
   // ===============================
-  // 特別営業時間を曜日にマッピング
+  // 特別営業時間 → 曜日ごとに適用
   // ===============================
   const specialMap: Record<number, any[]> = {}
 
-  store?.special_hours?.forEach((sp) => {
-    const jsDay = new Date(sp.date).getDay() // 0(日)〜6(土)
-    const dow = jsDay === 0 ? 7 : jsDay      // → 1(月)〜7(日)
+  if (store?.special_hours?.length) {
+    for (const sp of store.special_hours) {
+      const start = new Date(sp.start_date)
+      const end = new Date(sp.end_date)
 
-    if (!specialMap[dow]) specialMap[dow] = []
-    specialMap[dow].push(sp)
-  })
+      const cursor = new Date(start)
 
-  // 各曜日ごとに最新の日付を優先（重複があれば最新にする）
-  Object.keys(specialMap).forEach((dow) => {
-    specialMap[Number(dow)].sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-    )
-  })
+      while (cursor <= end) {
+        const jsDay = cursor.getDay() // 0〜6
+        const dow = jsDay === 0 ? 7 : jsDay // 1〜7
+
+        if (!specialMap[dow]) specialMap[dow] = []
+
+        specialMap[dow].push({
+          ...sp,
+          effective_date: new Date(cursor),
+        })
+
+        cursor.setDate(cursor.getDate() + 1)
+      }
+    }
+
+    // 曜日ごとに最新日付を優先
+    Object.keys(specialMap).forEach((dow) => {
+      specialMap[Number(dow)].sort(
+        (a, b) => b.effective_date - a.effective_date
+      )
+    })
+  }
 
   return (
     <div
@@ -130,21 +145,21 @@ export default function StoreDetailPanel({
         <div className="overflow-y-auto">
 
           {/* =============================== */}
-          {/* 🏠 ホーム + 店名（画像上） */}
+          {/* ヘッダー */}
           {/* =============================== */}
           <div className="relative w-full">
-            <div
-              className="
-                absolute top-0 left-0 right-0 z-30
-                flex items-center gap-3
-                px-4 py-4
-                bg-gradient-to-b from-black/70 to-transparent
-              ">
+
+            <div className="
+              absolute top-0 left-0 right-0 z-30
+              flex items-center gap-3
+              px-4 py-4
+              bg-gradient-to-b from-black/70 to-transparent
+            ">
               <HomeButton onHome={onCloseAll} size={48} iconSize={24} />
               <div className="text-white font-semibold text-lg truncate">{store.name}</div>
             </div>
 
-            {/* 画像 */}
+            {/* 画像スライダー */}
             <div
               className="flex overflow-x-scroll snap-x snap-mandatory scrollbar-none"
               onScroll={(e) => {
@@ -317,7 +332,6 @@ export default function StoreDetailPanel({
             <DetailItem label="フード" value={toJoined(store.food_labels, store.food_keys)} />
             <DetailItem label="サービス" value={toJoined(store.service_labels, store.service_keys)} />
 
-            {/* ドリンクカテゴリ別 */}
             <div className="py-2">
               <span className="font-semibold text-slate-900">ドリンク</span>
               <div className="text-sm text-slate-800 mt-2">
@@ -336,7 +350,7 @@ export default function StoreDetailPanel({
           </div>
 
           {/* =============================== */}
-          {/* 🔍 ホームへ戻る（共通ボタン） */}
+          {/* 🔍 ホームへ戻る */}
           {/* =============================== */}
           <BackToHomeButton onClick={onCloseAll} className="px-6 py-10" />
 

@@ -6,13 +6,13 @@ import LogoHero from "@/components/home/LogoHero"
 import HomeSlider from "@/components/home/HomeSlider"
 import CommentSlider from "@/components/home/CommentSlider"
 import { useHomeStores } from "@/hooks/useHomeStores"
-import SearchFilter from "@/components/home/SearchFilter"
+import SearchFilter from "@/components/filters/SearchFilter"
 
-import AreaSelector from "@/components/home/AreaSelector"
-import AchievementSelector from "@/components/home/AchievementSelector"
-import GenericSelector from "@/components/home/GenericSelector"
+import AreaSelector from "@/components/filters/AreaSelector"
+import AchievementSelector from "@/components/filters/AchievementSelector"
+import GenericSelector from "@/components/filters/GenericSelector"
 
-import DrinkSelector from "@/components/home/DrinkSelector"
+import DrinkSelector from "@/components/filters/DrinkSelector"
 
 import FixedSearchBar from "@/components/home/FixedSearchBar"
 import SearchResultPanel from "@/components/SearchResultPanel"
