@@ -14,69 +14,67 @@ export default function HomeSlider({ stores, onSelectStore }: Props) {
 
   // 無限ループ用：3セットつなげる
   const loopStores = [...stores, ...stores, ...stores]
-  const middleIndex = stores.length // 真ん中のセットの開始点
+  const middleIndex = stores.length // 真ん中セット開始点
 
   const containerRef = useRef<HTMLDivElement | null>(null)
   const trackRef = useRef<HTMLDivElement | null>(null)
-
-  const [currentIndex, setCurrentIndex] = useState(middleIndex)
-  const scrollSpeed = 0.35
   const isDragging = useRef(false)
 
+  const scrollSpeed = 0.35
+
   // =======================================
-  // ⭐ カードの縮小カーブ（中心 → 端）
+  // スケール・透明度のカーブ
   // =======================================
   const calcScaleOpacity = (diff: number) => {
-    const maxRange = 240   // 距離240pxで最小値
+    const maxRange = 260
     const t = Math.min(diff / maxRange, 1)
 
-    // 中央1.0 → 端0.50（自然なカーブ）
-    const scale = 1 - t * 0.50
+    const scale = 1 - t * 0.5
     const opacity = 1 - t * 0.55
 
     return { scale, opacity }
   }
 
   // =======================================
-  // 🎯 画面上の「中心」を検出してスケール反映
+  // rect 不使用版 → 完全安定
   // =======================================
-  const detectCenter = () => {
+  const applyCenterEffect = () => {
     const container = containerRef.current
     const track = trackRef.current
     if (!container || !track) return
 
-    // container 中央（ロゴのトとナの間）
-    const rect = container.getBoundingClientRect()
-    const centerX = rect.left + rect.width / 2
+    const first = track.children[0] as HTMLElement | undefined
+    const cardWidth = first?.clientWidth ?? 260
+    const gap = 24
+    const unit = cardWidth + gap
 
-    const cards = Array.from(track.children)
+    const containerCenter = container.clientWidth / 2
+    const scrollLeft = container.scrollLeft
+
+    const cards = Array.from(track.children) as HTMLElement[]
 
     let closestIndex = 0
     let minDiff = Infinity
 
     cards.forEach((card, i) => {
-      const cardRect = (card as HTMLElement).getBoundingClientRect()
-      const cardCenter = cardRect.left + cardRect.width / 2
+      // 理論的なカード中心（高さ変動とは無関係）
+      const cardCenter = i * unit + cardWidth / 2
 
-      const diff = Math.abs(cardCenter - centerX)
+      const diff = Math.abs((cardCenter - scrollLeft) - containerCenter)
 
-      // スケール適用
       const { scale, opacity } = calcScaleOpacity(diff)
-        ; (card as HTMLElement).style.transform = `scale(${scale})`
-        ; (card as HTMLElement).style.opacity = `${opacity}`
+      card.style.transform = `scale(${scale})`
+      card.style.opacity = `${opacity}`
 
-      // 中央に最も近いカードを保存
       if (diff < minDiff) {
         minDiff = diff
         closestIndex = i
       }
     })
-
-    setCurrentIndex(closestIndex)
   }
 
   // =======================================
-  // 初期位置（中央セットの先頭カードを中央へ）
+  // 初期位置（真ん中のセットを中央へ）
   // =======================================
   useEffect(() => {
     const container = containerRef.current
@@ -84,19 +82,18 @@ export default function HomeSlider({ stores, onSelectStore }: Props) {
     if (!container || !track) return
 
     const first = track.children[0] as HTMLElement
-    const cardWidth = first?.clientWidth ?? 300
+    const cardWidth = first?.clientWidth ?? 260
     const gap = 24
     const unit = cardWidth + gap
 
-    // container の中央に middleIndex のカードが来るように設定
     container.scrollLeft =
       middleIndex * unit - container.clientWidth / 2 + cardWidth / 2
 
-    detectCenter()
+    requestAnimationFrame(() => applyCenterEffect())
   }, [])
 
   // =======================================
-  // 🌀 自動スクロール / 無限ループ
+  // 無限ループ + 自動スクロール
   // =======================================
   useEffect(() => {
     const container = containerRef.current
@@ -104,7 +101,7 @@ export default function HomeSlider({ stores, onSelectStore }: Props) {
     if (!container || !track) return
 
     const first = track.children[0] as HTMLElement
-    const cardWidth = first?.clientWidth ?? 300
+    const cardWidth = first?.clientWidth ?? 260
     const gap = 24
     const unit = cardWidth + gap
 
@@ -114,19 +111,21 @@ export default function HomeSlider({ stores, onSelectStore }: Props) {
     let frameId: number
 
     const loop = () => {
+      if (!containerRef.current) return
+
       if (!isDragging.current) container.scrollLeft += scrollSpeed
 
-      // 右端 → 真ん中セットへ巻き戻し
+      // 右端 → 中央へ巻き戻し
       if (container.scrollLeft >= totalWidth - unit * 2) {
         container.scrollLeft -= middleOffset
       }
-
-      // 左端 → 真ん中セットへ巻き戻し
+      // 左端 → 中央へ巻き戻し
       if (container.scrollLeft <= unit) {
         container.scrollLeft += middleOffset
       }
 
-      detectCenter()
+      applyCenterEffect()
+
       frameId = requestAnimationFrame(loop)
     }
 
@@ -135,7 +134,7 @@ export default function HomeSlider({ stores, onSelectStore }: Props) {
   }, [loopStores])
 
   // =======================================
-  // ✋ ユーザーが触ったら自動スクロール停止
+  // ユーザー操作 → 自動スクロール停止
   // =======================================
   useEffect(() => {
     const el = containerRef.current
@@ -149,11 +148,14 @@ export default function HomeSlider({ stores, onSelectStore }: Props) {
     el.addEventListener('mouseup', resume)
     el.addEventListener('touchend', resume)
 
+    el.addEventListener('scroll', applyCenterEffect)
+
     return () => {
       el.removeEventListener('mousedown', stop)
       el.removeEventListener('touchstart', stop)
       el.removeEventListener('mouseup', resume)
       el.removeEventListener('touchend', resume)
+      el.removeEventListener('scroll', applyCenterEffect)
     }
   }, [])
 
@@ -161,23 +163,18 @@ export default function HomeSlider({ stores, onSelectStore }: Props) {
   // JSX
   // =======================================
   return (
-    <>
-      {/* スライダーコンテナ */}
-      <div ref={containerRef} className="w-full overflow-x-hidden px-6 mt-6">
-        <div ref={trackRef} className="flex gap-6">
-          {loopStores.map((store, i) => (
-            <div
-              key={`${store.id}-${i}`}
-              className="shrink-0 transition-transform duration-300 cursor-pointer"
-              onClick={() => onSelectStore(store)}
-            >
-              <HomeStoreCard store={store} />
-            </div>
-          ))}
-        </div>
+    <div ref={containerRef} className="w-full overflow-x-hidden px-6 mt-6">
+      <div ref={trackRef} className="flex gap-6">
+        {loopStores.map((store, i) => (
+          <div
+            key={`${store.id}-${i}`}
+            className="shrink-0 transition-all duration-300 ease-out cursor-pointer will-change-transform"
+            onClick={() => onSelectStore(store)}
+          >
+            <HomeStoreCard store={store} />
+          </div>
+        ))}
       </div>
-
-
-    </>
+    </div>
   )
 }
