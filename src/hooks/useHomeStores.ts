@@ -43,7 +43,7 @@ export function useHomeStores() {
       is_closed
     ),
 
-  special_hours:store_special_open_hours (
+special_hours:store_special_open_hours!store_special_open_hours_store_id_fkey (
   start_date,
   end_date,
   open_time,
