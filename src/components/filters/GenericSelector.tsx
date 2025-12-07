@@ -26,12 +26,12 @@ type BaseProps = {
 
 type SingleProps = BaseProps & {
   selection: "single"
-  onChange: (value: string | null) => void   // ★ label を返す
+  onChange: (value: string | null) => void   // ✅ id を返す
 }
 
 type MultiProps = BaseProps & {
   selection: "multi"
-  onChange: (value: string[]) => void        // ★ label の配列を返す
+  onChange: (value: string[]) => void        // ✅ id の配列を返す
 }
 
 type Props = SingleProps | MultiProps
@@ -68,7 +68,7 @@ export default function GenericSelector(props: Props) {
   }, [table])
 
   // -------------------------------
-  // テーブル切替時に値をリセット
+  // テーブル切替時リセット
   // -------------------------------
   useEffect(() => {
     if (selection === "single") {
@@ -81,42 +81,23 @@ export default function GenericSelector(props: Props) {
   }, [table])
 
   // -------------------------------
-  // id → label に変換
-  // -------------------------------
-  const convertToLabels = (ids: string[] | string | null) => {
-    if (!ids) return null
-
-    if (typeof ids === "string") {
-      return items.find((i) => i.id === ids)?.label ?? null
-    }
-
-    return ids
-      .map((id) => items.find((i) => i.id === id)?.label)
-      .filter(Boolean) as string[]
-  }
-
-  // -------------------------------
-  // 選択トグル（ID を保持）＋ label を外に返す
+  // ✅ 選択トグル（id 管理・再タップ解除）
   // -------------------------------
   const toggle = (id: string) => {
     if (selection === "single") {
-      const nextId = selectedIds === id ? null : id
-      setSelectedIds(nextId)
-
-      // ★ label を返す
-      onChange(convertToLabels(nextId) as string | null)
+      const next = selectedIds === id ? null : id
+      setSelectedIds(next)
+      onChange(next)
       return
     }
 
     const prev = Array.isArray(selectedIds) ? selectedIds : []
-    const nextIds = prev.includes(id)
+    const next = prev.includes(id)
       ? prev.filter((v) => v !== id)
       : [...prev, id]
 
-    setSelectedIds(nextIds)
-
-    // ★ label 配列を返す
-    onChange(convertToLabels(nextIds) as string[])
+    setSelectedIds(next)
+    onChange(next)
   }
 
   const isSelected = (id: string) =>
@@ -125,11 +106,9 @@ export default function GenericSelector(props: Props) {
       : Array.isArray(selectedIds) && selectedIds.includes(id)
 
   // -------------------------------
-  // description 表示
+  // description 表示（label用）
   // -------------------------------
   const selectedDescriptions = (() => {
-    const labels = convertToLabels(selectedIds)
-
     if (!items.some((i) => i.description)) return null
 
     if (selection === "single") {
@@ -147,7 +126,7 @@ export default function GenericSelector(props: Props) {
   })()
 
   // -------------------------------
-  // UI
+  // ✅ UI（表示は label のみ）
   // -------------------------------
   return (
     <div className="w-full px-6 py-6">
@@ -157,9 +136,9 @@ export default function GenericSelector(props: Props) {
         {items.map((item) => (
           <Chip
             key={item.id}
-            label={item.label}
-            selected={isSelected(item.id)}
-            onClick={() => toggle(item.id)}
+            label={item.label}                // ✅ 表示は label
+            selected={isSelected(item.id)}   // ✅ 判定は id
+            onClick={() => toggle(item.id)}  // ✅ トグルは id
           />
         ))}
       </div>
