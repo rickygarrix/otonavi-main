@@ -15,16 +15,16 @@ type DrinkItem = {
 
 type Props = {
   title: string
-  onChange: (labels: string[]) => void   // ★ label を返すように変更
+  onChange: (keys: string[]) => void   // ✅ key で返す
 }
 
 export default function DrinkSelector({ title, onChange }: Props) {
   const [items, setItems] = useState<DrinkItem[]>([])
-  const [selectedKeys, setSelectedKeys] = useState<string[]>([]) // ★ keyで内部管理
+  const [selectedKeys, setSelectedKeys] = useState<string[]>([])
 
-  // ----------------------------------------
-  // Supabase から取得
-  // ----------------------------------------
+  // ============================
+  // Supabase 取得
+  // ============================
   useEffect(() => {
     const load = async () => {
       const { data, error } = await supabase
@@ -45,48 +45,36 @@ export default function DrinkSelector({ title, onChange }: Props) {
     load()
   }, [])
 
-  // ----------------------------------------
-  // key[] → label[] に変換する関数
-  // ----------------------------------------
-  const convertToLabels = (keys: string[]) => {
-    return keys
-      .map((k) => items.find((i) => i.key === k)?.label)
-      .filter(Boolean) as string[]
-  }
-
-  // ----------------------------------------
-  // カテゴリごとにグループ化
-  // ----------------------------------------
+  // ============================
+  // カテゴリ分け
+  // ============================
   const groups = useMemo(() => {
     const map: Record<string, DrinkItem[]> = {}
-
     items.forEach((item) => {
       if (!map[item.category]) map[item.category] = []
       map[item.category].push(item)
     })
-
     return map
   }, [items])
 
-  // ----------------------------------------
-  // 選択トグル
-  // ----------------------------------------
+  // ============================
+  // ✅ 再タップで解除できるトグル
+  // ============================
   const toggle = (key: string) => {
-    const nextKeys = selectedKeys.includes(key)
-      ? selectedKeys.filter((k) => k !== key)
-      : [...selectedKeys, key]
+    const next =
+      selectedKeys.includes(key)
+        ? selectedKeys.filter((k) => k !== key) // ✅ 解除
+        : [...selectedKeys, key]               // ✅ 追加
 
-    setSelectedKeys(nextKeys)
-
-    // ★ label 配列を親へ渡す
-    onChange(convertToLabels(nextKeys))
+    setSelectedKeys(next)
+    onChange(next)
   }
 
   const isSelected = (key: string) => selectedKeys.includes(key)
 
-  // ----------------------------------------
+  // ============================
   // description 表示
-  // ----------------------------------------
+  // ============================
   const selectedDescriptions = useMemo(() => {
     const descs = selectedKeys
       .map((k) => items.find((i) => i.key === k)?.description)
@@ -95,9 +83,9 @@ export default function DrinkSelector({ title, onChange }: Props) {
     return descs.length > 0 ? descs.join(" / ") : null
   }, [selectedKeys, items])
 
-  // ----------------------------------------
+  // ============================
   // UI
-  // ----------------------------------------
+  // ============================
   return (
     <div className="w-full px-6 py-6">
       <h2 className="text-lg font-bold text-slate-900 mb-6">{title}</h2>

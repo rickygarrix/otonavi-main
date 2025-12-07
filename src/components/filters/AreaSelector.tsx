@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { supabase } from "@/lib/supabase"
 import PrefectureChip from "./PrefectureChip"
 import Chip from "@/components/ui/Chip"
@@ -19,16 +19,20 @@ type Area = {
 }
 
 type Props = {
-  onChange: (pref: string | null, area: string | null) => void
+  // ✅ id で返す
+  onChange: (prefId: string | null, areaId: string | null) => void
 }
 
 export default function AreaSelector({ onChange }: Props) {
   const [prefectures, setPrefectures] = useState<Prefecture[]>([])
   const [areas, setAreas] = useState<Area[]>([])
-  const [selectedPrefecture, setSelectedPrefecture] = useState<Prefecture | null>(null)
+  const [selectedPrefecture, setSelectedPrefecture] =
+    useState<Prefecture | null>(null)
   const [selectedArea, setSelectedArea] = useState<Area | null>(null)
 
-  // 都道府県をロード
+  // ============================
+  // 都道府県ロード
+  // ============================
   useEffect(() => {
     const load = async () => {
       const { data, error } = await supabase
@@ -36,26 +40,32 @@ export default function AreaSelector({ onChange }: Props) {
         .select("*")
         .order("code")
 
-      if (error) return console.error(error)
+      if (error) {
+        console.error("prefectures load error:", error)
+        return
+      }
 
-      setPrefectures(data)
+      setPrefectures(data ?? [])
       setSelectedPrefecture(null)
+      setSelectedArea(null)
       onChange(null, null)
     }
 
     load()
-  }, [])   // ← ★ onChange を消す!!
+  }, []) // ✅ onChange は依存に入れない
 
-  // 選択された都道府県のエリアをロード
+  // ============================
+  // 都道府県選択時
+  // ============================
   useEffect(() => {
     const load = async () => {
       if (!selectedPrefecture) return
 
-      // 東京以外 → area はなし
+      // ✅ 東京以外 → エリアなし
       if (selectedPrefecture.name_ja !== "東京都") {
         setAreas([])
         setSelectedArea(null)
-        onChange(selectedPrefecture.name_ja, null)
+        onChange(selectedPrefecture.id, null)
         return
       }
 
@@ -65,24 +75,30 @@ export default function AreaSelector({ onChange }: Props) {
         .eq("prefecture_id", selectedPrefecture.id)
         .order("name")
 
-      if (error) return console.error(error)
+      if (error) {
+        console.error("areas load error:", error)
+        return
+      }
 
-      setAreas(data)
+      setAreas(data ?? [])
       setSelectedArea(null)
-      onChange(selectedPrefecture.name_ja, null)
+      onChange(selectedPrefecture.id, null)
     }
 
     load()
-  }, [selectedPrefecture])
+  }, [selectedPrefecture, onChange])
 
+  // ============================
   // 地方ごとに分類
-  const grouped = prefectures.reduce((acc: Record<string, Prefecture[]>, p) => {
-    if (!acc[p.region]) acc[p.region] = []
-    acc[p.region].push(p)
-    return acc
-  }, {})
+  // ============================
+  const grouped = useMemo(() => {
+    return prefectures.reduce((acc: Record<string, Prefecture[]>, p) => {
+      if (!acc[p.region]) acc[p.region] = []
+      acc[p.region].push(p)
+      return acc
+    }, {})
+  }, [prefectures])
 
-  // 表示順固定
   const REGION_ORDER = [
     "北海道・東北",
     "関東",
@@ -96,12 +112,12 @@ export default function AreaSelector({ onChange }: Props) {
   const tokyoWards = areas.filter((a) => a.is_23ward)
   const tokyoOthers = areas.filter((a) => !a.is_23ward)
 
+  // ============================
+  // UI
+  // ============================
   return (
     <div className="w-full px-6 py-6">
-
-      <h2 className="text-lg font-bold text-slate-900 mb-6">
-        店舗情報
-      </h2>
+      <h2 className="text-lg font-bold text-slate-900 mb-6">店舗情報</h2>
 
       {REGION_ORDER.map((region) => {
         const list = grouped[region]
@@ -113,6 +129,7 @@ export default function AreaSelector({ onChange }: Props) {
               {region}（{list.length}県）
             </h3>
 
+            {/* ✅ 都道府県（再タップで解除） */}
             <div className="grid grid-cols-3 gap-3">
               {list.map((p) => (
                 <PrefectureChip
@@ -120,6 +137,15 @@ export default function AreaSelector({ onChange }: Props) {
                   label={p.name_ja}
                   selected={selectedPrefecture?.id === p.id}
                   onClick={() => {
+                    // ✅ もう一度押したら解除
+                    if (selectedPrefecture?.id === p.id) {
+                      setSelectedPrefecture(null)
+                      setSelectedArea(null)
+                      setAreas([])
+                      onChange(null, null)
+                      return
+                    }
+
                     setSelectedPrefecture(p)
                     setSelectedArea(null)
                   }}
@@ -127,50 +153,70 @@ export default function AreaSelector({ onChange }: Props) {
               ))}
             </div>
 
-            {/* 東京の時だけ 23区 & それ以外を表示 */}
-            {region === "関東" && selectedPrefecture?.name_ja === "東京都" && (
-              <>
-                {tokyoWards.length > 0 && (
-                  <div className="mt-8">
-                    <h3 className="font-semibold text-slate-800 mb-3">東京23区</h3>
+            {/* ✅ 東京の時だけエリア表示 */}
+            {region === "関東" &&
+              selectedPrefecture?.name_ja === "東京都" && (
+                <>
+                  {/* 23区 */}
+                  {tokyoWards.length > 0 && (
+                    <div className="mt-8">
+                      <h3 className="font-semibold text-slate-800 mb-3">
+                        東京23区
+                      </h3>
 
-                    <div className="grid grid-cols-3 gap-3">
-                      {tokyoWards.map((a) => (
-                        <Chip
-                          key={a.id}
-                          label={a.name}
-                          selected={selectedArea?.id === a.id}
-                          onClick={() => {
-                            setSelectedArea(a)
-                            onChange(selectedPrefecture.name_ja, a.name)
-                          }}
-                        />
-                      ))}
+                      <div className="grid grid-cols-3 gap-3">
+                        {tokyoWards.map((a) => (
+                          <Chip
+                            key={a.id}
+                            label={a.name}
+                            selected={selectedArea?.id === a.id}
+                            onClick={() => {
+                              // ✅ 再タップで解除
+                              if (selectedArea?.id === a.id) {
+                                setSelectedArea(null)
+                                onChange(selectedPrefecture.id, null)
+                                return
+                              }
+
+                              setSelectedArea(a)
+                              onChange(selectedPrefecture.id, a.id)
+                            }}
+                          />
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {tokyoOthers.length > 0 && (
-                  <div className="mt-8">
-                    <h3 className="font-semibold text-slate-800 mb-3">東京23区以外</h3>
+                  {/* 23区以外 */}
+                  {tokyoOthers.length > 0 && (
+                    <div className="mt-8">
+                      <h3 className="font-semibold text-slate-800 mb-3">
+                        東京23区以外
+                      </h3>
 
-                    <div className="grid grid-cols-3 gap-3">
-                      {tokyoOthers.map((a) => (
-                        <Chip
-                          key={a.id}
-                          label={a.name}
-                          selected={selectedArea?.id === a.id}
-                          onClick={() => {
-                            setSelectedArea(a)
-                            onChange(selectedPrefecture.name_ja, a.name)
-                          }}
-                        />
-                      ))}
+                      <div className="grid grid-cols-3 gap-3">
+                        {tokyoOthers.map((a) => (
+                          <Chip
+                            key={a.id}
+                            label={a.name}
+                            selected={selectedArea?.id === a.id}
+                            onClick={() => {
+                              if (selectedArea?.id === a.id) {
+                                setSelectedArea(null)
+                                onChange(selectedPrefecture.id, null)
+                                return
+                              }
+
+                              setSelectedArea(a)
+                              onChange(selectedPrefecture.id, a.id)
+                            }}
+                          />
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </>
-            )}
+                  )}
+                </>
+              )}
           </div>
         )
       })}
