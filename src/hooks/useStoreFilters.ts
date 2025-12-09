@@ -116,11 +116,27 @@ export function useStoreFilters(
   // ============================
   const filteredStores = useMemo(() => {
     return stores.filter((s) => {
+      // ✅ 都道府県
       if (prefecture && s.prefecture_id !== prefecture) return false
+
+      // ✅ エリア
       if (area && s.area_id !== area) return false
+
+      // ✅ ドリンク（ここが今回の本丸）
+      if (drinkKeys.length > 0) {
+        // stores 側が drink_keys: string[] を持っている前提
+        if (!s.drink_keys) return false
+
+        const hasMatch = drinkKeys.some((key) =>
+          s.drink_keys.includes(key)
+        )
+
+        if (!hasMatch) return false
+      }
+
       return true
     })
-  }, [stores, prefecture, area])
+  }, [stores, prefecture, area, drinkKeys])
 
   const count = filteredStores.length
 
@@ -130,6 +146,9 @@ export function useStoreFilters(
   const selectedFilters = [
     prefecture ? labelMap.get(prefecture) ?? prefecture : null,
     area ? labelMap.get(area) ?? area : null,
+
+    // ✅ ドリンクも表示対象に追加
+    ...drinkKeys.map((k) => labelMap.get(k) ?? k),
   ].filter(Boolean) as string[]
 
   // ============================

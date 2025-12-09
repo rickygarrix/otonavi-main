@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useMemo } from "react"
+import { useRef, useMemo, useEffect, useState } from "react"
 
 import CurvedBackground from "@/components/home/CurvedBackground"
 import LogoHero from "@/components/home/LogoHero"
@@ -24,7 +24,6 @@ import { useHomeStores } from "@/hooks/useHomeStores"
 import { useStoreFilters } from "@/hooks/useStoreFilters"
 
 import { supabase } from "@/lib/supabase"
-import { useEffect, useState } from "react"
 
 // ============================
 // 型
@@ -39,11 +38,16 @@ type Area = {
   name: string
 }
 
+type DrinkMaster = {
+  key: string
+  label: string
+}
+
 export default function HomePage() {
   const { stores, loading } = useHomeStores()
 
   // ============================
-  // ✅ 都道府県・エリアのマスタ取得（UUID対策の本体）
+  // ✅ 都道府県・エリア マスタ
   // ============================
   const [prefectures, setPrefectures] = useState<Prefecture[]>([])
   const [areas, setAreas] = useState<Area[]>([])
@@ -66,19 +70,41 @@ export default function HomePage() {
   }, [])
 
   // ============================
-  // ✅ 外部ラベルマップ（ここが最重要）
+  // ✅ ドリンクマスタ（← これが今回の追加本体）
+  // ============================
+  const [drinkMasters, setDrinkMasters] = useState<DrinkMaster[]>([])
+
+  useEffect(() => {
+    const loadDrinkMasters = async () => {
+      const { data } = await supabase
+        .from("drink_definitions")
+        .select("key, label")
+        .eq("is_active", true)
+
+      setDrinkMasters(data ?? [])
+    }
+
+    loadDrinkMasters()
+  }, [])
+
+  // ============================
+  // ✅ 外部ラベルマップ（UUID → 日本語 完全統合）
   // ============================
   const externalLabelMap = useMemo(() => {
     const map = new Map<string, string>()
 
+    // 都道府県・エリア
     prefectures.forEach((p) => map.set(p.id, p.name_ja))
     areas.forEach((a) => map.set(a.id, a.name))
 
+    // ✅ ドリンク
+    drinkMasters.forEach((d) => map.set(d.key, d.label))
+
     return map
-  }, [prefectures, areas])
+  }, [prefectures, areas, drinkMasters])
 
   // ============================
-  // ✅ フィルター（externalLabelMap を渡す）
+  // ✅ フィルター
   // ============================
   const {
     prefecture, setPrefecture,
@@ -146,10 +172,7 @@ export default function HomePage() {
       {/* ================= HERO ================= */}
       <div className="relative w-full text-white overflow-hidden">
         <CurvedBackground />
-
-        <div className="mt-[80px]">
-          <LogoHero />
-        </div>
+        <div className="mt-[80px]"><LogoHero /></div>
 
         <div className="mt-[40px]">
           {!loading && (
@@ -180,9 +203,7 @@ export default function HomePage() {
       </SearchFilterStickyWrapper>
 
       {/* ================= 店舗情報 ================= */}
-      <h2 ref={storeRef} className="px-6 text-xl font-bold text-slate-800 mb-4 mt-6">
-        店舗情報
-      </h2>
+      <h2 ref={storeRef} className="px-6 text-xl font-bold text-slate-800 mb-4 mt-6">店舗情報</h2>
 
       <AreaSelector
         onChange={(prefId, areaId) => {
@@ -197,9 +218,7 @@ export default function HomePage() {
       <AchievementSelector onChange={setAchievementFilter} />
 
       {/* ================= 設備 ================= */}
-      <h2 ref={equipmentRef} className="px-6 text-xl font-bold text-slate-800 mb-4 mt-8">
-        設備
-      </h2>
+      <h2 ref={equipmentRef} className="px-6 text-xl font-bold text-slate-800 mb-4 mt-8">設備</h2>
 
       <GenericSelector title="荷物預かり" table="baggage_definitions" selection="multi" onChange={setBaggageKeys} columns={3} />
       <GenericSelector title="セキュリティ" table="security_definitions" selection="multi" onChange={setSecurityKeys} columns={3} />
@@ -212,9 +231,7 @@ export default function HomePage() {
       <GenericSelector title="その他" table="other_definitions" selection="multi" onChange={setOtherKeys} columns={3} />
 
       {/* ================= 料金 ================= */}
-      <h2 ref={priceRef} className="px-6 text-xl font-bold text-slate-800 mb-4 mt-8">
-        料金体系
-      </h2>
+      <h2 ref={priceRef} className="px-6 text-xl font-bold text-slate-800 mb-4 mt-8">料金体系</h2>
 
       <GenericSelector title="価格帯" table="price_range_definitions" selection="single" onChange={setPriceRange} />
       <GenericSelector title="料金システム" table="pricing_system_definitions" selection="multi" onChange={setPricingSystemKeys} columns={3} />
@@ -223,27 +240,21 @@ export default function HomePage() {
       <GenericSelector title="支払い方法" table="payment_method_definitions" selection="multi" onChange={setPaymentMethodKeys} columns={3} />
 
       {/* ================= 音響 ================= */}
-      <h2 ref={soundRef} className="px-6 text-xl font-bold text-slate-800 mb-4 mt-8">
-        音響・照明
-      </h2>
+      <h2 ref={soundRef} className="px-6 text-xl font-bold text-slate-800 mb-4 mt-8">音響・照明</h2>
 
       <GenericSelector title="音響" table="sound_definitions" selection="multi" onChange={setSoundKeys} columns={3} />
       <GenericSelector title="照明" table="lighting_definitions" selection="multi" onChange={setLightingKeys} columns={3} />
       <GenericSelector title="演出" table="production_definitions" selection="multi" onChange={setProductionKeys} columns={3} />
 
       {/* ================= 飲食 ================= */}
-      <h2 ref={drinkRef} className="px-6 text-xl font-bold text-slate-800 mb-4 mt-8">
-        飲食・サービス
-      </h2>
+      <h2 ref={drinkRef} className="px-6 text-xl font-bold text-slate-800 mb-4 mt-8">飲食・サービス</h2>
 
       <DrinkSelector title="ドリンク" onChange={setDrinkKeys} />
       <GenericSelector title="フード" table="food_definitions" selection="multi" onChange={setFoodKeys} columns={3} />
       <GenericSelector title="サービス" table="service_definitions" selection="multi" onChange={setServiceKeys} columns={3} />
 
       {/* ================= 客層 ================= */}
-      <h2 ref={customerRef} className="px-6 text-xl font-bold text-slate-800 mb-4 mt-8">
-        客層・雰囲気
-      </h2>
+      <h2 ref={customerRef} className="px-6 text-xl font-bold text-slate-800 mb-4 mt-8">客層・雰囲気</h2>
 
       <GenericSelector title="客層" table="customer_definitions" selection="multi" onChange={setCustomerKeys} columns={3} />
       <GenericSelector title="雰囲気" table="atmosphere_definitions" selection="multi" onChange={setAtmosphereKeys} columns={3} />
