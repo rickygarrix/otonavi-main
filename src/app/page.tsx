@@ -1,6 +1,7 @@
 "use client"
 
 import { useRef } from "react"
+import { useRouter } from "next/navigation"
 
 import CurvedBackground from "@/components/home/CurvedBackground"
 import LogoHero from "@/components/home/LogoHero"
@@ -11,7 +12,6 @@ import SearchFilter from "@/components/filters/SearchFilter"
 import SearchFilterStickyWrapper from "@/components/filters/SearchFilterStickyWrapper"
 
 import FixedSearchBar from "@/components/home/FixedSearchBar"
-import SearchResultPanel from "@/components/SearchResultPanel"
 import StoreDetailPanel from "@/components/StoreDetailPanel"
 import Footer from "@/components/Footer"
 
@@ -22,15 +22,12 @@ import { useHomeMasters } from "@/hooks/useHomeMasters"
 import HomeFilterSections from "@/components/home/HomeFilterSections"
 
 export default function HomePage() {
+  const router = useRouter()
   const { stores, loading } = useHomeStores()
-
-  // ============================
-  // ✅ 外部ラベルマップ（すべて統合済み）
-  // ============================
   const { externalLabelMap } = useHomeMasters()
 
   // ============================
-  // ✅ フィルター処理（すべて useStoreFilters に集約）
+  // ✅ フィルター処理
   // ============================
   const filter = useStoreFilters(stores, externalLabelMap)
 
@@ -70,14 +67,13 @@ export default function HomePage() {
     setAtmosphereKeys,
     setHospitalityKey,
 
+    // ⬇ ここ重要
     filteredStores,
     selectedFilters,
     count,
 
-    isResultOpen,
     isDetailOpen,
     selectedStore,
-    handleSearch,
     handleSelectStore,
     handleCloseAll,
     handleClear,
@@ -93,12 +89,28 @@ export default function HomePage() {
   const drinkRef = useRef<HTMLHeadingElement | null>(null)
   const customerRef = useRef<HTMLHeadingElement | null>(null)
 
+  // ============================
+  // ✅ 検索 → /stores に遷移（条件と ID を渡す）
+  // ============================
+  const handleGoToStores = () => {
+    const params = new URLSearchParams()
+
+    // 表示用ラベル
+    selectedFilters.forEach((f) => params.append("filters", f))
+    // 絞り込み済み store の id
+    filteredStores.forEach((s) => params.append("ids", s.id))
+
+    router.push(`/stores?${params.toString()}`)
+  }
+
   return (
     <>
       {/* ================= Hero ================= */}
       <div className="relative w-full text-white overflow-hidden">
         <CurvedBackground />
-        <div className="mt-[80px]"><LogoHero /></div>
+        <div className="mt-[80px]">
+          <LogoHero />
+        </div>
 
         <div className="mt-[40px]">
           {!loading && (
@@ -119,21 +131,36 @@ export default function HomePage() {
       {/* ================= Sticky Filter Tabs ================= */}
       <SearchFilterStickyWrapper>
         <SearchFilter
-          onScrollStore={() => storeRef.current?.scrollIntoView({ behavior: "smooth" })}
-          onScrollEquipment={() => equipmentRef.current?.scrollIntoView({ behavior: "smooth" })}
-          onScrollPrice={() => priceRef.current?.scrollIntoView({ behavior: "smooth" })}
-          onScrollSound={() => soundRef.current?.scrollIntoView({ behavior: "smooth" })}
-          onScrollDrink={() => drinkRef.current?.scrollIntoView({ behavior: "smooth" })}
-          onScrollCustomer={() => customerRef.current?.scrollIntoView({ behavior: "smooth" })}
+          onScrollStore={() =>
+            storeRef.current?.scrollIntoView({ behavior: "smooth" })
+          }
+          onScrollEquipment={() =>
+            equipmentRef.current?.scrollIntoView({ behavior: "smooth" })
+          }
+          onScrollPrice={() =>
+            priceRef.current?.scrollIntoView({ behavior: "smooth" })
+          }
+          onScrollSound={() =>
+            soundRef.current?.scrollIntoView({ behavior: "smooth" })
+          }
+          onScrollDrink={() =>
+            drinkRef.current?.scrollIntoView({ behavior: "smooth" })
+          }
+          onScrollCustomer={() =>
+            customerRef.current?.scrollIntoView({ behavior: "smooth" })
+          }
         />
       </SearchFilterStickyWrapper>
 
       {/* ================= 店舗情報 ================= */}
-      <h2 ref={storeRef} className="px-6 text-xl font-bold text-slate-800 mb-4 mt-6">
+      <h2
+        ref={storeRef}
+        className="px-6 text-xl font-bold text-slate-800 mb-4 mt-6"
+      >
         店舗情報
       </h2>
 
-      {/* ================= フィルターUIセット（HomeFilterSections） ================= */}
+      {/* ================= フィルターUIセット ================= */}
       <HomeFilterSections
         setPrefecture={setPrefecture}
         setArea={setArea}
@@ -170,20 +197,11 @@ export default function HomePage() {
       <FixedSearchBar
         selectedFilters={selectedFilters}
         onClear={handleClear}
-        onSearch={handleSearch}
+        onSearch={handleGoToStores}
         count={count}
       />
 
       <Footer />
-
-      {/* ================= 検索結果パネル ================= */}
-      <SearchResultPanel
-        isOpen={isResultOpen}
-        onCloseAll={handleCloseAll}
-        stores={filteredStores}
-        selectedFilters={selectedFilters}
-        onSelectStore={handleSelectStore}
-      />
 
       {/* ================= 店舗詳細パネル ================= */}
       <StoreDetailPanel
