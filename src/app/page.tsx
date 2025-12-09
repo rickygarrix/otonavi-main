@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef } from "react"
+import { useRef, useMemo } from "react"
 
 import CurvedBackground from "@/components/home/CurvedBackground"
 import LogoHero from "@/components/home/LogoHero"
@@ -23,9 +23,63 @@ import Footer from "@/components/Footer"
 import { useHomeStores } from "@/hooks/useHomeStores"
 import { useStoreFilters } from "@/hooks/useStoreFilters"
 
+import { supabase } from "@/lib/supabase"
+import { useEffect, useState } from "react"
+
+// ============================
+// 型
+// ============================
+type Prefecture = {
+  id: string
+  name_ja: string
+}
+
+type Area = {
+  id: string
+  name: string
+}
+
 export default function HomePage() {
   const { stores, loading } = useHomeStores()
 
+  // ============================
+  // ✅ 都道府県・エリアのマスタ取得（UUID対策の本体）
+  // ============================
+  const [prefectures, setPrefectures] = useState<Prefecture[]>([])
+  const [areas, setAreas] = useState<Area[]>([])
+
+  useEffect(() => {
+    const loadMasters = async () => {
+      const { data: prefData } = await supabase
+        .from("prefectures")
+        .select("id, name_ja")
+
+      const { data: areaData } = await supabase
+        .from("areas")
+        .select("id, name")
+
+      setPrefectures(prefData ?? [])
+      setAreas(areaData ?? [])
+    }
+
+    loadMasters()
+  }, [])
+
+  // ============================
+  // ✅ 外部ラベルマップ（ここが最重要）
+  // ============================
+  const externalLabelMap = useMemo(() => {
+    const map = new Map<string, string>()
+
+    prefectures.forEach((p) => map.set(p.id, p.name_ja))
+    areas.forEach((a) => map.set(a.id, a.name))
+
+    return map
+  }, [prefectures, areas])
+
+  // ============================
+  // ✅ フィルター（externalLabelMap を渡す）
+  // ============================
   const {
     prefecture, setPrefecture,
     area, setArea,
@@ -75,7 +129,7 @@ export default function HomePage() {
     handleSelectStore,
     handleCloseAll,
     handleClear,
-  } = useStoreFilters(stores)
+  } = useStoreFilters(stores, externalLabelMap)
 
   // ============================
   // ✅ セクションスクロール用 ref
@@ -130,7 +184,6 @@ export default function HomePage() {
         店舗情報
       </h2>
 
-      {/* ✅ prefecture / area は string | null（uuid）で統一 */}
       <AreaSelector
         onChange={(prefId, areaId) => {
           setPrefecture(prefId)

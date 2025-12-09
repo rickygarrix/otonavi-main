@@ -61,10 +61,8 @@ export default function AreaSelector({ onChange }: Props) {
     const load = async () => {
       if (!selectedPrefecture) return
 
-      // ✅ 東京以外 → エリアなし
       if (selectedPrefecture.name_ja !== "東京都") {
         setAreas([])
-        setSelectedArea(null)
         onChange(selectedPrefecture.id, null)
         return
       }
@@ -81,12 +79,11 @@ export default function AreaSelector({ onChange }: Props) {
       }
 
       setAreas(data ?? [])
-      setSelectedArea(null)
-      onChange(selectedPrefecture.id, null)
+      onChange(selectedPrefecture.id, selectedArea?.id ?? null)
     }
 
     load()
-  }, [selectedPrefecture, onChange])
+  }, [selectedPrefecture])
 
   // ============================
   // 地方ごとに分類
