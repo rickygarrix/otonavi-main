@@ -20,14 +20,20 @@ import { useHomeMasters } from "@/hooks/useHomeMasters"
 
 import HomeFilterSections from "@/components/home/HomeFilterSections"
 
+// ✅ 地域キー
+export type RegionKey =
+  | "北海道・東北"
+  | "関東"
+  | "中部"
+  | "近畿"
+  | "中国・四国"
+  | "九州・沖縄"
+
 export default function HomePage() {
   const router = useRouter()
   const { stores, loading } = useHomeStores()
-  const { externalLabelMap } = useHomeMasters()
+  const { externalLabelMap, prefectureRegionMap, areaMap } = useHomeMasters()
 
-  // ============================
-  // ✅ フィルター処理
-  // ============================
   const filter = useStoreFilters(stores, externalLabelMap)
 
   const {
@@ -66,59 +72,74 @@ export default function HomePage() {
     setAtmosphereKeys,
     setHospitalityKey,
 
-    // ⬇ ここ重要
     filteredStores,
     selectedFilters,
     count,
 
-    isDetailOpen,
-    selectedStore,
     handleSelectStore,
-    handleCloseAll,
     handleClear,
   } = filter
 
-  // ============================
-  // スクロール位置 refs
-  // ============================
-  const storeRef = useRef<HTMLHeadingElement | null>(null)
-  const equipmentRef = useRef<HTMLHeadingElement | null>(null)
-  const priceRef = useRef<HTMLHeadingElement | null>(null)
-  const soundRef = useRef<HTMLHeadingElement | null>(null)
-  const drinkRef = useRef<HTMLHeadingElement | null>(null)
-  const customerRef = useRef<HTMLHeadingElement | null>(null)
+  // ✅ 地域 ref
+  const regionRefs: Record<RegionKey, React.RefObject<HTMLDivElement | null>> = {
+    "北海道・東北": useRef(null),
+    "関東": useRef(null),
+    "中部": useRef(null),
+    "近畿": useRef(null),
+    "中国・四国": useRef(null),
+    "九州・沖縄": useRef(null),
+  }
 
-  // ============================
-  // ✅ 検索 → /stores に遷移（条件と ID を渡す）
-  // ============================
+  // ✅ 東京23区・23区以外用 ref
+  const areaRefs = useRef<Record<string, HTMLDivElement | null>>({})
+
+  // ✅ フィルターチップ → 地域 or 東京エリアへスクロール
+  const handleScrollByFilter = (label: string) => {
+    const area = areaMap.get(label)
+
+    if (area) {
+      const key = area.is_23ward ? "東京23区" : "東京23区以外"
+      const target = areaRefs.current[key]
+
+      if (target) {
+        target.scrollIntoView({ behavior: "smooth", block: "start" })
+        return
+      }
+    }
+
+    const region = prefectureRegionMap.get(label) as RegionKey | undefined
+    if (!region) return
+
+    regionRefs[region].current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    })
+  }
+
   const handleGoToStores = () => {
     const params = new URLSearchParams()
-
-    // 表示用ラベル
     selectedFilters.forEach((f) => params.append("filters", f))
-    // 絞り込み済み store の id
     filteredStores.forEach((s) => params.append("ids", s.id))
-
     router.push(`/stores?${params.toString()}`)
   }
 
   return (
     <>
-      {/* ================= Hero ================= */}
+      {/* Hero */}
       <div className="relative w-full text-white overflow-hidden">
         <CurvedBackground />
         <div className="mt-[80px]">
           <LogoHero />
         </div>
 
-        <div className="mt-[40px]">
-          {!loading && (
+        {!loading && (
+          <div className="mt-[40px]">
             <HomeLatestStores
               stores={stores}
               onSelectStore={handleSelectStore}
             />
-          )}
-        </div>
+          </div>
+        )}
 
         <div className="absolute left-0 bottom-[30px] w-full flex justify-center pointer-events-none">
           <CommentSlider />
@@ -127,40 +148,34 @@ export default function HomePage() {
         <div className="h-[160px]" />
       </div>
 
-      {/* ================= Sticky Filter Tabs ================= */}
+      {/* Sticky Filter Tabs */}
       <SearchFilterStickyWrapper>
         <SearchFilter
           onScrollStore={() =>
-            storeRef.current?.scrollIntoView({ behavior: "smooth" })
+            regionRefs["北海道・東北"].current?.scrollIntoView({ behavior: "smooth" })
           }
           onScrollEquipment={() =>
-            equipmentRef.current?.scrollIntoView({ behavior: "smooth" })
+            regionRefs["関東"].current?.scrollIntoView({ behavior: "smooth" })
           }
           onScrollPrice={() =>
-            priceRef.current?.scrollIntoView({ behavior: "smooth" })
+            regionRefs["中部"].current?.scrollIntoView({ behavior: "smooth" })
           }
           onScrollSound={() =>
-            soundRef.current?.scrollIntoView({ behavior: "smooth" })
+            regionRefs["近畿"].current?.scrollIntoView({ behavior: "smooth" })
           }
           onScrollDrink={() =>
-            drinkRef.current?.scrollIntoView({ behavior: "smooth" })
+            regionRefs["中国・四国"].current?.scrollIntoView({ behavior: "smooth" })
           }
           onScrollCustomer={() =>
-            customerRef.current?.scrollIntoView({ behavior: "smooth" })
+            regionRefs["九州・沖縄"].current?.scrollIntoView({ behavior: "smooth" })
           }
         />
       </SearchFilterStickyWrapper>
 
-      {/* ================= 店舗情報 ================= */}
-      <h2
-        ref={storeRef}
-        className="px-6 text-xl font-bold text-slate-800 mb-4 mt-6"
-      >
-        店舗情報
-      </h2>
-
-      {/* ================= フィルターUIセット ================= */}
+      {/* ✅ regionRefs & areaRefs を渡す */}
       <HomeFilterSections
+        regionRefs={regionRefs}
+        areaRefs={areaRefs}
         setPrefecture={setPrefecture}
         setArea={setArea}
         setStoreType={setStoreType}
@@ -192,16 +207,16 @@ export default function HomePage() {
         setHospitalityKey={setHospitalityKey}
       />
 
-      {/* ================= Bottom Search Bar ================= */}
+      {/* Bottom Search Bar */}
       <FixedSearchBar
         selectedFilters={selectedFilters}
         onClear={handleClear}
         onSearch={handleGoToStores}
         count={count}
+        onClickFilter={handleScrollByFilter}
       />
 
       <Footer />
-
       <div className="h-[50px]" />
     </>
   )

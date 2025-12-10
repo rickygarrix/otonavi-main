@@ -1,10 +1,10 @@
-// /components/home/HomeFilterSections.tsx
 "use client"
 
 import AreaSelector from "@/components/filters/AreaSelector"
 import AchievementSelector from "@/components/filters/AchievementSelector"
 import GenericSelector from "@/components/filters/GenericSelector"
 import DrinkSelector from "@/components/filters/DrinkSelector"
+import { RegionKey } from "@/app/page"
 
 type Props = {
   setPrefecture: (v: string | null) => void
@@ -41,6 +41,9 @@ type Props = {
   setCustomerKeys: (v: string[]) => void
   setAtmosphereKeys: (v: string[]) => void
   setHospitalityKey: (v: string | null) => void
+
+  regionRefs: Record<RegionKey, React.RefObject<HTMLDivElement | null>>
+  areaRefs: React.MutableRefObject<Record<string, HTMLDivElement | null>>
 }
 
 export default function HomeFilterSections(props: Props) {
@@ -48,14 +51,14 @@ export default function HomeFilterSections(props: Props) {
 
   return (
     <>
-      {/* ================= 店舗情報 ================= */}
       <AreaSelector
         onChange={(prefId, areaId) => {
           p.setPrefecture(prefId)
           p.setArea(areaId)
         }}
+        regionRefs={p.regionRefs}
+        areaRefs={p.areaRefs}
       />
-
       <GenericSelector
         title="店舗タイプ"
         table="store_types"

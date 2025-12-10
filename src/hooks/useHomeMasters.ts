@@ -1,32 +1,62 @@
-// /hooks/useHomeMasters.ts
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
 import { supabase } from "@/lib/supabase"
 
-type Prefecture = { id: string; name_ja: string }
-type Area = { id: string; name: string }
-type DrinkMaster = { key: string; label: string }
-type GenericMaster = { id: string; label: string }
+// ✅ region を持たせる
+type Prefecture = {
+  id: string
+  name_ja: string
+  region: string
+}
+
+type Area = {
+  id: string
+  name: string
+  is_23ward: boolean // ✅ ここが超重要
+}
+
+type DrinkMaster = {
+  key: string
+  label: string
+}
+
+type GenericMaster = {
+  id: string
+  label: string
+}
 
 export function useHomeMasters() {
   const [prefectures, setPrefectures] = useState<Prefecture[]>([])
   const [areas, setAreas] = useState<Area[]>([])
   const [drinkMasters, setDrinkMasters] = useState<DrinkMaster[]>([])
-  const [genericMasters, setGenericMasters] = useState<Map<string, string>>(new Map())
+  const [genericMasters, setGenericMasters] = useState<Map<string, string>>(
+    new Map()
+  )
 
-  // 都道府県・エリア
+  // ============================
+  // ✅ 都道府県・エリア
+  // ============================
   useEffect(() => {
     const load = async () => {
-      const { data: prefData } = await supabase.from("prefectures").select("id, name_ja")
-      const { data: areaData } = await supabase.from("areas").select("id, name")
+      const { data: prefData } = await supabase
+        .from("prefectures")
+        .select("id, name_ja, region")
+
+      const { data: areaData } = await supabase
+        .from("areas")
+        .select("id, name, is_23ward") // ✅ is_23ward 必須
+
       setPrefectures(prefData ?? [])
       setAreas(areaData ?? [])
     }
+
     load()
   }, [])
 
-  // ドリンク
+  // ============================
+  // ✅ ドリンク
+  // ============================
   useEffect(() => {
     const load = async () => {
       const { data } = await supabase
@@ -36,10 +66,13 @@ export function useHomeMasters() {
 
       setDrinkMasters(data ?? [])
     }
+
     load()
   }, [])
 
-  // Generic 全マスタ
+  // ============================
+  // ✅ Generic 全マスタ
+  // ============================
   useEffect(() => {
     const tables = [
       "store_types",
@@ -89,15 +122,49 @@ export function useHomeMasters() {
     loadAll()
   }, [])
 
-  // ✅ 外部ラベルマップここで完成させる
+  // ============================
+  // ✅ 全ラベル統合マップ
+  // ============================
   const externalLabelMap = useMemo(() => {
     const map = new Map<string, string>()
+
     prefectures.forEach((p) => map.set(p.id, p.name_ja))
     areas.forEach((a) => map.set(a.id, a.name))
     drinkMasters.forEach((d) => map.set(d.key, d.label))
     genericMasters.forEach((v, k) => map.set(k, v))
+
     return map
   }, [prefectures, areas, drinkMasters, genericMasters])
 
-  return { externalLabelMap }
+  // ============================
+  // ✅ 都道府県名 → region マップ
+  // ============================
+  const prefectureRegionMap = useMemo(() => {
+    const map = new Map<string, string>()
+
+    prefectures.forEach((p) => {
+      map.set(p.name_ja, p.region)
+    })
+
+    return map
+  }, [prefectures])
+
+  // ============================
+  // ✅ エリア名 → is_23ward 判定マップ
+  // ============================
+  const areaMap = useMemo(() => {
+    const map = new Map<string, Area>()
+
+    areas.forEach((a) => {
+      map.set(a.name, a)
+    })
+
+    return map
+  }, [areas])
+
+  return {
+    externalLabelMap,
+    prefectureRegionMap, // ✅ 県 → 地方
+    areaMap,             // ✅ エリア → is_23ward
+  }
 }
