@@ -20,10 +20,13 @@ type BaseProps = {
   table: string
   columns?: 2 | 3
 
-  // ここを変更！
+  // ✅ スクロール用
   sectionRef?: React.RefObject<HTMLDivElement | null>
   | React.RefCallback<HTMLDivElement>
   | null
+
+  // ✅ 追加：クリア用
+  clearKey?: number
 }
 
 type SingleProps = BaseProps & {
@@ -46,7 +49,8 @@ export default function GenericSelector(props: Props) {
     selection,
     onChange,
     columns = 2,
-    sectionRef,       // ✅ 追加
+    sectionRef,
+    clearKey, // ✅ 追加
   } = props
 
   const [items, setItems] = useState<Item[]>([])
@@ -55,7 +59,7 @@ export default function GenericSelector(props: Props) {
   )
 
   // -------------------------------
-  // マスタ読込
+  // ✅ マスタ読込（初回だけ）
   // -------------------------------
   useEffect(() => {
     const load = async () => {
@@ -77,9 +81,11 @@ export default function GenericSelector(props: Props) {
   }, [table])
 
   // -------------------------------
-  // テーブル切替時リセット
+  // ✅ すべてクリア時の完全リセット
   // -------------------------------
   useEffect(() => {
+    if (clearKey === undefined) return
+
     if (selection === "single") {
       setSelectedIds(null)
       onChange(null)
@@ -87,7 +93,7 @@ export default function GenericSelector(props: Props) {
       setSelectedIds([])
       onChange([])
     }
-  }, [table])
+  }, [clearKey])
 
   // -------------------------------
   // トグル処理
@@ -115,7 +121,7 @@ export default function GenericSelector(props: Props) {
       : Array.isArray(selectedIds) && selectedIds.includes(id)
 
   // -------------------------------
-  // description（選択中の補足説明）
+  // description（補足説明）
   // -------------------------------
   const selectedDescriptions = (() => {
     if (!items.some((i) => i.description)) return null
@@ -139,18 +145,17 @@ export default function GenericSelector(props: Props) {
   // -------------------------------
   return (
     <div className="w-full px-6 py-6">
-
       {/* 🎯 スクロールアンカー */}
-      <div
-        ref={sectionRef ?? null}
-        className="scroll-mt-[90px]"
-      />
+      <div ref={sectionRef ?? null} className="scroll-mt-[90px]" />
 
       <h2 className="text-lg font-bold text-slate-900 mb-6">
         {title}
       </h2>
 
-      <div className={`grid gap-3 ${columns === 3 ? "grid-cols-3" : "grid-cols-2"}`}>
+      <div
+        className={`grid gap-3 ${columns === 3 ? "grid-cols-3" : "grid-cols-2"
+          }`}
+      >
         {items.map((item) => (
           <Chip
             key={item.id}

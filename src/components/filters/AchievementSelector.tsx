@@ -6,11 +6,23 @@ import Chip from "@/components/ui/Chip"
 type Props = {
   onChange: (selected: { hasAward: boolean; hasMedia: boolean }) => void
   achievementRefs?: React.MutableRefObject<Record<string, HTMLDivElement | null>>
+  clearKey: number
 }
 
-export default function AchievementSelector({ onChange, achievementRefs }: Props) {
+export default function AchievementSelector({
+  onChange,
+  achievementRefs,
+  clearKey,
+}: Props) {
   const [hasAward, setHasAward] = useState(false)
   const [hasMedia, setHasMedia] = useState(false)
+
+  // ✅ クリア時リセット
+  useEffect(() => {
+    setHasAward(false)
+    setHasMedia(false)
+    onChange({ hasAward: false, hasMedia: false })
+  }, [clearKey])
 
   useEffect(() => {
     onChange({ hasAward, hasMedia })
@@ -20,10 +32,7 @@ export default function AchievementSelector({ onChange, achievementRefs }: Props
     <div className="w-full px-6 py-6">
       <h2 className="text-lg font-bold text-slate-900 mb-4">実績</h2>
 
-      {/* ⭐ 1行で横並び */}
       <div className="flex gap-3">
-
-        {/* 受賞歴アンカー */}
         <div
           ref={(el) => {
             if (!el || !achievementRefs) return
@@ -38,7 +47,6 @@ export default function AchievementSelector({ onChange, achievementRefs }: Props
           onClick={() => setHasAward(!hasAward)}
         />
 
-        {/* メディアアンカー */}
         <div
           ref={(el) => {
             if (!el || !achievementRefs) return

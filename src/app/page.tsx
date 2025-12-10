@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef } from "react"
+import { useRef, useState } from "react" // ✅ useState を追加
 import { useRouter } from "next/navigation"
 
 import CurvedBackground from "@/components/home/CurvedBackground"
@@ -33,7 +33,7 @@ export default function HomePage() {
   const router = useRouter()
   const { stores, loading } = useHomeStores()
 
-  // ★ ここが重要：labelToSectionMap を受け取る
+  // マスタ
   const {
     externalLabelMap,
     prefectureRegionMap,
@@ -43,6 +43,9 @@ export default function HomePage() {
   } = useHomeMasters()
 
   const filter = useStoreFilters(stores, externalLabelMap)
+
+  // ✅ クリアUI同期用キー
+  const [clearKey, setClearKey] = useState(0)
 
   const {
     setPrefecture,
@@ -85,8 +88,14 @@ export default function HomePage() {
     count,
 
     handleSelectStore,
-    handleClear,
+    handleClear: rawHandleClear,
   } = filter
+
+  // ✅ すべてクリア時にUIも完全リセット
+  const handleClear = () => {
+    rawHandleClear()
+    setClearKey((v) => v + 1)
+  }
 
   // 地域 ref
   const regionRefs: Record<RegionKey, React.RefObject<HTMLDivElement | null>> = {
@@ -98,34 +107,23 @@ export default function HomePage() {
     "九州・沖縄": useRef(null),
   }
 
-  // 東京エリア ref
   const areaRefs = useRef<Record<string, HTMLDivElement | null>>({})
-
-  // ドリンクカテゴリ ref
   const drinkCategoryRefs = useRef<Record<string, HTMLDivElement | null>>({})
-
-  // 実績 ref
   const achievementRefs = useRef<Record<string, HTMLDivElement | null>>({})
-
-  // Generic セクション ref
   const genericSectionRefs = useRef<Record<string, HTMLDivElement | null>>({})
 
-  // ================================================================
-  //    ❤️  フィルターチップ → どのセクションにスクロールさせるか
-  // ================================================================
+  // ✅ フィルターチップ → スクロール
   const handleScrollByFilter = (label: string) => {
-    // 1️⃣ 東京エリア（市区町村）
     const area = areaMap.get(label)
     if (area) {
-      const areaKey = area.is_23ward ? "東京23区" : "東京23区以外"
-      const target = areaRefs.current[areaKey]
+      const key = area.is_23ward ? "東京23区" : "東京23区以外"
+      const target = areaRefs.current[key]
       if (target) {
         target.scrollIntoView({ behavior: "smooth", block: "start" })
         return
       }
     }
 
-    // 2️⃣ ドリンクカテゴリ（例：ビール → 「アルコール」セクション）
     const category = drinkCategoryMap.get(label)
     if (category) {
       const target = drinkCategoryRefs.current[category]
@@ -135,36 +133,31 @@ export default function HomePage() {
       }
     }
 
-    // 3️⃣ 実績
     const achievementTarget = achievementRefs.current[label]
     if (achievementTarget) {
       achievementTarget.scrollIntoView({ behavior: "smooth", block: "start" })
       return
     }
 
-    // 4️⃣ Generic（方法A：label → section名 → ref）
     const sectionName = labelToSectionMap.get(label)
-
     if (sectionName) {
-      const sectionRef = genericSectionRefs.current[sectionName]
-      if (sectionRef) {
-        sectionRef.scrollIntoView({ behavior: "smooth", block: "start" })
+      const ref = genericSectionRefs.current[sectionName]
+      if (ref) {
+        ref.scrollIntoView({ behavior: "smooth", block: "start" })
         return
       }
     }
 
-    // 5️⃣ 都道府県 → 地方
     const region = prefectureRegionMap.get(label) as RegionKey | undefined
     if (region) {
       regionRefs[region].current?.scrollIntoView({
         behavior: "smooth",
         block: "start",
       })
-      return
     }
   }
 
-  // 検索結果ページへ遷移
+  // 検索結果遷移
   const handleGoToStores = () => {
     const params = new URLSearchParams()
     selectedFilters.forEach((f) => params.append("filters", f))
@@ -183,7 +176,10 @@ export default function HomePage() {
 
         {!loading && (
           <div className="mt-[40px]">
-            <HomeLatestStores stores={stores} onSelectStore={handleSelectStore} />
+            <HomeLatestStores
+              stores={stores}
+              onSelectStore={handleSelectStore}
+            />
           </div>
         )}
 
@@ -220,6 +216,7 @@ export default function HomePage() {
 
       {/* フィルターセクション */}
       <HomeFilterSections
+        clearKey={clearKey}
         regionRefs={regionRefs}
         areaRefs={areaRefs}
         drinkCategoryRefs={drinkCategoryRefs}

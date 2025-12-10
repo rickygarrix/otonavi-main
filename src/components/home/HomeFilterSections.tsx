@@ -7,6 +7,8 @@ import DrinkSelector from "@/components/filters/DrinkSelector"
 import { RegionKey } from "@/app/page"
 
 type Props = {
+  clearKey: number
+
   setPrefecture: (v: string | null) => void
   setArea: (v: string | null) => void
   setStoreType: (v: string | null) => void
@@ -46,7 +48,6 @@ type Props = {
   areaRefs: React.MutableRefObject<Record<string, HTMLDivElement | null>>
   drinkCategoryRefs: React.MutableRefObject<Record<string, HTMLDivElement | null>>
   achievementRefs: React.MutableRefObject<Record<string, HTMLDivElement | null>>
-
   genericSectionRefs: React.MutableRefObject<Record<string, HTMLDivElement | null>>
 }
 
@@ -56,8 +57,11 @@ export default function HomeFilterSections(p: Props) {
   }
 
   return (
+
     <>
+      {/* ================= エリア ================= */}
       <AreaSelector
+        clearKey={p.clearKey}
         onChange={(prefId, areaId) => {
           p.setPrefecture(prefId)
           p.setArea(areaId)
@@ -73,6 +77,7 @@ export default function HomeFilterSections(p: Props) {
         selection="single"
         onChange={p.setStoreType}
         sectionRef={register("店舗タイプ")}
+        clearKey={p.clearKey}
       />
 
       {/* ================= イベントの傾向 ================= */}
@@ -83,6 +88,7 @@ export default function HomeFilterSections(p: Props) {
         onChange={p.setEventTrendKeys}
         columns={3}
         sectionRef={register("イベントの傾向")}
+        clearKey={p.clearKey}
       />
 
       {/* ================= ルール ================= */}
@@ -93,10 +99,12 @@ export default function HomeFilterSections(p: Props) {
         onChange={p.setRuleKeys}
         columns={3}
         sectionRef={register("ルール / マナー")}
+        clearKey={p.clearKey}
       />
 
-      {/* ================= 実績 ================= */}
+      {/* ================= 実績（✅ 完璧な形） ================= */}
       <AchievementSelector
+        clearKey={p.clearKey}
         onChange={p.setAchievementFilter}
         achievementRefs={p.achievementRefs}
       />
@@ -109,6 +117,7 @@ export default function HomeFilterSections(p: Props) {
         onChange={p.setBaggageKeys}
         columns={3}
         sectionRef={register("荷物預かり")}
+        clearKey={p.clearKey}
       />
 
       <GenericSelector
@@ -118,6 +127,7 @@ export default function HomeFilterSections(p: Props) {
         onChange={p.setSecurityKeys}
         columns={3}
         sectionRef={register("セキュリティ")}
+        clearKey={p.clearKey}
       />
 
       <GenericSelector
@@ -127,6 +137,7 @@ export default function HomeFilterSections(p: Props) {
         onChange={p.setToiletKeys}
         columns={3}
         sectionRef={register("トイレ")}
+        clearKey={p.clearKey}
       />
 
       <GenericSelector
@@ -135,6 +146,7 @@ export default function HomeFilterSections(p: Props) {
         selection="single"
         onChange={p.setSizeKey}
         sectionRef={register("広さ")}
+        clearKey={p.clearKey}
       />
 
       <GenericSelector
@@ -144,6 +156,7 @@ export default function HomeFilterSections(p: Props) {
         onChange={p.setFloorKeys}
         columns={3}
         sectionRef={register("フロアの位置")}
+        clearKey={p.clearKey}
       />
 
       <GenericSelector
@@ -153,6 +166,7 @@ export default function HomeFilterSections(p: Props) {
         onChange={p.setSeatTypeKeys}
         columns={3}
         sectionRef={register("座席タイプ")}
+        clearKey={p.clearKey}
       />
 
       <GenericSelector
@@ -162,6 +176,7 @@ export default function HomeFilterSections(p: Props) {
         onChange={p.setSmokingKeys}
         columns={3}
         sectionRef={register("喫煙")}
+        clearKey={p.clearKey}
       />
 
       <GenericSelector
@@ -171,6 +186,7 @@ export default function HomeFilterSections(p: Props) {
         onChange={p.setEnvironmentKeys}
         columns={3}
         sectionRef={register("周辺環境")}
+        clearKey={p.clearKey}
       />
 
       <GenericSelector
@@ -180,6 +196,7 @@ export default function HomeFilterSections(p: Props) {
         onChange={p.setOtherKeys}
         columns={3}
         sectionRef={register("その他")}
+        clearKey={p.clearKey}
       />
 
       {/* ================= 料金 ================= */}
@@ -189,6 +206,7 @@ export default function HomeFilterSections(p: Props) {
         selection="single"
         onChange={p.setPriceRange}
         sectionRef={register("価格帯")}
+        clearKey={p.clearKey}
       />
 
       <GenericSelector
@@ -198,6 +216,7 @@ export default function HomeFilterSections(p: Props) {
         onChange={p.setPricingSystemKeys}
         columns={3}
         sectionRef={register("料金システム")}
+        clearKey={p.clearKey}
       />
 
       <GenericSelector
@@ -207,6 +226,7 @@ export default function HomeFilterSections(p: Props) {
         onChange={p.setDiscountKeys}
         columns={3}
         sectionRef={register("ディスカウント")}
+        clearKey={p.clearKey}
       />
 
       <GenericSelector
@@ -216,6 +236,7 @@ export default function HomeFilterSections(p: Props) {
         onChange={p.setVipKeys}
         columns={3}
         sectionRef={register("VIP")}
+        clearKey={p.clearKey}
       />
 
       <GenericSelector
@@ -225,6 +246,7 @@ export default function HomeFilterSections(p: Props) {
         onChange={p.setPaymentMethodKeys}
         columns={3}
         sectionRef={register("支払い方法")}
+        clearKey={p.clearKey}
       />
 
       {/* ================= 音響・照明・演出 ================= */}
@@ -235,6 +257,7 @@ export default function HomeFilterSections(p: Props) {
         onChange={p.setSoundKeys}
         columns={3}
         sectionRef={register("音響")}
+        clearKey={p.clearKey}
       />
 
       <GenericSelector
@@ -244,6 +267,7 @@ export default function HomeFilterSections(p: Props) {
         onChange={p.setLightingKeys}
         columns={3}
         sectionRef={register("照明")}
+        clearKey={p.clearKey}
       />
 
       <GenericSelector
@@ -253,10 +277,12 @@ export default function HomeFilterSections(p: Props) {
         onChange={p.setProductionKeys}
         columns={3}
         sectionRef={register("演出")}
+        clearKey={p.clearKey}
       />
 
       {/* ================= 飲食・サービス ================= */}
       <DrinkSelector
+        clearKey={p.clearKey}   // ✅ 完璧
         title="ドリンク"
         onChange={p.setDrinkKeys}
         drinkCategoryRefs={p.drinkCategoryRefs}
@@ -269,6 +295,7 @@ export default function HomeFilterSections(p: Props) {
         onChange={p.setFoodKeys}
         columns={3}
         sectionRef={register("フード")}
+        clearKey={p.clearKey}
       />
 
       <GenericSelector
@@ -278,6 +305,7 @@ export default function HomeFilterSections(p: Props) {
         onChange={p.setServiceKeys}
         columns={3}
         sectionRef={register("サービス")}
+        clearKey={p.clearKey}
       />
 
       {/* ================= 客層・雰囲気 ================= */}
@@ -288,6 +316,7 @@ export default function HomeFilterSections(p: Props) {
         onChange={p.setCustomerKeys}
         columns={3}
         sectionRef={register("客層")}
+        clearKey={p.clearKey}
       />
 
       <GenericSelector
@@ -297,6 +326,7 @@ export default function HomeFilterSections(p: Props) {
         onChange={p.setAtmosphereKeys}
         columns={3}
         sectionRef={register("雰囲気")}
+        clearKey={p.clearKey}
       />
 
       <GenericSelector
@@ -305,6 +335,7 @@ export default function HomeFilterSections(p: Props) {
         selection="single"
         onChange={p.setHospitalityKey}
         sectionRef={register("接客")}
+        clearKey={p.clearKey}
       />
     </>
   )

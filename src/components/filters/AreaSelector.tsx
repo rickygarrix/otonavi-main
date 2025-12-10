@@ -23,13 +23,27 @@ type Props = {
   onChange: (prefId: string | null, areaId: string | null) => void
   regionRefs?: Record<RegionKey, RefObject<HTMLDivElement | null>>
   areaRefs?: React.MutableRefObject<Record<string, HTMLDivElement | null>>
+  clearKey: number
 }
 
-export default function AreaSelector({ onChange, regionRefs, areaRefs }: Props) {
+export default function AreaSelector({
+  onChange,
+  regionRefs,
+  areaRefs,
+  clearKey,
+}: Props) {
   const [prefectures, setPrefectures] = useState<Prefecture[]>([])
   const [areas, setAreas] = useState<Area[]>([])
   const [selectedPrefecture, setSelectedPrefecture] = useState<Prefecture | null>(null)
   const [selectedArea, setSelectedArea] = useState<Area | null>(null)
+
+  // ✅ クリア時にUI完全リセット
+  useEffect(() => {
+    setSelectedPrefecture(null)
+    setSelectedArea(null)
+    setAreas([])
+    onChange(null, null)
+  }, [clearKey])
 
   useEffect(() => {
     const load = async () => {
@@ -39,7 +53,6 @@ export default function AreaSelector({ onChange, regionRefs, areaRefs }: Props) 
         .order("code")
 
       setPrefectures(data ?? [])
-      onChange(null, null)
     }
 
     load()
@@ -115,7 +128,6 @@ export default function AreaSelector({ onChange, regionRefs, areaRefs }: Props) 
 
             {region === "関東" && selectedPrefecture?.name_ja === "東京都" && (
               <>
-                {/* 東京23区 */}
                 <div
                   ref={(el) => {
                     if (!el || !areaRefs) return
@@ -124,9 +136,7 @@ export default function AreaSelector({ onChange, regionRefs, areaRefs }: Props) 
                   className="scroll-mt-[90px]"
                 />
 
-                <h3 className="font-semibold text-slate-800 mt-8 mb-3">
-                  東京23区
-                </h3>
+                <h3 className="font-semibold text-slate-800 mt-8 mb-3">東京23区</h3>
 
                 <div className="grid grid-cols-3 gap-3">
                   {tokyoWards.map((a) => (
@@ -142,7 +152,6 @@ export default function AreaSelector({ onChange, regionRefs, areaRefs }: Props) 
                   ))}
                 </div>
 
-                {/* 東京23区以外 */}
                 <div
                   ref={(el) => {
                     if (!el || !areaRefs) return
