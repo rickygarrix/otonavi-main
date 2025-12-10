@@ -3,7 +3,9 @@
 import { useEffect, useMemo, useState } from "react"
 import { supabase } from "@/lib/supabase"
 
-// ✅ region を持たせる
+// ================================
+// 型定義
+// ================================
 type Prefecture = {
   id: string
   name_ja: string
@@ -13,12 +15,13 @@ type Prefecture = {
 type Area = {
   id: string
   name: string
-  is_23ward: boolean // ✅ ここが超重要
+  is_23ward: boolean
 }
 
-type DrinkMaster = {
+type DrinkDefinition = {
   key: string
   label: string
+  category: string   // ← スクロールに必要
 }
 
 type GenericMaster = {
@@ -29,13 +32,11 @@ type GenericMaster = {
 export function useHomeMasters() {
   const [prefectures, setPrefectures] = useState<Prefecture[]>([])
   const [areas, setAreas] = useState<Area[]>([])
-  const [drinkMasters, setDrinkMasters] = useState<DrinkMaster[]>([])
-  const [genericMasters, setGenericMasters] = useState<Map<string, string>>(
-    new Map()
-  )
+  const [drinkMasters, setDrinkMasters] = useState<DrinkDefinition[]>([])
+  const [genericMasters, setGenericMasters] = useState<Map<string, string>>(new Map())
 
   // ============================
-  // ✅ 都道府県・エリア
+  // 都道府県・エリア
   // ============================
   useEffect(() => {
     const load = async () => {
@@ -45,33 +46,31 @@ export function useHomeMasters() {
 
       const { data: areaData } = await supabase
         .from("areas")
-        .select("id, name, is_23ward") // ✅ is_23ward 必須
+        .select("id, name, is_23ward")
 
       setPrefectures(prefData ?? [])
       setAreas(areaData ?? [])
     }
-
     load()
   }, [])
 
   // ============================
-  // ✅ ドリンク
+  // ドリンク
   // ============================
   useEffect(() => {
     const load = async () => {
       const { data } = await supabase
         .from("drink_definitions")
-        .select("key, label")
+        .select("key, label, category") // ← category を取得
         .eq("is_active", true)
 
-      setDrinkMasters(data ?? [])
+      setDrinkMasters((data ?? []) as DrinkDefinition[])
     }
-
     load()
   }, [])
 
   // ============================
-  // ✅ Generic 全マスタ
+  // Generic 全マスタ
   // ============================
   useEffect(() => {
     const tables = [
@@ -111,9 +110,7 @@ export function useHomeMasters() {
           .select("id, label")
           .eq("is_active", true)
 
-        data?.forEach((item: GenericMaster) => {
-          map.set(item.id, item.label)
-        })
+        data?.forEach((item: GenericMaster) => map.set(item.id, item.label))
       }
 
       setGenericMasters(map)
@@ -123,7 +120,7 @@ export function useHomeMasters() {
   }, [])
 
   // ============================
-  // ✅ 全ラベル統合マップ
+  // 全ラベル → 表示名
   // ============================
   const externalLabelMap = useMemo(() => {
     const map = new Map<string, string>()
@@ -137,34 +134,36 @@ export function useHomeMasters() {
   }, [prefectures, areas, drinkMasters, genericMasters])
 
   // ============================
-  // ✅ 都道府県名 → region マップ
+  // 都道府県名 → 地方
   // ============================
   const prefectureRegionMap = useMemo(() => {
     const map = new Map<string, string>()
-
-    prefectures.forEach((p) => {
-      map.set(p.name_ja, p.region)
-    })
-
+    prefectures.forEach((p) => map.set(p.name_ja, p.region))
     return map
   }, [prefectures])
 
   // ============================
-  // ✅ エリア名 → is_23ward 判定マップ
+  // エリア名 → is_23ward
   // ============================
   const areaMap = useMemo(() => {
     const map = new Map<string, Area>()
-
-    areas.forEach((a) => {
-      map.set(a.name, a)
-    })
-
+    areas.forEach((a) => map.set(a.name, a))
     return map
   }, [areas])
 
+  // ============================
+  // ドリンク名(label) → category
+  // ============================
+  const drinkCategoryMap = useMemo(() => {
+    const map = new Map<string, string>() // label → category
+    drinkMasters.forEach((d) => map.set(d.label, d.category))
+    return map
+  }, [drinkMasters])
+
   return {
     externalLabelMap,
-    prefectureRegionMap, // ✅ 県 → 地方
-    areaMap,             // ✅ エリア → is_23ward
+    prefectureRegionMap,
+    areaMap,
+    drinkCategoryMap, // ← ★ここが今回の主役！
   }
 }

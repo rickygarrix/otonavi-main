@@ -32,7 +32,7 @@ export type RegionKey =
 export default function HomePage() {
   const router = useRouter()
   const { stores, loading } = useHomeStores()
-  const { externalLabelMap, prefectureRegionMap, areaMap } = useHomeMasters()
+  const { externalLabelMap, prefectureRegionMap, areaMap, drinkCategoryMap } = useHomeMasters()
 
   const filter = useStoreFilters(stores, externalLabelMap)
 
@@ -92,21 +92,32 @@ export default function HomePage() {
 
   // ✅ 東京23区・23区以外用 ref
   const areaRefs = useRef<Record<string, HTMLDivElement | null>>({})
+  const drinkCategoryRefs = useRef<Record<string, HTMLDivElement | null>>({})
 
   // ✅ フィルターチップ → 地域 or 東京エリアへスクロール
   const handleScrollByFilter = (label: string) => {
+    // ✅ 東京エリア（23区・23区以外）
     const area = areaMap.get(label)
-
     if (area) {
       const key = area.is_23ward ? "東京23区" : "東京23区以外"
       const target = areaRefs.current[key]
-
       if (target) {
         target.scrollIntoView({ behavior: "smooth", block: "start" })
         return
       }
     }
 
+    // ✅ ✅ ドリンクカテゴリスクロール（NEW）
+    const category = drinkCategoryMap.get(label)
+    if (category) {
+      const target = drinkCategoryRefs.current[category]
+      if (target) {
+        target.scrollIntoView({ behavior: "smooth", block: "start" })
+        return
+      }
+    }
+
+    // ✅ 都道府県 → 地方
     const region = prefectureRegionMap.get(label) as RegionKey | undefined
     if (!region) return
 
@@ -176,6 +187,7 @@ export default function HomePage() {
       <HomeFilterSections
         regionRefs={regionRefs}
         areaRefs={areaRefs}
+        drinkCategoryRefs={drinkCategoryRefs}   // ✅ 追加
         setPrefecture={setPrefecture}
         setArea={setArea}
         setStoreType={setStoreType}

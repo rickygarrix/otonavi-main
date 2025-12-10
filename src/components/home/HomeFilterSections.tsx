@@ -44,6 +44,7 @@ type Props = {
 
   regionRefs: Record<RegionKey, React.RefObject<HTMLDivElement | null>>
   areaRefs: React.MutableRefObject<Record<string, HTMLDivElement | null>>
+  drinkCategoryRefs: React.MutableRefObject<Record<string, HTMLDivElement | null>>
 }
 
 export default function HomeFilterSections(props: Props) {
@@ -225,6 +226,7 @@ export default function HomeFilterSections(props: Props) {
       <DrinkSelector
         title="ドリンク"
         onChange={p.setDrinkKeys}
+        drinkCategoryRefs={p.drinkCategoryRefs}
       />
 
       <GenericSelector

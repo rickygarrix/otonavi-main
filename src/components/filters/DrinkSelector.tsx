@@ -15,10 +15,11 @@ type DrinkItem = {
 
 type Props = {
   title: string
-  onChange: (keys: string[]) => void   // ✅ key で返す
+  onChange: (keys: string[]) => void
+  drinkCategoryRefs?: React.MutableRefObject<Record<string, HTMLDivElement | null>> // ✅ 追加
 }
 
-export default function DrinkSelector({ title, onChange }: Props) {
+export default function DrinkSelector({ title, onChange, drinkCategoryRefs }: Props) {
   const [items, setItems] = useState<DrinkItem[]>([])
   const [selectedKeys, setSelectedKeys] = useState<string[]>([])
 
@@ -89,9 +90,18 @@ export default function DrinkSelector({ title, onChange }: Props) {
   return (
     <div className="w-full px-6 py-6">
       <h2 className="text-lg font-bold text-slate-900 mb-6">{title}</h2>
-
       {Object.entries(groups).map(([category, list]) => (
         <div key={category} className="mb-8">
+
+          {/* ✅ ドリンクカテゴリスクロールアンカー */}
+          <div
+            ref={(el) => {
+              if (!el || !drinkCategoryRefs) return
+              drinkCategoryRefs.current[category] = el
+            }}
+            className="scroll-mt-[90px]"
+          />
+
           <p className="font-semibold text-slate-800 mb-3 text-base">
             {category}
           </p>
