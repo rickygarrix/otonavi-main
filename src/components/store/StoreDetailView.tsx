@@ -63,7 +63,7 @@ export default function StoreDetailView({ store }: Props) {
   const [images, setImages] = useState<StoreImage[]>([])
   const [current, setCurrent] = useState(0)
 
-  // ================ 画像取得 ================
+  // ===================== 画像読み込み =====================
   useEffect(() => {
     if (!store?.id) return
 
@@ -94,7 +94,7 @@ export default function StoreDetailView({ store }: Props) {
         },
       ]
 
-  // ================ 特別営業時間 展開 ================
+  // ===================== 特別営業時間 =====================
   const specialList: Array<{
     date: string
     dow: number
@@ -105,7 +105,7 @@ export default function StoreDetailView({ store }: Props) {
     reason: string | null
   }> = []
 
-  if (store?.special_hours?.length) {
+  if (store.special_hours?.length) {
     for (const sp of store.special_hours) {
       const start = new Date(sp.start_date)
       const end = new Date(sp.end_date)
@@ -130,7 +130,7 @@ export default function StoreDetailView({ store }: Props) {
     }
   }
 
-  // ================ SNSリンク ================
+  // ===================== SNS =====================
   const socialLinks = [
     { key: "instagram_url", icon: "/instagram.svg" },
     { key: "x_url", icon: "/x.svg" },
@@ -142,7 +142,7 @@ export default function StoreDetailView({ store }: Props) {
   return (
     <div className="bg-white">
 
-      {/* ================ 画像スライダー ================ */}
+      {/* ===================== 画像スライダー ===================== */}
       <div className="relative w-full">
         <div
           className="flex overflow-x-scroll snap-x snap-mandatory scrollbar-none"
@@ -154,22 +154,28 @@ export default function StoreDetailView({ store }: Props) {
         >
           {mainImages.map((img) => (
             <div key={img.id} className="min-w-full snap-center">
-              <img src={img.image_url} alt={store.name} className="w-full h-72 object-cover bg-gray-200" />
+              <img
+                src={img.image_url}
+                alt={store.name}
+                className="w-full h-72 object-cover bg-gray-200"
+              />
             </div>
           ))}
         </div>
 
+        {/* ドット */}
         <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-2 z-20">
           {mainImages.map((_, idx) => (
             <div
               key={idx}
-              className={`w-2 h-2 rounded-full ${idx === current ? "bg-white" : "bg-white/40"}`}
+              className={`w-2 h-2 rounded-full ${idx === current ? "bg-white" : "bg-white/40"
+                }`}
             />
           ))}
         </div>
       </div>
 
-      {/* ================ 基本情報 ================ */}
+      {/* ===================== 基本情報 ===================== */}
       <div className="px-4 py-5">
         <p className="text-slate-600 text-sm">
           {store.prefecture_label} {store.area_label}　{store.type_label}
@@ -185,6 +191,7 @@ export default function StoreDetailView({ store }: Props) {
           <p className="mt-4 text-slate-700 whitespace-pre-line">{store.description}</p>
         )}
 
+        {/* SNS */}
         <div className="flex gap-5 mt-6">
           {socialLinks.map(({ key, icon }) => {
             const url = (store as any)[key]
@@ -209,7 +216,7 @@ export default function StoreDetailView({ store }: Props) {
         </div>
       </div>
 
-      {/* ================ アクセス ================ */}
+      {/* ===================== アクセス ===================== */}
       <div className="px-4 py-6">
         <h2 className="text-xl font-bold text-slate-900 mb-3">アクセス</h2>
 
@@ -217,7 +224,7 @@ export default function StoreDetailView({ store }: Props) {
         {store.address && <p className="text-slate-700 whitespace-pre-line">{store.address}</p>}
       </div>
 
-      {/* ================ 営業時間 ================ */}
+      {/* ===================== 営業時間 ===================== */}
       <div className="px-4 mt-8">
         <h2 className="text-xl font-bold text-slate-900 mb-4">営業時間</h2>
 
@@ -238,7 +245,7 @@ export default function StoreDetailView({ store }: Props) {
         ))}
       </div>
 
-      {/* ================ 祝日営業 ================ */}
+      {/* ===================== 祝日営業 ===================== */}
       <div className="px-4 mt-8">
         <h3 className="text-lg font-bold text-slate-900">祝日営業</h3>
 
@@ -263,35 +270,38 @@ export default function StoreDetailView({ store }: Props) {
         )}
       </div>
 
-      {/* ================ 特徴 ================ */}
+      {/* ===================== 特徴 ===================== */}
       <div className="px-4 mt-10">
         <h2 className="text-xl font-bold text-slate-900 mb-4">この店舗の特徴</h2>
 
-        <DetailItem label="店舗タイプ" value={store.type_label ?? null} />
-
-        <DetailItem label="イベントの傾向" value={toJoined(store.event_trend_labels, store.event_trend_keys)} />
-        <DetailItem label="ルール／マナー" value={toJoined(store.rule_labels, store.rule_keys)} />
-        <DetailItem label="荷物預かり" value={toJoined(store.baggage_labels, store.baggage_keys)} />
-        <DetailItem label="セキュリティ" value={toJoined(store.security_labels, store.security_keys)} />
-        <DetailItem label="トイレ" value={toJoined(store.toilet_labels, store.toilet_keys)} />
-        <DetailItem label="広さ" value={store.size_label ?? store.size_key ?? null} />
-        <DetailItem label="フロア" value={toJoined(store.floor_labels, store.floor_keys)} />
-        <DetailItem label="座席タイプ" value={toJoined(store.seat_type_labels, store.seat_type_keys)} />
-        <DetailItem label="喫煙" value={toJoined(store.smoking_labels, store.smoking_keys)} />
-        <DetailItem label="周辺環境" value={toJoined(store.environment_labels, store.environment_keys)} />
-        <DetailItem label="価格帯" value={store.price_range_label ?? null} />
-        <DetailItem label="料金システム" value={toJoined(store.pricing_system_labels, store.pricing_system_keys)} />
-        <DetailItem label="ディスカウント" value={toJoined(store.discount_labels, store.discount_keys)} />
-        <DetailItem label="VIP" value={toJoined(store.vip_labels, store.vip_keys)} />
-        <DetailItem label="支払い方法" value={toJoined(store.payment_method_labels, store.payment_method_keys)} />
-        <DetailItem label="音響" value={toJoined(store.sound_labels, store.sound_keys)} />
-        <DetailItem label="照明" value={toJoined(store.lighting_labels, store.lighting_keys)} />
-        <DetailItem label="演出" value={toJoined(store.production_labels, store.production_keys)} />
-        <DetailItem label="フード" value={toJoined(store.food_labels, store.food_keys)} />
-        <DetailItem label="サービス" value={toJoined(store.service_labels, store.service_keys)} />
+        <DetailItem label="店舗タイプ" value={store.type_label} />
+        <DetailItem label="イベントの傾向" value={toJoined(store.event_trend_labels)} />
+        <DetailItem label="ルール／マナー" value={toJoined(store.rule_labels)} />
+        <DetailItem label="荷物預かり" value={toJoined(store.baggage_labels)} />
+        <DetailItem label="セキュリティ" value={toJoined(store.security_labels)} />
+        <DetailItem label="トイレ" value={toJoined(store.toilet_labels)} />
+        <DetailItem label="広さ" value={store.size_label} />
+        <DetailItem label="フロア" value={toJoined(store.floor_labels)} />
+        <DetailItem label="座席タイプ" value={toJoined(store.seat_type_labels)} />
+        <DetailItem label="喫煙" value={toJoined(store.smoking_labels)} />
+        <DetailItem label="周辺環境" value={toJoined(store.environment_labels)} />
+        <DetailItem label="価格帯" value={store.price_range_label} />
+        <DetailItem label="料金システム" value={toJoined(store.pricing_system_labels)} />
+        <DetailItem label="ディスカウント" value={toJoined(store.discount_labels)} />
+        <DetailItem label="VIP" value={toJoined(store.vip_labels)} />
+        <DetailItem label="支払い方法" value={toJoined(store.payment_method_labels)} />
+        <DetailItem label="音響" value={toJoined(store.sound_labels)} />
+        <DetailItem label="照明" value={toJoined(store.lighting_labels)} />
+        <DetailItem label="演出" value={toJoined(store.production_labels)} />
+        <DetailItem label="フード" value={toJoined(store.food_labels)} />
+        <DetailItem label="サービス" value={toJoined(store.service_labels)} />
+        <DetailItem label="ドリンク" value={toJoined(store.drink_labels)} />
+        <DetailItem label="客層" value={toJoined(store.customer_labels)} />
+        <DetailItem label="雰囲気" value={toJoined(store.atmosphere_labels)} />
+        <DetailItem label="接客" value={store.hospitality_label ?? null} />
       </div>
 
-      {/* ================ 戻るボタン（storesへクエリ保持で戻る） ================ */}
+      {/* ===================== 戻る ===================== */}
       <BackToHomeButton
         onClick={() => {
           if (query) router.push(`/stores?${query}`)
@@ -301,7 +311,6 @@ export default function StoreDetailView({ store }: Props) {
       />
 
       <div className="py-12" />
-
       <Footer />
     </div>
   )

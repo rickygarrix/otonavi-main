@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter, useParams, useSearchParams } from "next/navigation"
 import { supabase } from "@/lib/supabase"
-
+import { normalizeStore } from "@/lib/normalizeStore"
 import type { HomeStore } from "@/types/store"
 import StoreDetailView from "@/components/store/StoreDetailView"
 import HomeButton from "@/components/ui/HomeButton"
@@ -15,7 +15,6 @@ export default function StoreDetailPage() {
   const query = searchParams.toString()
 
   const storeId = params?.id as string
-
   const [store, setStore] = useState<HomeStore | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -29,54 +28,63 @@ export default function StoreDetailPage() {
         .from("stores")
         .select(`
           *,
-          store_types:store_type_id ( label ),
-          prefectures:prefecture_id ( name_ja ),
-          areas:area_id ( name )
+          prefectures:prefecture_id(*),
+          areas:area_id(*),
+          store_types:store_type_id(*),
+          price_range_definitions:price_range_id(*),
+          hospitality_definitions:hospitality(*),
+          size_definitions:size(*),
+
+          store_open_hours(*),
+          store_special_open_hours(*),
+
+          store_drinks(
+            id,
+            drink_definitions:drink_id(*)
+          ),
+          store_customers(
+            id,
+            customer_definitions:customer_id(*)
+          ),
+          store_atmospheres(
+            id,
+            atmosphere_definitions:atmosphere_id(*)
+          ),
+
+          store_event_trends(event_trend_definitions(*)),
+          store_rules(rule_definitions(*)),
+          store_baggage(baggage_definitions(*)),
+          store_security(security_definitions(*)),
+          store_toilet(toilet_definitions(*)),
+          store_floor(floor_definitions(*)),
+          store_seat_type(seat_type_definitions(*)),
+          store_smoking(smoking_definitions(*)),
+          store_environment(environment_definitions(*)),
+          store_other(other_definitions(*)),
+          store_pricing_system(pricing_system_definitions(*)),
+          store_discounts(discount_definitions(*)),
+          store_vips(vip_definitions(*)),
+          store_payment_methods(payment_method_definitions(*)),
+          store_sounds(sound_definitions(*)),
+          store_lightings(lighting_definitions(*)),
+          store_productions(production_definitions(*)),
+          store_foods(food_definitions(*)),
+          store_services(service_definitions(*)),
+
+          store_awards(*),
+          store_media_mentions(*)
         `)
         .eq("id", storeId)
         .single()
 
-      if (error) {
+      if (error || !data) {
         console.error("店舗取得エラー:", error)
         setStore(null)
         setLoading(false)
         return
       }
 
-      // ------------------------
-      // HomeStore にマッピング
-      // ------------------------
-      const mapped: HomeStore = {
-        ...data,
-
-        prefecture_label: data.prefectures?.name_ja ?? "",
-        area_label: data.areas?.name ?? "",
-        type_label: data.store_types?.label ?? "",
-
-        // ★ 保険：存在しない場合は空配列にしておく
-        open_hours: data.open_hours ?? [],
-        special_hours: data.special_hours ?? [],
-
-        event_trend_labels: data.event_trend_labels ?? [],
-        rule_labels: data.rule_labels ?? [],
-        baggage_labels: data.baggage_labels ?? [],
-        security_labels: data.security_labels ?? [],
-        toilet_labels: data.toilet_labels ?? [],
-        floor_labels: data.floor_labels ?? [],
-        seat_type_labels: data.seat_type_labels ?? [],
-        smoking_labels: data.smoking_labels ?? [],
-        environment_labels: data.environment_labels ?? [],
-        pricing_system_labels: data.pricing_system_labels ?? [],
-        discount_labels: data.discount_labels ?? [],
-        vip_labels: data.vip_labels ?? [],
-        payment_method_labels: data.payment_method_labels ?? [],
-        sound_labels: data.sound_labels ?? [],
-        lighting_labels: data.lighting_labels ?? [],
-        production_labels: data.production_labels ?? [],
-        food_labels: data.food_labels ?? [],
-        service_labels: data.service_labels ?? [],
-      }
-
+      const mapped = normalizeStore(data)
       setStore(mapped)
       setLoading(false)
     }
@@ -91,13 +99,15 @@ export default function StoreDetailPage() {
   return (
     <div className="relative min-h-screen bg-white">
 
-      {/* ヘッダー */}
-      <div className="fixed top-0 left-0 right-0 z-[90] flex items-center gap-3 px-4 py-4 pt-[calc(env(safe-area-inset-top)+8px)] bg-black/40 text-white backdrop-blur">
-
+      {/* 上部ヘッダー */}
+      <div className="fixed top-0 left-0 right-0 z-[90]
+                      flex items-center gap-3 px-4 py-4
+                      pt-[calc(env(safe-area-inset-top)+8px)]
+                      bg-black/40 text-white backdrop-blur">
         <HomeButton
           onHome={() => {
-            if (query) router.push(`/`)
-            else router.back()
+            if (query) router.push(`/stores?${query}`)
+            else router.push("/stores")
           }}
           size={48}
           iconSize={24}
@@ -106,6 +116,7 @@ export default function StoreDetailPage() {
         <div className="font-semibold text-lg truncate">{store.name}</div>
       </div>
 
+      {/* コンテンツ */}
       <div className="pt-[90px]">
         <StoreDetailView store={store} />
       </div>
