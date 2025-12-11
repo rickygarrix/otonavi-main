@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react"
 import type { HomeStore } from "@/types/store"
 import { supabase } from "@/lib/supabase"
-
 import Footer from "@/components/Footer"
 
 type StoreImage = {
@@ -13,7 +12,14 @@ type StoreImage = {
   caption: string | null
 }
 
-const DAY_LABEL: Record<string, string> = {
+const DAY_LABEL: Record<string | number, string> = {
+  1: "月曜",
+  2: "火曜",
+  3: "水曜",
+  4: "木曜",
+  5: "金曜",
+  6: "土曜",
+  7: "日曜",
   mon: "月曜",
   tue: "火曜",
   wed: "水曜",
@@ -28,11 +34,11 @@ const formatTime = (t: string | null) => (t ? t.slice(0, 5) : "")
 function DetailItem({ label, value }: { label: string; value: string | null }) {
   const hasValue = value && value.trim() !== ""
   return (
-    <div className="flex justify-between py-2">
+    <div className="flex justify-between py-2 border-b border-slate-100">
       <span className={`font-semibold ${hasValue ? "text-slate-900" : "text-slate-400"}`}>
         {label}
       </span>
-      <span className={`text-sm ${hasValue ? "text-slate-800" : "text-slate-400"}`}>
+      <span className={`text-sm text-right ${hasValue ? "text-slate-800" : "text-slate-400"}`}>
         {hasValue ? value : "—"}
       </span>
     </div>
@@ -45,25 +51,27 @@ const toJoined = (labels?: string[], keys?: string[]) => {
   return null
 }
 
-type Props = {
-  store: HomeStore
-}
+type Props = { store: HomeStore }
 
 export default function StoreDetailView({ store }: Props) {
   const [images, setImages] = useState<StoreImage[]>([])
   const [current, setCurrent] = useState(0)
 
+  // ================= 画像取得 =================
   useEffect(() => {
     if (!store?.id) return
+
     const load = async () => {
       const { data } = await supabase
         .from("store_images")
         .select("*")
         .eq("store_id", store.id)
         .order("order_num")
+
       setImages(data ?? [])
       setCurrent(0)
     }
+
     load()
   }, [store?.id])
 
@@ -71,9 +79,16 @@ export default function StoreDetailView({ store }: Props) {
   const mainImages =
     validImages.length > 0
       ? validImages
-      : [{ id: "default", image_url: "/noshop.svg", order_num: 1, caption: null }]
+      : [
+        {
+          id: "default",
+          image_url: "/noshop.svg",
+          order_num: 1,
+          caption: null,
+        },
+      ]
 
-  // ===== 特別営業時間展開 =====
+  // ================= 特別営業時間展開 =================
   const specialList: Array<{
     date: string
     dow: number
@@ -93,12 +108,9 @@ export default function StoreDetailView({ store }: Props) {
       while (cursor <= end) {
         const jsDay = cursor.getDay()
         const dow = jsDay === 0 ? 7 : jsDay
-        const y = cursor.getFullYear()
-        const m = cursor.getMonth() + 1
-        const d = cursor.getDate()
 
         specialList.push({
-          date: `${y}/${m}/${d}`,
+          date: `${cursor.getFullYear()}/${cursor.getMonth() + 1}/${cursor.getDate()}`,
           dow,
           open_time: sp.open_time,
           close_time: sp.close_time,
@@ -111,6 +123,15 @@ export default function StoreDetailView({ store }: Props) {
       }
     }
   }
+
+  // ================= SNSリンク定義 =================
+  const socialLinks = [
+    { key: "instagram_url", icon: "/instagram.svg" },
+    { key: "x_url", icon: "/x.svg" },
+    { key: "facebook_url", icon: "/facebook.svg" },
+    { key: "tiktok_url", icon: "/tiktok.svg" },
+    { key: "official_site_url", icon: "/website.svg" },
+  ]
 
   return (
     <div className="bg-white">
@@ -127,11 +148,7 @@ export default function StoreDetailView({ store }: Props) {
         >
           {mainImages.map((img) => (
             <div key={img.id} className="min-w-full snap-center">
-              <img
-                src={img.image_url}
-                alt={store.name}
-                className="w-full h-72 object-cover bg-gray-200"
-              />
+              <img src={img.image_url} alt={store.name} className="w-full h-72 object-cover bg-gray-200" />
             </div>
           ))}
         </div>
@@ -140,8 +157,7 @@ export default function StoreDetailView({ store }: Props) {
           {mainImages.map((_, idx) => (
             <div
               key={idx}
-              className={`w-2 h-2 rounded-full ${idx === current ? "bg-white" : "bg-white/40"
-                }`}
+              className={`w-2 h-2 rounded-full ${idx === current ? "bg-white" : "bg-white/40"}`}
             />
           ))}
         </div>
@@ -150,36 +166,51 @@ export default function StoreDetailView({ store }: Props) {
       {/* ================= 基本情報 ================= */}
       <div className="px-4 py-5">
         <p className="text-slate-600 text-sm">
-          {store.prefecture_id} {store.area_id} ・ {store.store_type_id}
+          {store.prefecture_label} {store.area_label}　{store.type_label}
         </p>
-        <h1 className="text-2xl font-extrabold text-slate-900 mt-1">
-          {store.name}
-        </h1>
+
+        <h1 className="text-2xl font-extrabold text-slate-900 mt-1">{store.name}</h1>
 
         {store.name_kana && (
           <p className="text-slate-500 text-sm mt-1">{store.name_kana}</p>
         )}
 
         {store.description && (
-          <p className="mt-4 text-slate-700 whitespace-pre-line">
-            {store.description}
-          </p>
+          <p className="mt-4 text-slate-700 whitespace-pre-line">{store.description}</p>
         )}
+
+        {/* ================= SNSリンク（新規追加） ================= */}
+        <div className="flex gap-5 mt-6">
+          {socialLinks.map(({ key, icon }) => {
+            const url = (store as any)[key]
+            if (!url) return null
+
+            return (
+              <a
+                key={key}
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block"
+              >
+                <img
+                  src={icon}
+                  alt={key}
+                  className="w-7 h-7 opacity-80 hover:opacity-100 transition"
+                />
+              </a>
+            )
+          })}
+        </div>
       </div>
 
       {/* ================= アクセス ================= */}
       <div className="px-4 py-6">
         <h2 className="text-xl font-bold text-slate-900 mb-3">アクセス</h2>
 
-        {store.access && (
-          <p className="text-slate-700 whitespace-pre-line mb-4">
-            {store.access}
-          </p>
-        )}
+        {store.access && <p className="text-slate-700 whitespace-pre-line mb-4">{store.access}</p>}
 
-        {store.address && (
-          <p className="text-slate-700 whitespace-pre-line">{store.address}</p>
-        )}
+        {store.address && <p className="text-slate-700 whitespace-pre-line">{store.address}</p>}
       </div>
 
       {/* ================= 営業時間 ================= */}
@@ -188,9 +219,7 @@ export default function StoreDetailView({ store }: Props) {
 
         {store.open_hours?.map((h) => (
           <div key={h.day_of_week} className="flex gap-4 text-slate-700 py-1">
-            <div className="w-10 font-medium shrink-0">
-              {DAY_LABEL[h.day_of_week]}
-            </div>
+            <div className="w-10 font-medium shrink-0">{DAY_LABEL[h.day_of_week]}</div>
 
             <div className="flex-1">
               {h.is_closed ? (
@@ -234,7 +263,9 @@ export default function StoreDetailView({ store }: Props) {
       <div className="px-4 mt-10">
         <h2 className="text-xl font-bold text-slate-900 mb-4">この店舗の特徴</h2>
 
-        <DetailItem label="店舗タイプ" value={store.store_type_id} />
+        <DetailItem label="店舗タイプ" value={store.type_label ?? null} />
+
+        {/* 以降あなたの UI をそのまま残してあります */}
         <DetailItem label="イベントの傾向" value={toJoined(store.event_trend_labels, store.event_trend_keys)} />
         <DetailItem label="ルール／マナー" value={toJoined(store.rule_labels, store.rule_keys)} />
         <DetailItem label="荷物預かり" value={toJoined(store.baggage_labels, store.baggage_keys)} />
