@@ -271,12 +271,18 @@ export default function StoreDetailView({ store }: Props) {
       </div>
 
       {/* ===================== 特徴 ===================== */}
+      {/* ===================== 特徴 ===================== */}
       <div className="px-4 mt-10">
-        <h2 className="text-xl font-bold text-slate-900 mb-4">この店舗の特徴</h2>
 
+        {/* ---------------- ① 店舗情報 ---------------- */}
+        <h2 className="text-xl font-bold text-slate-900 mb-4">店舗情報</h2>
         <DetailItem label="店舗タイプ" value={store.type_label} />
         <DetailItem label="イベントの傾向" value={toJoined(store.event_trend_labels)} />
         <DetailItem label="ルール／マナー" value={toJoined(store.rule_labels)} />
+        <div className="h-6" />
+
+        {/* ---------------- ② 設備 ---------------- */}
+        <h2 className="text-xl font-bold text-slate-900 mb-4">設備</h2>
         <DetailItem label="荷物預かり" value={toJoined(store.baggage_labels)} />
         <DetailItem label="セキュリティ" value={toJoined(store.security_labels)} />
         <DetailItem label="トイレ" value={toJoined(store.toilet_labels)} />
@@ -285,20 +291,55 @@ export default function StoreDetailView({ store }: Props) {
         <DetailItem label="座席タイプ" value={toJoined(store.seat_type_labels)} />
         <DetailItem label="喫煙" value={toJoined(store.smoking_labels)} />
         <DetailItem label="周辺環境" value={toJoined(store.environment_labels)} />
+        <DetailItem label="その他" value={toJoined(store.other_labels)} />
+
+        <div className="h-6" />
+
+        {/* ---------------- ③ 料金体系 ---------------- */}
+        <h2 className="text-xl font-bold text-slate-900 mb-4">料金体系</h2>
         <DetailItem label="価格帯" value={store.price_range_label} />
         <DetailItem label="料金システム" value={toJoined(store.pricing_system_labels)} />
         <DetailItem label="ディスカウント" value={toJoined(store.discount_labels)} />
         <DetailItem label="VIP" value={toJoined(store.vip_labels)} />
         <DetailItem label="支払い方法" value={toJoined(store.payment_method_labels)} />
+
+        <div className="h-6" />
+
+        {/* ---------------- ④ 音響・照明 ---------------- */}
+        <h2 className="text-xl font-bold text-slate-900 mb-4">音響・照明</h2>
         <DetailItem label="音響" value={toJoined(store.sound_labels)} />
         <DetailItem label="照明" value={toJoined(store.lighting_labels)} />
         <DetailItem label="演出" value={toJoined(store.production_labels)} />
+
+        <div className="h-6" />
+
+        {/* ---------------- ⑤ 飲食・サービス ---------------- */}
+        <h2 className="text-xl font-bold text-slate-900 mb-4">飲食・サービス</h2>
+
+        {/* ドリンクカテゴリー別 */}
+        <div className="mb-4">
+          <p className="font-semibold text-slate-900">ドリンク</p>
+          {store.drink_categories &&
+            Object.entries(store.drink_categories).map(([category, { labels }]) => (
+              <DetailItem
+                key={category}
+                label={category}
+                value={labels?.join("、") ?? null}
+              />
+            ))}
+        </div>
+
         <DetailItem label="フード" value={toJoined(store.food_labels)} />
         <DetailItem label="サービス" value={toJoined(store.service_labels)} />
-        <DetailItem label="ドリンク" value={toJoined(store.drink_labels)} />
+
+        <div className="h-6" />
+
+        {/* ---------------- ⑥ 客層・雰囲気 ---------------- */}
+        <h2 className="text-xl font-bold text-slate-900 mb-4">客層・雰囲気</h2>
         <DetailItem label="客層" value={toJoined(store.customer_labels)} />
         <DetailItem label="雰囲気" value={toJoined(store.atmosphere_labels)} />
-        <DetailItem label="接客" value={store.hospitality_label ?? null} />
+        <DetailItem label="接客" value={store.hospitality_label} />
+
       </div>
 
       {/* ===================== 戻る ===================== */}

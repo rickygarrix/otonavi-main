@@ -106,8 +106,8 @@ export default function StoreDetailPage() {
                       bg-black/40 text-white backdrop-blur">
         <HomeButton
           onHome={() => {
-            if (query) router.push(`/stores?${query}`)
-            else router.push("/stores")
+            if (query) router.push(`/`)
+            else router.push("/")
           }}
           size={48}
           iconSize={24}
