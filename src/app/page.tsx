@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState } from "react" // ✅ useState を追加
+import { useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 
 import CurvedBackground from "@/components/home/CurvedBackground"

@@ -29,12 +29,24 @@ export default function DrinkSelector({
   const [items, setItems] = useState<DrinkItem[]>([])
   const [selectedKeys, setSelectedKeys] = useState<string[]>([])
 
+  // ============================
+  // ✅ 選択変更 → 親に通知
+  // ============================
+  useEffect(() => {
+    onChange(selectedKeys)
+  }, [selectedKeys, onChange])
+
+  // ============================
   // ✅ クリア時リセット
+  // ============================
   useEffect(() => {
     setSelectedKeys([])
     onChange([])
-  }, [clearKey])
+  }, [clearKey, onChange])
 
+  // ============================
+  // ✅ マスタ読込（初回のみ）
+  // ============================
   useEffect(() => {
     const load = async () => {
       const { data, error } = await supabase
@@ -44,13 +56,20 @@ export default function DrinkSelector({
         .order("category", { ascending: true })
         .order("label", { ascending: true })
 
-      if (error) return
+      if (error) {
+        console.error("DrinkSelector load error:", error)
+        return
+      }
+
       setItems((data ?? []) as DrinkItem[])
     }
 
     load()
   }, [])
 
+  // ============================
+  // カテゴリごとにグループ化
+  // ============================
   const groups = useMemo(() => {
     const map: Record<string, DrinkItem[]> = {}
     items.forEach((item) => {
@@ -60,22 +79,27 @@ export default function DrinkSelector({
     return map
   }, [items])
 
+  // ============================
+  // トグル
+  // ============================
   const toggle = (key: string) => {
-    const next =
-      selectedKeys.includes(key)
-        ? selectedKeys.filter((k) => k !== key)
-        : [...selectedKeys, key]
-
-    setSelectedKeys(next)
-    onChange(next)
+    setSelectedKeys((prev) =>
+      prev.includes(key)
+        ? prev.filter((k) => k !== key)
+        : [...prev, key]
+    )
   }
 
+  // ============================
+  // UI
+  // ============================
   return (
     <div className="w-full px-6 py-6">
       <h2 className="text-lg font-bold text-slate-900 mb-6">{title}</h2>
 
       {Object.entries(groups).map(([category, list]) => (
         <div key={category} className="mb-8">
+          {/* 🎯 スクロールアンカー */}
           <div
             ref={(el) => {
               if (!el || !drinkCategoryRefs) return

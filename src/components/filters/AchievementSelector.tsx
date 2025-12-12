@@ -22,7 +22,7 @@ export default function AchievementSelector({
     setHasAward(false)
     setHasMedia(false)
     onChange({ hasAward: false, hasMedia: false })
-  }, [clearKey])
+  }, [clearKey, onChange])
 
   useEffect(() => {
     onChange({ hasAward, hasMedia })

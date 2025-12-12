@@ -1,8 +1,13 @@
 'use client'
 
+import Image from 'next/image'
 import type { HomeStore } from '@/types/store'
 
-export default function HomeStoreCard({ store }: { store: HomeStore }) {
+type Props = {
+  store: HomeStore
+}
+
+export default function HomeStoreCard({ store }: Props) {
   const imageUrl =
     store.image_url && store.image_url.trim() !== ''
       ? store.image_url
@@ -17,11 +22,14 @@ export default function HomeStoreCard({ store }: { store: HomeStore }) {
   return (
     <div className="w-full text-center flex flex-col items-center">
       {/* ✅ 正方形カード */}
-      <div className="w-full aspect-square overflow-hidden rounded-3xl">
-        <img
+      <div className="relative w-full aspect-square overflow-hidden rounded-3xl">
+        <Image
           src={imageUrl}
           alt={store.name}
-          className="w-full h-full object-cover"
+          fill
+          sizes="(max-width: 768px) 50vw, 25vw"
+          className="object-cover"
+          priority
         />
       </div>
 

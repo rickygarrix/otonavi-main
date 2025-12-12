@@ -93,7 +93,7 @@ export default function GenericSelector(props: Props) {
       setSelectedIds([])
       onChange([])
     }
-  }, [clearKey])
+  }, [clearKey, selection, onChange])
 
   // -------------------------------
   // トグル処理

@@ -1,11 +1,12 @@
 "use client"
 
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 import type { HomeStore } from "@/types/store"
 
 type Props = {
   store: HomeStore
-  query?: string // ← 追加（検索条件を受け取る）
+  query?: string
 }
 
 export default function StoreCard({ store, query }: Props) {
@@ -48,16 +49,18 @@ export default function StoreCard({ store, query }: Props) {
         text-left overflow-hidden
       "
     >
-      {/* 画像 */}
-      <div className="w-full h-[140px] flex items-center justify-center bg-gray-200">
-        <img
+      {/* ================= 画像 ================= */}
+      <div className="relative w-full h-[140px] bg-gray-200">
+        <Image
           src={imageUrl}
           alt={store.name}
-          className="w-full h-full object-contain"
+          fill
+          sizes="(max-width: 768px) 100vw, 33vw"
+          className="object-contain"
         />
       </div>
 
-      {/* テキスト */}
+      {/* ================= テキスト ================= */}
       <div className="px-3 py-2 flex flex-col gap-1">
         <div className="px-1">
           <p className="text-slate-900 text-sm font-bold leading-5 line-clamp-1">

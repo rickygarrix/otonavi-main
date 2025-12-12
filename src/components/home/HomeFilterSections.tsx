@@ -6,6 +6,11 @@ import GenericSelector from "@/components/filters/GenericSelector"
 import DrinkSelector from "@/components/filters/DrinkSelector"
 import { RegionKey } from "@/app/page"
 
+type AchievementFilter = {
+  hasAward: boolean
+  hasMedia: boolean
+}
+
 type Props = {
   clearKey: number
   setPrefectureIds: (v: string[]) => void
@@ -13,7 +18,7 @@ type Props = {
   setStoreTypeKeys: (v: string[]) => void
   setEventTrendKeys: (v: string[]) => void
   setRuleKeys: (v: string[]) => void
-  setAchievementFilter: (v: any) => void
+  setAchievementFilter: (v: AchievementFilter) => void
 
   setBaggageKeys: (v: string[]) => void
   setSecurityKeys: (v: string[]) => void

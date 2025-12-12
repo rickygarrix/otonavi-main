@@ -1,10 +1,37 @@
+// ============================
+// 営業時間（通常）
+// ============================
+export type StoreOpenHour = {
+  day_of_week: number            // 0=日, 1=月 ...
+  open_time: string | null       // "18:00"
+  close_time: string | null      // "02:00"
+  last_order_time: string | null // "01:30"
+  is_closed: boolean
+}
+
+// ============================
+// 営業時間（特別）
+// ============================
+export type StoreSpecialOpenHour = {
+  start_date: string             // "2025-12-24"
+  end_date: string               // "2025-12-25"
+  open_time: string | null
+  close_time: string | null
+  last_order_time: string | null
+  is_closed: boolean
+  reason: string | null           // "クリスマス特別営業"
+}
+
+// ============================
+// Home 一覧用 Store 型
+// ============================
 export type HomeStore = {
   id: string
   name: string
   name_kana: string | null
 
   // ============================
-  // ✅ エリア系（idで検索・labelで表示）
+  // エリア系（id = 検索 / label = 表示）
   // ============================
   prefecture_id: string | null
   prefecture_label: string | null
@@ -13,19 +40,19 @@ export type HomeStore = {
   area_label: string | null
 
   // ============================
-  // ✅ 店舗タイプ
+  // 店舗タイプ
   // ============================
   store_type_id: string | null
   type_label: string | null
 
   // ============================
-  // ✅ 価格帯
+  // 価格帯
   // ============================
   price_range_id: string | null
   price_range_label: string | null
 
   // ============================
-  // ✅ 基本情報
+  // 基本情報
   // ============================
   image_url: string
   description: string | null
@@ -40,16 +67,22 @@ export type HomeStore = {
   google_map_url: string | null
   address: string | null
 
-  open_hours: any[]
-  special_hours: any[]
+  // ============================
+  // 営業時間
+  // ============================
+  open_hours: StoreOpenHour[]
+  special_hours: StoreSpecialOpenHour[]
 
+  // ============================
+  // 実績
+  // ============================
   hasAward: boolean
   hasMedia: boolean
 
   updated_at: string
 
   // ============================
-  // ✅ M2M（keys = 検索用 / labels = 表示用）
+  // M2M（keys = 検索 / labels = 表示）
   // ============================
   event_trend_keys: string[]
   event_trend_labels: string[]
@@ -115,7 +148,7 @@ export type HomeStore = {
   service_labels: string[]
 
   // ============================
-  // ✅ ドリンク（カテゴリ対応）
+  // ドリンク（カテゴリ対応）
   // ============================
   drink_keys: string[]
   drink_labels: string[]
@@ -128,7 +161,7 @@ export type HomeStore = {
   >
 
   // ============================
-  // ✅ 単一系
+  // 単一選択系
   // ============================
   hospitality_key: string | null
   hospitality_label: string | null
