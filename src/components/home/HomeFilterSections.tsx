@@ -19,7 +19,7 @@ type Props = {
   setBaggageKeys: (v: string[]) => void
   setSecurityKeys: (v: string[]) => void
   setToiletKeys: (v: string[]) => void
-  setSizeKey: (v: string | null) => void
+  setSizeKey: (v: string[]) => void
   setFloorKeys: (v: string[]) => void
   setSeatTypeKeys: (v: string[]) => void
   setSmokingKeys: (v: string[]) => void
@@ -143,8 +143,9 @@ export default function HomeFilterSections(p: Props) {
       <GenericSelector
         title="広さ"
         table="size_definitions"
-        selection="single"
+        selection="multi"
         onChange={p.setSizeKey}
+        columns={3}
         sectionRef={register("広さ")}
         clearKey={p.clearKey}
       />

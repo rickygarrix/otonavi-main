@@ -30,7 +30,7 @@ export function useStoreFilters(
   const [securityKeys, setSecurityKeys] = useState<string[]>([])
   const [toiletKeys, setToiletKeys] = useState<string[]>([])
   const [floorKeys, setFloorKeys] = useState<string[]>([])
-  const [sizeKey, setSizeKey] = useState<string | null>(null)
+  const [sizeKey, setSizeKey] = useState<string[]>([])
 
   const [priceRange, setPriceRange] = useState<string | null>(null)
   const [pricingSystemKeys, setPricingSystemKeys] = useState<string[]>([])
@@ -87,7 +87,7 @@ export function useStoreFilters(
     setSecurityKeys([])
     setToiletKeys([])
     setFloorKeys([])
-    setSizeKey(null)
+    setSizeKey([])
 
     setPriceRange(null)
     setPricingSystemKeys([])
@@ -153,8 +153,7 @@ export function useStoreFilters(
           return false
         }
       }
-
-      if (sizeKey && s.size_key !== sizeKey) return false
+      if (sizeKey.length > 0 && !sizeKey.includes(s.size_key)) return false
       if (priceRange && s.price_range_id !== priceRange) return false
       if (hospitalityKey && s.hospitality_key !== hospitalityKey) return false
 
@@ -218,7 +217,7 @@ export function useStoreFilters(
     ...toiletKeys.map((k) => labelMap.get(k) ?? k),
     ...floorKeys.map((k) => labelMap.get(k) ?? k),
 
-    sizeKey ? labelMap.get(sizeKey) ?? sizeKey : null,
+    ...sizeKey.map((k) => labelMap.get(k) ?? k),
 
     priceRange ? labelMap.get(priceRange) ?? priceRange : null,
     ...pricingSystemKeys.map((k) => labelMap.get(k) ?? k),
