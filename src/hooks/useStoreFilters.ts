@@ -44,7 +44,7 @@ export function useStoreFilters(
 
   const [customerKeys, setCustomerKeys] = useState<string[]>([])
   const [atmosphereKeys, setAtmosphereKeys] = useState<string[]>([])
-  const [hospitalityKey, setHospitalityKey] = useState<string | null>(null)
+  const [hospitalityKeys, setHospitalityKeys] = useState<string[]>([])
 
   const [foodKeys, setFoodKeys] = useState<string[]>([])
   const [serviceKeys, setServiceKeys] = useState<string[]>([])
@@ -101,7 +101,7 @@ export function useStoreFilters(
 
     setCustomerKeys([])
     setAtmosphereKeys([])
-    setHospitalityKey(null)
+    setHospitalityKeys([])
 
     setFoodKeys([])
     setServiceKeys([])
@@ -155,7 +155,12 @@ export function useStoreFilters(
       }
       if (sizeKey.length > 0 && !sizeKey.includes(s.size_key)) return false
       if (priceRange && s.price_range_id !== priceRange) return false
-      if (hospitalityKey && s.hospitality_key !== hospitalityKey) return false
+      if (
+        hospitalityKeys.length > 0 &&
+        !hospitalityKeys.includes(s.hospitality_key)
+      ) {
+        return false
+      }
 
       if (achievementFilter.hasAward && !s.hasAward) return false
       if (achievementFilter.hasMedia && !s.hasMedia) return false
@@ -191,7 +196,7 @@ export function useStoreFilters(
     drinkKeys,
     customerKeys,
     atmosphereKeys,
-    hospitalityKey,
+    hospitalityKeys,
     achievementFilter,
   ])
 
@@ -235,7 +240,7 @@ export function useStoreFilters(
 
     ...customerKeys.map((k) => labelMap.get(k) ?? k),
     ...atmosphereKeys.map((k) => labelMap.get(k) ?? k),
-    hospitalityKey ? labelMap.get(hospitalityKey) ?? hospitalityKey : null,
+    ...hospitalityKeys.map((k) => labelMap.get(k) ?? k),
 
     achievementFilter.hasAward ? "受賞あり" : null,
     achievementFilter.hasMedia ? "メディア掲載あり" : null,
@@ -298,7 +303,7 @@ export function useStoreFilters(
 
     customerKeys, setCustomerKeys,
     atmosphereKeys, setAtmosphereKeys,
-    hospitalityKey, setHospitalityKey,
+    hospitalityKeys, setHospitalityKeys,
 
     foodKeys, setFoodKeys,
     serviceKeys, setServiceKeys,

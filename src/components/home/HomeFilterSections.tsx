@@ -42,7 +42,7 @@ type Props = {
 
   setCustomerKeys: (v: string[]) => void
   setAtmosphereKeys: (v: string[]) => void
-  setHospitalityKey: (v: string | null) => void
+  setHospitalityKeys: (v: string[]) => void
 
   regionRefs: Record<RegionKey, React.RefObject<HTMLDivElement | null>>
   areaRefs: React.MutableRefObject<Record<string, HTMLDivElement | null>>
@@ -333,8 +333,9 @@ export default function HomeFilterSections(p: Props) {
       <GenericSelector
         title="接客"
         table="hospitality_definitions"
-        selection="single"
-        onChange={p.setHospitalityKey}
+        selection="multi"
+        onChange={p.setHospitalityKeys}
+        columns={3}
         sectionRef={register("接客")}
         clearKey={p.clearKey}
       />

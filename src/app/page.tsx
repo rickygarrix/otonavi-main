@@ -81,7 +81,7 @@ export default function HomePage() {
 
     setCustomerKeys,
     setAtmosphereKeys,
-    setHospitalityKey,
+    setHospitalityKeys,
 
     filteredStores,
     selectedFilters,
@@ -250,7 +250,7 @@ export default function HomePage() {
         setServiceKeys={setServiceKeys}
         setCustomerKeys={setCustomerKeys}
         setAtmosphereKeys={setAtmosphereKeys}
-        setHospitalityKey={setHospitalityKey}
+        setHospitalityKeys={setHospitalityKeys}
       />
 
       {/* Bottom Search Bar */}
