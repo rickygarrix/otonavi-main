@@ -48,8 +48,8 @@ export default function HomePage() {
   const [clearKey, setClearKey] = useState(0)
 
   const {
-    setPrefecture,
-    setArea,
+    setPrefectureIds,
+    setAreaIds,
     setStoreTypeKeys,
     setEventTrendKeys,
     setRuleKeys,
@@ -222,8 +222,8 @@ export default function HomePage() {
         drinkCategoryRefs={drinkCategoryRefs}
         achievementRefs={achievementRefs}
         genericSectionRefs={genericSectionRefs}
-        setPrefecture={setPrefecture}
-        setArea={setArea}
+        setPrefectureIds={setPrefectureIds}
+        setAreaIds={setAreaIds}
         setStoreTypeKeys={setStoreTypeKeys}
         setEventTrendKeys={setEventTrendKeys}
         setRuleKeys={setRuleKeys}

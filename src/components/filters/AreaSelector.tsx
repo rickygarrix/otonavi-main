@@ -20,7 +20,7 @@ type Area = {
 }
 
 type Props = {
-  onChange: (prefId: string | null, areaId: string | null) => void
+  onChange: (prefectureIds: string[], areaIds: string[]) => void
   regionRefs?: Record<RegionKey, RefObject<HTMLDivElement | null>>
   areaRefs?: React.MutableRefObject<Record<string, HTMLDivElement | null>>
   clearKey: number
@@ -34,17 +34,13 @@ export default function AreaSelector({
 }: Props) {
   const [prefectures, setPrefectures] = useState<Prefecture[]>([])
   const [areas, setAreas] = useState<Area[]>([])
-  const [selectedPrefecture, setSelectedPrefecture] = useState<Prefecture | null>(null)
-  const [selectedArea, setSelectedArea] = useState<Area | null>(null)
 
-  // ✅ クリア時にUI完全リセット
-  useEffect(() => {
-    setSelectedPrefecture(null)
-    setSelectedArea(null)
-    setAreas([])
-    onChange(null, null)
-  }, [clearKey])
+  const [selectedPrefectureIds, setSelectedPrefectureIds] = useState<string[]>([])
+  const [selectedAreaIds, setSelectedAreaIds] = useState<string[]>([])
 
+  // ============================
+  // 初期ロード
+  // ============================
   useEffect(() => {
     const load = async () => {
       const { data } = await supabase
@@ -54,33 +50,60 @@ export default function AreaSelector({
 
       setPrefectures(data ?? [])
     }
-
     load()
   }, [])
 
-  useEffect(() => {
-    const load = async () => {
-      if (!selectedPrefecture) return
+  // ============================
+  // 東京エリアロード
+  // ============================
+  const tokyoPrefecture = useMemo(
+    () => prefectures.find((p) => p.name_ja === "東京都"),
+    [prefectures]
+  )
 
-      if (selectedPrefecture.name_ja !== "東京都") {
+  const isTokyoSelected =
+    tokyoPrefecture && selectedPrefectureIds.includes(tokyoPrefecture.id)
+
+  useEffect(() => {
+    const loadTokyoAreas = async () => {
+      if (!isTokyoSelected || !tokyoPrefecture) {
         setAreas([])
-        onChange(selectedPrefecture.id, null)
+        setSelectedAreaIds([])
         return
       }
 
       const { data } = await supabase
         .from("areas")
         .select("*")
-        .eq("prefecture_id", selectedPrefecture.id)
+        .eq("prefecture_id", tokyoPrefecture.id)
         .order("name")
 
       setAreas(data ?? [])
-      onChange(selectedPrefecture.id, selectedArea?.id ?? null)
     }
 
-    load()
-  }, [selectedPrefecture])
+    loadTokyoAreas()
+  }, [isTokyoSelected, tokyoPrefecture])
 
+  // ============================
+  // 親へ通知
+  // ============================
+  useEffect(() => {
+    onChange(selectedPrefectureIds, selectedAreaIds)
+  }, [selectedPrefectureIds, selectedAreaIds])
+
+  // ============================
+  // クリア
+  // ============================
+  useEffect(() => {
+    setSelectedPrefectureIds([])
+    setSelectedAreaIds([])
+    setAreas([])
+    onChange([], [])
+  }, [clearKey])
+
+  // ============================
+  // 表示用整理
+  // ============================
   const grouped = useMemo(() => {
     return prefectures.reduce((acc: Record<string, Prefecture[]>, p) => {
       if (!acc[p.region]) acc[p.region] = []
@@ -101,6 +124,9 @@ export default function AreaSelector({
   const tokyoWards = areas.filter((a) => a.is_23ward)
   const tokyoOthers = areas.filter((a) => !a.is_23ward)
 
+  // ============================
+  // UI
+  // ============================
   return (
     <div className="w-full px-6 py-6">
       {REGION_ORDER.map((region) => {
@@ -120,14 +146,21 @@ export default function AreaSelector({
                 <PrefectureChip
                   key={p.id}
                   label={p.name_ja}
-                  selected={selectedPrefecture?.id === p.id}
-                  onClick={() => setSelectedPrefecture(p)}
+                  selected={selectedPrefectureIds.includes(p.id)}
+                  onClick={() => {
+                    setSelectedPrefectureIds((prev) =>
+                      prev.includes(p.id)
+                        ? prev.filter((id) => id !== p.id)
+                        : [...prev, p.id]
+                    )
+                  }}
                 />
               ))}
             </div>
 
-            {region === "関東" && selectedPrefecture?.name_ja === "東京都" && (
+            {region === "関東" && isTokyoSelected && (
               <>
+                {/* 東京23区 */}
                 <div
                   ref={(el) => {
                     if (!el || !areaRefs) return
@@ -136,22 +169,28 @@ export default function AreaSelector({
                   className="scroll-mt-[90px]"
                 />
 
-                <h3 className="font-semibold text-slate-800 mt-8 mb-3">東京23区</h3>
+                <h3 className="font-semibold text-slate-800 mt-8 mb-3">
+                  東京23区
+                </h3>
 
                 <div className="grid grid-cols-3 gap-3">
                   {tokyoWards.map((a) => (
                     <Chip
                       key={a.id}
                       label={a.name}
-                      selected={selectedArea?.id === a.id}
+                      selected={selectedAreaIds.includes(a.id)}
                       onClick={() => {
-                        setSelectedArea(a)
-                        onChange(selectedPrefecture.id, a.id)
+                        setSelectedAreaIds((prev) =>
+                          prev.includes(a.id)
+                            ? prev.filter((id) => id !== a.id)
+                            : [...prev, a.id]
+                        )
                       }}
                     />
                   ))}
                 </div>
 
+                {/* 東京23区以外 */}
                 <div
                   ref={(el) => {
                     if (!el || !areaRefs) return
@@ -169,10 +208,13 @@ export default function AreaSelector({
                     <Chip
                       key={a.id}
                       label={a.name}
-                      selected={selectedArea?.id === a.id}
+                      selected={selectedAreaIds.includes(a.id)}
                       onClick={() => {
-                        setSelectedArea(a)
-                        onChange(selectedPrefecture.id, a.id)
+                        setSelectedAreaIds((prev) =>
+                          prev.includes(a.id)
+                            ? prev.filter((id) => id !== a.id)
+                            : [...prev, a.id]
+                        )
                       }}
                     />
                   ))}

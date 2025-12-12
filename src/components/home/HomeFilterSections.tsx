@@ -8,9 +8,8 @@ import { RegionKey } from "@/app/page"
 
 type Props = {
   clearKey: number
-
-  setPrefecture: (v: string | null) => void
-  setArea: (v: string | null) => void
+  setPrefectureIds: (v: string[]) => void
+  setAreaIds: (v: string[]) => void
   setStoreTypeKeys: (v: string[]) => void
   setEventTrendKeys: (v: string[]) => void
   setRuleKeys: (v: string[]) => void
@@ -62,9 +61,10 @@ export default function HomeFilterSections(p: Props) {
       {/* ================= エリア ================= */}
       <AreaSelector
         clearKey={p.clearKey}
-        onChange={(prefId, areaId) => {
-          p.setPrefecture(prefId)
-          p.setArea(areaId)
+        // ✅ 修正後
+        onChange={(prefIds, areaIds) => {
+          p.setPrefectureIds(prefIds)
+          p.setAreaIds(areaIds)
         }}
         regionRefs={p.regionRefs}
         areaRefs={p.areaRefs}

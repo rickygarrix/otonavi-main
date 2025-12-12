@@ -10,8 +10,8 @@ export function useStoreFilters(
   // ============================
   // フィルタ state
   // ============================
-  const [prefecture, setPrefecture] = useState<string | null>(null)
-  const [area, setArea] = useState<string | null>(null)
+  const [prefectureIds, setPrefectureIds] = useState<string[]>([])
+  const [areaIds, setAreaIds] = useState<string[]>([])
   const [storeTypeKeys, setStoreTypeKeys] = useState<string[]>([])
 
   const [eventTrendKeys, setEventTrendKeys] = useState<string[]>([])
@@ -72,8 +72,8 @@ export function useStoreFilters(
   // ✅ 全クリア
   // ============================
   const handleClear = useCallback(() => {
-    setPrefecture(null)
-    setArea(null)
+    setPrefectureIds([])
+    setAreaIds([])
     setStoreTypeKeys([])
 
     setEventTrendKeys([])
@@ -115,8 +115,15 @@ export function useStoreFilters(
   // ============================
   const filteredStores = useMemo(() => {
     return stores.filter((s: any) => {
-      if (prefecture && s.prefecture_id !== prefecture) return false
-      if (area && s.area_id !== area) return false
+      if (
+        prefectureIds.length > 0 &&
+        !prefectureIds.includes(s.prefecture_id)
+      ) return false
+
+      if (
+        areaIds.length > 0 &&
+        !areaIds.includes(s.area_id)
+      ) return false
       if (
         storeTypeKeys.length > 0 &&
         !storeTypeKeys.includes(s.store_type_id)
@@ -179,8 +186,8 @@ export function useStoreFilters(
     })
   }, [
     stores,
-    prefecture,
-    area,
+    prefectureIds,
+    areaIds,
     storeTypeKeys,
     eventTrendKeys,
     ruleKeys,
@@ -216,8 +223,8 @@ export function useStoreFilters(
   // ✅ 検索バー表示用フィルター【完全対応】
   // ============================
   const selectedFilters = [
-    prefecture ? labelMap.get(prefecture) ?? prefecture : null,
-    area ? labelMap.get(area) ?? area : null,
+    ...prefectureIds.map(id => labelMap.get(id) ?? id),
+    ...areaIds.map(id => labelMap.get(id) ?? id),
     ...storeTypeKeys.map((k) => labelMap.get(k) ?? k),
 
     ...eventTrendKeys.map((k) => labelMap.get(k) ?? k),
@@ -282,8 +289,8 @@ export function useStoreFilters(
   // ✅ return（Home 側と完全一致）
   // ============================
   return {
-    prefecture, setPrefecture,
-    area, setArea,
+    prefectureIds, setPrefectureIds,
+    areaIds, setAreaIds,
     storeTypeKeys, setStoreTypeKeys,
 
     eventTrendKeys, setEventTrendKeys,
