@@ -1,11 +1,11 @@
 "use client"
 
+import { useCallback } from "react"
 import AreaSelector from "@/components/filters/AreaSelector"
 import AchievementSelector from "@/components/filters/AchievementSelector"
 import GenericSelector from "@/components/filters/GenericSelector"
 import DrinkSelector from "@/components/filters/DrinkSelector"
 import { RegionKey } from "@/app/page"
-import { useCallback } from "react"
 
 type AchievementFilter = {
   hasAward: boolean
@@ -14,8 +14,10 @@ type AchievementFilter = {
 
 type Props = {
   clearKey: number
+
   setPrefectureIds: (v: string[]) => void
   setAreaIds: (v: string[]) => void
+
   setStoreTypeKeys: (v: string[]) => void
   setEventTrendKeys: (v: string[]) => void
   setRuleKeys: (v: string[]) => void
@@ -56,28 +58,82 @@ type Props = {
   genericSectionRefs: React.MutableRefObject<Record<string, HTMLDivElement | null>>
 }
 
-export default function HomeFilterSections(p: Props) {
+export default function HomeFilterSections(props: Props) {
+  const {
+    clearKey,
+
+    setPrefectureIds,
+    setAreaIds,
+
+    setStoreTypeKeys,
+    setEventTrendKeys,
+    setRuleKeys,
+    setAchievementFilter,
+
+    setBaggageKeys,
+    setSecurityKeys,
+    setToiletKeys,
+    setSizeKey,
+    setFloorKeys,
+    setSeatTypeKeys,
+    setSmokingKeys,
+    setEnvironmentKeys,
+    setOtherKeys,
+
+    setPriceRangeKeys,
+    setPricingSystemKeys,
+    setDiscountKeys,
+    setVipKeys,
+    setPaymentMethodKeys,
+
+    setSoundKeys,
+    setLightingKeys,
+    setProductionKeys,
+
+    setDrinkKeys,
+    setFoodKeys,
+    setServiceKeys,
+
+    setCustomerKeys,
+    setAtmosphereKeys,
+    setHospitalityKeys,
+
+    regionRefs,
+    areaRefs,
+    drinkCategoryRefs,
+    achievementRefs,
+    genericSectionRefs,
+  } = props
+
+  // ============================
+  // セクション ref 登録（安定）
+  // ============================
   const register = useCallback(
     (key: string) => (el: HTMLDivElement | null) => {
-      p.genericSectionRefs.current[key] = el
+      genericSectionRefs.current[key] = el
     },
-    []
+    [genericSectionRefs]
   )
 
+  // ============================
+  // AreaSelector onChange（安定）
+  // ============================
+  const handleAreaChange = useCallback(
+    (prefIds: string[], areaIds: string[]) => {
+      setPrefectureIds(prefIds)
+      setAreaIds(areaIds)
+    },
+    [setPrefectureIds, setAreaIds]
+  )
 
   return (
-
     <>
       {/* ================= エリア ================= */}
       <AreaSelector
-        clearKey={p.clearKey}
-        // ✅ 修正後
-        onChange={(prefIds, areaIds) => {
-          p.setPrefectureIds(prefIds)
-          p.setAreaIds(areaIds)
-        }}
-        regionRefs={p.regionRefs}
-        areaRefs={p.areaRefs}
+        clearKey={clearKey}
+        onChange={handleAreaChange}
+        regionRefs={regionRefs}
+        areaRefs={areaRefs}
       />
 
       {/* ================= 店舗タイプ ================= */}
@@ -85,39 +141,37 @@ export default function HomeFilterSections(p: Props) {
         title="店舗タイプ"
         table="store_types"
         selection="multi"
-        onChange={p.setStoreTypeKeys}
+        onChange={setStoreTypeKeys}
         columns={3}
         sectionRef={register("店舗タイプ")}
-        clearKey={p.clearKey}
+        clearKey={clearKey}
       />
 
-      {/* ================= イベントの傾向 ================= */}
       <GenericSelector
         title="イベントの傾向"
         table="event_trend_definitions"
         selection="multi"
-        onChange={p.setEventTrendKeys}
+        onChange={setEventTrendKeys}
         columns={3}
         sectionRef={register("イベントの傾向")}
-        clearKey={p.clearKey}
+        clearKey={clearKey}
       />
 
-      {/* ================= ルール ================= */}
       <GenericSelector
         title="ルール / マナー"
         table="rule_definitions"
         selection="multi"
-        onChange={p.setRuleKeys}
+        onChange={setRuleKeys}
         columns={3}
         sectionRef={register("ルール / マナー")}
-        clearKey={p.clearKey}
+        clearKey={clearKey}
       />
 
-      {/* ================= 実績（✅ 完璧な形） ================= */}
+      {/* ================= 実績 ================= */}
       <AchievementSelector
-        clearKey={p.clearKey}
-        onChange={p.setAchievementFilter}
-        achievementRefs={p.achievementRefs}
+        clearKey={clearKey}
+        onChange={setAchievementFilter}
+        achievementRefs={achievementRefs}
       />
 
       {/* ================= 設備 ================= */}
@@ -125,90 +179,90 @@ export default function HomeFilterSections(p: Props) {
         title="荷物預かり"
         table="baggage_definitions"
         selection="multi"
-        onChange={p.setBaggageKeys}
+        onChange={setBaggageKeys}
         columns={3}
         sectionRef={register("荷物預かり")}
-        clearKey={p.clearKey}
+        clearKey={clearKey}
       />
 
       <GenericSelector
         title="セキュリティ"
         table="security_definitions"
         selection="multi"
-        onChange={p.setSecurityKeys}
+        onChange={setSecurityKeys}
         columns={3}
         sectionRef={register("セキュリティ")}
-        clearKey={p.clearKey}
+        clearKey={clearKey}
       />
 
       <GenericSelector
         title="トイレ"
         table="toilet_definitions"
         selection="multi"
-        onChange={p.setToiletKeys}
+        onChange={setToiletKeys}
         columns={3}
         sectionRef={register("トイレ")}
-        clearKey={p.clearKey}
+        clearKey={clearKey}
       />
 
       <GenericSelector
         title="広さ"
         table="size_definitions"
         selection="multi"
-        onChange={p.setSizeKey}
+        onChange={setSizeKey}
         columns={3}
         sectionRef={register("広さ")}
-        clearKey={p.clearKey}
+        clearKey={clearKey}
       />
 
       <GenericSelector
         title="フロアの位置"
         table="floor_definitions"
         selection="multi"
-        onChange={p.setFloorKeys}
+        onChange={setFloorKeys}
         columns={3}
         sectionRef={register("フロアの位置")}
-        clearKey={p.clearKey}
+        clearKey={clearKey}
       />
 
       <GenericSelector
         title="座席タイプ"
         table="seat_type_definitions"
         selection="multi"
-        onChange={p.setSeatTypeKeys}
+        onChange={setSeatTypeKeys}
         columns={3}
         sectionRef={register("座席タイプ")}
-        clearKey={p.clearKey}
+        clearKey={clearKey}
       />
 
       <GenericSelector
         title="喫煙"
         table="smoking_definitions"
         selection="multi"
-        onChange={p.setSmokingKeys}
+        onChange={setSmokingKeys}
         columns={3}
         sectionRef={register("喫煙")}
-        clearKey={p.clearKey}
+        clearKey={clearKey}
       />
 
       <GenericSelector
         title="周辺環境"
         table="environment_definitions"
         selection="multi"
-        onChange={p.setEnvironmentKeys}
+        onChange={setEnvironmentKeys}
         columns={3}
         sectionRef={register("周辺環境")}
-        clearKey={p.clearKey}
+        clearKey={clearKey}
       />
 
       <GenericSelector
         title="その他"
         table="other_definitions"
         selection="multi"
-        onChange={p.setOtherKeys}
+        onChange={setOtherKeys}
         columns={3}
         sectionRef={register("その他")}
-        clearKey={p.clearKey}
+        clearKey={clearKey}
       />
 
       {/* ================= 料金 ================= */}
@@ -216,50 +270,50 @@ export default function HomeFilterSections(p: Props) {
         title="価格帯"
         table="price_range_definitions"
         selection="multi"
-        onChange={p.setPriceRangeKeys}
+        onChange={setPriceRangeKeys}
         columns={3}
         sectionRef={register("価格帯")}
-        clearKey={p.clearKey}
+        clearKey={clearKey}
       />
 
       <GenericSelector
         title="料金システム"
         table="pricing_system_definitions"
         selection="multi"
-        onChange={p.setPricingSystemKeys}
+        onChange={setPricingSystemKeys}
         columns={3}
         sectionRef={register("料金システム")}
-        clearKey={p.clearKey}
+        clearKey={clearKey}
       />
 
       <GenericSelector
         title="ディスカウント"
         table="discount_definitions"
         selection="multi"
-        onChange={p.setDiscountKeys}
+        onChange={setDiscountKeys}
         columns={3}
         sectionRef={register("ディスカウント")}
-        clearKey={p.clearKey}
+        clearKey={clearKey}
       />
 
       <GenericSelector
         title="VIP"
         table="vip_definitions"
         selection="multi"
-        onChange={p.setVipKeys}
+        onChange={setVipKeys}
         columns={3}
         sectionRef={register("VIP")}
-        clearKey={p.clearKey}
+        clearKey={clearKey}
       />
 
       <GenericSelector
         title="支払い方法"
         table="payment_method_definitions"
         selection="multi"
-        onChange={p.setPaymentMethodKeys}
+        onChange={setPaymentMethodKeys}
         columns={3}
         sectionRef={register("支払い方法")}
-        clearKey={p.clearKey}
+        clearKey={clearKey}
       />
 
       {/* ================= 音響・照明・演出 ================= */}
@@ -267,58 +321,58 @@ export default function HomeFilterSections(p: Props) {
         title="音響"
         table="sound_definitions"
         selection="multi"
-        onChange={p.setSoundKeys}
+        onChange={setSoundKeys}
         columns={3}
         sectionRef={register("音響")}
-        clearKey={p.clearKey}
+        clearKey={clearKey}
       />
 
       <GenericSelector
         title="照明"
         table="lighting_definitions"
         selection="multi"
-        onChange={p.setLightingKeys}
+        onChange={setLightingKeys}
         columns={3}
         sectionRef={register("照明")}
-        clearKey={p.clearKey}
+        clearKey={clearKey}
       />
 
       <GenericSelector
         title="演出"
         table="production_definitions"
         selection="multi"
-        onChange={p.setProductionKeys}
+        onChange={setProductionKeys}
         columns={3}
         sectionRef={register("演出")}
-        clearKey={p.clearKey}
+        clearKey={clearKey}
       />
 
       {/* ================= 飲食・サービス ================= */}
       <DrinkSelector
-        clearKey={p.clearKey}   // ✅ 完璧
+        clearKey={clearKey}
         title="ドリンク"
-        onChange={p.setDrinkKeys}
-        drinkCategoryRefs={p.drinkCategoryRefs}
+        onChange={setDrinkKeys}
+        drinkCategoryRefs={drinkCategoryRefs}
       />
 
       <GenericSelector
         title="フード"
         table="food_definitions"
         selection="multi"
-        onChange={p.setFoodKeys}
+        onChange={setFoodKeys}
         columns={3}
         sectionRef={register("フード")}
-        clearKey={p.clearKey}
+        clearKey={clearKey}
       />
 
       <GenericSelector
         title="サービス"
         table="service_definitions"
         selection="multi"
-        onChange={p.setServiceKeys}
+        onChange={setServiceKeys}
         columns={3}
         sectionRef={register("サービス")}
-        clearKey={p.clearKey}
+        clearKey={clearKey}
       />
 
       {/* ================= 客層・雰囲気 ================= */}
@@ -326,30 +380,30 @@ export default function HomeFilterSections(p: Props) {
         title="客層"
         table="customer_definitions"
         selection="multi"
-        onChange={p.setCustomerKeys}
+        onChange={setCustomerKeys}
         columns={3}
         sectionRef={register("客層")}
-        clearKey={p.clearKey}
+        clearKey={clearKey}
       />
 
       <GenericSelector
         title="雰囲気"
         table="atmosphere_definitions"
         selection="multi"
-        onChange={p.setAtmosphereKeys}
+        onChange={setAtmosphereKeys}
         columns={3}
         sectionRef={register("雰囲気")}
-        clearKey={p.clearKey}
+        clearKey={clearKey}
       />
 
       <GenericSelector
         title="接客"
         table="hospitality_definitions"
         selection="multi"
-        onChange={p.setHospitalityKeys}
+        onChange={setHospitalityKeys}
         columns={3}
         sectionRef={register("接客")}
-        clearKey={p.clearKey}
+        clearKey={clearKey}
       />
     </>
   )

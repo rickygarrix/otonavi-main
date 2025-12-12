@@ -89,16 +89,13 @@ export default function AreaSelector({
   // ============================
   useEffect(() => {
     onChange(selectedPrefectureIds, selectedAreaIds)
-  }, [selectedPrefectureIds, selectedAreaIds])
+  }, [selectedPrefectureIds, selectedAreaIds, onChange])
 
-  // ============================
-  // クリア
-  // ============================
   useEffect(() => {
     setSelectedPrefectureIds([])
     setSelectedAreaIds([])
     onChange([], [])
-  }, [clearKey])
+  }, [clearKey, onChange])
 
   // ============================
   // 表示用整理
