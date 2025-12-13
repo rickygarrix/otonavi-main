@@ -1,11 +1,14 @@
 "use client"
 
-import { useEffect, useState, useMemo, RefObject } from "react"
+import { useEffect, useMemo, useState, RefObject } from "react"
 import { supabase } from "@/lib/supabase"
 import PrefectureChip from "./PrefectureChip"
 import Chip from "@/components/ui/Chip"
 import { RegionKey } from "@/app/page"
 
+// ================================
+// 型
+// ================================
 type Prefecture = {
   id: string
   name_ja: string
@@ -26,6 +29,23 @@ type Props = {
   clearKey: number
 }
 
+// ================================
+// 定数
+// ================================
+const TOKYO_NAME = "東京都"
+
+const REGION_ORDER: RegionKey[] = [
+  "北海道・東北",
+  "関東",
+  "中部",
+  "近畿",
+  "中国・四国",
+  "九州・沖縄",
+]
+
+// ================================
+// Component
+// ================================
 export default function AreaSelector({
   onChange,
   regionRefs,
@@ -39,7 +59,7 @@ export default function AreaSelector({
   const [selectedAreaIds, setSelectedAreaIds] = useState<string[]>([])
 
   // ============================
-  // 初期ロード
+  // 初期ロード（都道府県）
   // ============================
   useEffect(() => {
     const load = async () => {
@@ -54,16 +74,20 @@ export default function AreaSelector({
   }, [])
 
   // ============================
-  // 東京エリアロード
+  // 東京判定
   // ============================
   const tokyoPrefecture = useMemo(
-    () => prefectures.find((p) => p.name_ja === "東京都"),
+    () => prefectures.find((p) => p.name_ja === TOKYO_NAME),
     [prefectures]
   )
 
   const isTokyoSelected =
-    tokyoPrefecture && selectedPrefectureIds.includes(tokyoPrefecture.id)
+    !!tokyoPrefecture &&
+    selectedPrefectureIds.includes(tokyoPrefecture.id)
 
+  // ============================
+  // 東京エリアロード
+  // ============================
   useEffect(() => {
     const loadTokyoAreas = async () => {
       if (!isTokyoSelected || !tokyoPrefecture) {
@@ -85,12 +109,8 @@ export default function AreaSelector({
   }, [isTokyoSelected, tokyoPrefecture])
 
   // ============================
-  // 親へ通知
+  // 全クリア（唯一の副作用）
   // ============================
-  useEffect(() => {
-    onChange(selectedPrefectureIds, selectedAreaIds)
-  }, [selectedPrefectureIds, selectedAreaIds, onChange])
-
   useEffect(() => {
     setSelectedPrefectureIds([])
     setSelectedAreaIds([])
@@ -100,25 +120,37 @@ export default function AreaSelector({
   // ============================
   // 表示用整理
   // ============================
-  const grouped = useMemo(() => {
-    return prefectures.reduce((acc: Record<string, Prefecture[]>, p) => {
-      if (!acc[p.region]) acc[p.region] = []
+  const groupedPrefectures = useMemo(() => {
+    return prefectures.reduce<Record<string, Prefecture[]>>((acc, p) => {
+      acc[p.region] ??= []
       acc[p.region].push(p)
       return acc
     }, {})
   }, [prefectures])
 
-  const REGION_ORDER: RegionKey[] = [
-    "北海道・東北",
-    "関東",
-    "中部",
-    "近畿",
-    "中国・四国",
-    "九州・沖縄",
-  ]
-
   const tokyoWards = areas.filter((a) => a.is_23ward)
   const tokyoOthers = areas.filter((a) => !a.is_23ward)
+
+  // ============================
+  // handlers（event-driven）
+  // ============================
+  const togglePrefecture = (id: string) => {
+    const next = selectedPrefectureIds.includes(id)
+      ? selectedPrefectureIds.filter((v) => v !== id)
+      : [...selectedPrefectureIds, id]
+
+    setSelectedPrefectureIds(next)
+    onChange(next, selectedAreaIds)
+  }
+
+  const toggleArea = (id: string) => {
+    const next = selectedAreaIds.includes(id)
+      ? selectedAreaIds.filter((v) => v !== id)
+      : [...selectedAreaIds, id]
+
+    setSelectedAreaIds(next)
+    onChange(selectedPrefectureIds, next)
+  }
 
   // ============================
   // UI
@@ -126,7 +158,7 @@ export default function AreaSelector({
   return (
     <div className="w-full px-6 py-6">
       {REGION_ORDER.map((region) => {
-        const list = grouped[region]
+        const list = groupedPrefectures[region]
         if (!list) return null
 
         return (
@@ -143,13 +175,7 @@ export default function AreaSelector({
                   key={p.id}
                   label={p.name_ja}
                   selected={selectedPrefectureIds.includes(p.id)}
-                  onClick={() => {
-                    setSelectedPrefectureIds((prev) =>
-                      prev.includes(p.id)
-                        ? prev.filter((id) => id !== p.id)
-                        : [...prev, p.id]
-                    )
-                  }}
+                  onClick={() => togglePrefecture(p.id)}
                 />
               ))}
             </div>
@@ -175,13 +201,7 @@ export default function AreaSelector({
                       key={a.id}
                       label={a.name}
                       selected={selectedAreaIds.includes(a.id)}
-                      onClick={() => {
-                        setSelectedAreaIds((prev) =>
-                          prev.includes(a.id)
-                            ? prev.filter((id) => id !== a.id)
-                            : [...prev, a.id]
-                        )
-                      }}
+                      onClick={() => toggleArea(a.id)}
                     />
                   ))}
                 </div>
@@ -205,13 +225,7 @@ export default function AreaSelector({
                       key={a.id}
                       label={a.name}
                       selected={selectedAreaIds.includes(a.id)}
-                      onClick={() => {
-                        setSelectedAreaIds((prev) =>
-                          prev.includes(a.id)
-                            ? prev.filter((id) => id !== a.id)
-                            : [...prev, a.id]
-                        )
-                      }}
+                      onClick={() => toggleArea(a.id)}
                     />
                   ))}
                 </div>
