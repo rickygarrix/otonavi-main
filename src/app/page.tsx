@@ -119,8 +119,8 @@ export default function HomePage() {
       {/* ================= Sticky Tabs ================= */}
       <SearchFilterStickyWrapper>
         <SearchFilter
-          onScroll={(region) => {
-            refs.regionRefs[region].current?.scrollIntoView({
+          onScroll={(section) => {
+            refs.genericSectionRefs.current[section]?.scrollIntoView({
               behavior: "smooth",
               block: "start",
             })

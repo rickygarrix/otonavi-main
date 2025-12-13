@@ -1,4 +1,4 @@
-'use client'
+"use client"
 
 import {
   BuildingStorefrontIcon,
@@ -7,28 +7,34 @@ import {
   MegaphoneIcon,
   BeakerIcon,
   UserGroupIcon,
-} from '@heroicons/react/24/outline'
+} from "@heroicons/react/24/outline"
 
-import type { RegionKey } from '@/app/page'
+type SectionKey =
+  | "店舗"
+  | "設備"
+  | "料金"
+  | "音響・照明・演出"
+  | "飲食・サービス"
+  | "客層・雰囲気"
 
 type FilterItem = {
   label: string
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>
-  region: RegionKey
+  section: SectionKey
 }
 
 type Props = {
-  onScroll: (region: RegionKey) => void
+  onScroll: (section: SectionKey) => void
 }
 
 export default function SearchFilter({ onScroll }: Props) {
   const filters: FilterItem[] = [
-    { label: '店舗', icon: BuildingStorefrontIcon, region: '北海道・東北' },
-    { label: '設備', icon: KeyIcon, region: '関東' },
-    { label: '料金', icon: BanknotesIcon, region: '中部' },
-    { label: '音響', icon: MegaphoneIcon, region: '近畿' },
-    { label: '飲食', icon: BeakerIcon, region: '中国・四国' },
-    { label: '客層', icon: UserGroupIcon, region: '九州・沖縄' },
+    { label: "店舗", icon: BuildingStorefrontIcon, section: "店舗" },
+    { label: "設備", icon: KeyIcon, section: "設備" },
+    { label: "料金", icon: BanknotesIcon, section: "料金" },
+    { label: "音響", icon: MegaphoneIcon, section: "音響・照明・演出" },
+    { label: "飲食", icon: BeakerIcon, section: "飲食・サービス" },
+    { label: "客層", icon: UserGroupIcon, section: "客層・雰囲気" },
   ]
 
   return (
@@ -40,10 +46,10 @@ export default function SearchFilter({ onScroll }: Props) {
           flex justify-between items-center px-3 py-3 shadow-sm
         "
       >
-        {filters.map(({ label, icon: Icon, region }) => (
+        {filters.map(({ label, icon: Icon, section }) => (
           <button
             key={label}
-            onClick={() => onScroll(region)}
+            onClick={() => onScroll(section)}
             className="
               flex-1 flex flex-col items-center justify-center
               text-slate-700 hover:opacity-70 active:scale-95

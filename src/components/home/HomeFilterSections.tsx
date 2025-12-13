@@ -26,6 +26,7 @@ type GenericConfig = {
 type SectionBlock = {
   key: string
   items: GenericConfig[]
+  renderBefore?: () => React.ReactNode
 }
 
 type Props = {
@@ -146,11 +147,27 @@ export default function HomeFilterSections(props: Props) {
   )
 
   // ============================
-  // GenericSelector 定義
+  // セクション定義（表示順の真実）
   // ============================
   const GENERIC_SECTIONS: SectionBlock[] = [
     {
       key: "店舗",
+      renderBefore: () => (
+        <>
+          <AreaSelector
+            clearKey={clearKey}
+            onChange={handleAreaChange}
+            regionRefs={regionRefs}
+            areaRefs={areaRefs}
+          />
+
+          <AchievementSelector
+            clearKey={clearKey}
+            onChange={setAchievementFilter}
+            achievementRefs={achievementRefs}
+          />
+        </>
+      ),
       items: [
         { title: "店舗タイプ", table: "store_types", section: "店舗タイプ", columns: 3, onChange: setStoreTypeKeys },
         { title: "イベントの傾向", table: "event_trend_definitions", section: "イベントの傾向", columns: 3, onChange: setEventTrendKeys },
@@ -191,9 +208,29 @@ export default function HomeFilterSections(props: Props) {
     },
     {
       key: "飲食・サービス",
+      renderBefore: () => (
+        <DrinkSelector
+          clearKey={clearKey}
+          title="ドリンク"
+          onChange={setDrinkKeys}
+          drinkCategoryRefs={drinkCategoryRefs}
+        />
+      ),
       items: [
-        { title: "フード", table: "food_definitions", section: "フード", columns: 3, onChange: setFoodKeys },
-        { title: "サービス", table: "service_definitions", section: "サービス", columns: 3, onChange: setServiceKeys },
+        {
+          title: "フード",
+          table: "food_definitions",
+          section: "フード",
+          columns: 3,
+          onChange: setFoodKeys,
+        },
+        {
+          title: "サービス",
+          table: "service_definitions",
+          section: "サービス",
+          columns: 3,
+          onChange: setServiceKeys,
+        },
       ],
     },
     {
@@ -208,44 +245,31 @@ export default function HomeFilterSections(props: Props) {
 
   return (
     <>
-      {/* ================= エリア ================= */}
-      <AreaSelector
-        clearKey={clearKey}
-        onChange={handleAreaChange}
-        regionRefs={regionRefs}
-        areaRefs={areaRefs}
-      />
+      {GENERIC_SECTIONS.map((block) => (
+        <section key={block.key} className="mt-14">
+          <h2
+            ref={register(block.key)}
+            className="px-4 mb-6 text-lg font-bold border-b border-slate-200 pb-2"
+          >
+            {block.key}
+          </h2>
 
-      {/* ================= 店舗実績 ================= */}
-      <AchievementSelector
-        clearKey={clearKey}
-        onChange={setAchievementFilter}
-        achievementRefs={achievementRefs}
-      />
+          {block.renderBefore?.()}
 
-      {/* ================= Generic ================= */}
-      {GENERIC_SECTIONS.flatMap((block) =>
-        block.items.map((item) => (
-          <GenericSelector
-            key={item.table}
-            title={item.title}
-            table={item.table}
-            selection="multi"
-            onChange={item.onChange}
-            columns={item.columns}
-            sectionRef={register(item.section)}
-            clearKey={clearKey}
-          />
-        ))
-      )}
-
-      {/* ================= ドリンク ================= */}
-      <DrinkSelector
-        clearKey={clearKey}
-        title="ドリンク"
-        onChange={setDrinkKeys}
-        drinkCategoryRefs={drinkCategoryRefs}
-      />
+          {block.items.map((item) => (
+            <GenericSelector
+              key={item.table}
+              title={item.title}
+              table={item.table}
+              selection="multi"
+              onChange={item.onChange}
+              columns={item.columns}
+              sectionRef={register(item.section)}
+              clearKey={clearKey}
+            />
+          ))}
+        </section>
+      ))}
     </>
   )
 }
