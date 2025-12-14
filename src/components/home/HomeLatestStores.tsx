@@ -1,15 +1,17 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import HomeStoreCard from "../store/HomeStoreCard"
 import type { HomeStore } from "@/types/store"
 
 type Props = {
   stores: HomeStore[]
-  onSelectStore: (store: HomeStore) => void
 }
 
-export default function HomeLatestStores({ stores, onSelectStore }: Props) {
-  // ✅ updated_at の新しい順に並び替え → 上位3件だけ取得
+export default function HomeLatestStores({ stores }: Props) {
+  const router = useRouter()
+
+  // updated_at の新しい順 → 上位3件
   const latestStores = [...stores]
     .sort(
       (a, b) =>
@@ -21,24 +23,22 @@ export default function HomeLatestStores({ stores, onSelectStore }: Props) {
 
   return (
     <div className="w-full px-6 mt-10">
-      {/* ✅ 見出し */}
       <h2 className="text-white text-lg font-bold mb-4 text-center">
         最近更新された音箱
       </h2>
 
-      {/* ✅ 横並び3カード（サイズ完全制御） */}
       <div className="grid grid-cols-3 gap-3 items-start">
         {latestStores.map((store) => (
           <div
             key={store.id}
-            onClick={() => onSelectStore(store)}
+            onClick={() => router.push(`/stores/${store.id}`)}
             className="
               cursor-pointer
               active:scale-95
               transition-transform
-              max-w-[110px]    // ✅ ここが最重要
+              max-w-[110px]
               w-full
-              mx-auto         // ✅ カードを中央寄せ
+              mx-auto
             "
           >
             <HomeStoreCard store={store} />

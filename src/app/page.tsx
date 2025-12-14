@@ -102,10 +102,7 @@ export default function HomePage() {
 
         {!loading && (
           <div className="mt-[40px]">
-            <HomeLatestStores
-              stores={stores}
-              onSelectStore={handleSelectStore}
-            />
+            <HomeLatestStores stores={stores} />
           </div>
         )}
 
