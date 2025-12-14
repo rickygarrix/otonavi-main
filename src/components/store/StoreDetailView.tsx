@@ -104,8 +104,8 @@ export default function StoreDetailView({ store }: Props) {
         specialHours={store.special_hours}
       />
       <StoreDetailMedia
-        awards={(store as any).store_awards}
-        mediaMentions={(store as any).store_media_mentions}
+        awards={store.store_awards}
+        mediaMentions={store.store_media_mentions}
       />
       <StoreDetailSections sections={detailSections} />
 

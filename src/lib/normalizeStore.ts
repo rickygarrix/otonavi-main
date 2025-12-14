@@ -2,140 +2,180 @@
 import type { HomeStore } from "@/types/store"
 
 // ================================
-// 共通型
+// 型ガード / util
 // ================================
+type Rec = Record<string, unknown>
+
+const isRec = (v: unknown): v is Rec =>
+  typeof v === "object" && v !== null && !Array.isArray(v)
+
+const asString = (v: unknown): string | null => (typeof v === "string" ? v : null)
+const asNumber = (v: unknown): number | null => (typeof v === "number" ? v : null)
+const asArray = (v: unknown): unknown[] => (Array.isArray(v) ? v : [])
+
+// ================================
+// M2M definitions（key/label）
+/**
+ * 普通のdefinitionsは key/label で十分
+ */
 type DefinitionKV = {
   key: string
   label: string
 }
 
-type StoreDiscountRow = {
-  discount_definitions: DefinitionKV | null
-  store_discount_details?: { id: string; text: string }[] | null
-}
-
-type M2MRow = Record<string, DefinitionKV | null>
+type M2MRow = Record<string, unknown>
 
 // ================================
-// util
+// extract M2M
 // ================================
-const asString = (v: unknown): string | null =>
-  typeof v === "string" ? v : null
-
-
-
-const asArray = <T>(v: unknown): T[] =>
-  Array.isArray(v) ? (v as T[]) : []
-
-function extractM2M(
-  list: unknown,
-  defKey: string
-): { keys: string[]; labels: string[] } {
-  if (!Array.isArray(list)) return { keys: [], labels: [] }
+function extractM2M(list: unknown, defKey: string): { keys: string[]; labels: string[] } {
+  const rows = asArray(list)
 
   const keys: string[] = []
   const labels: string[] = []
 
-  for (const row of list as M2MRow[]) {
+  for (const row of rows) {
+    if (!isRec(row)) continue
     const def = row[defKey]
-    if (!def) continue
-    if (def.key) keys.push(def.key)
-    if (def.label) labels.push(def.label)
+    if (!isRec(def)) continue
+
+    const key = asString(def.key)
+    const label = asString(def.label)
+
+    if (key) keys.push(key)
+    if (label) labels.push(label)
   }
 
   return { keys, labels }
 }
 
 // ================================
+// discount 用の型
+// ================================
+type DiscountDefinition = {
+  id: string
+  key: string
+  label: string
+}
+
+type StoreDiscountDetail = {
+  id: string
+  discount_id: string
+  text: string
+}
+
+// ================================
 // normalize
 // ================================
 export function normalizeStore(raw: unknown): HomeStore {
-  if (!raw || typeof raw !== "object") {
+  if (!isRec(raw)) {
     throw new Error("normalizeStore: raw is invalid")
   }
 
-  const r = raw as any
+  const r = raw
 
   // =====================
-  // 実績
+  // 実績（StoreAward型に合わせる）
   // =====================
-  const store_awards = asArray(r.store_awards).map((a: any) => ({
-    id: String(a.id),
-    title: String(a.title),
-    organization: asString(a.organization),
-    year: typeof a.year === "number" ? a.year : null,
-    url: asString(a.url),
-  }))
+  const store_awards = asArray(r.store_awards)
+    .filter(isRec)
+    .map((a) => ({
+      id: String(a.id ?? ""),
+      title: String(a.title ?? ""),
+      organization: asString(a.organization),
+      year: asNumber(a.year),
+      url: asString(a.url),
+    }))
 
-  const store_media_mentions = asArray(r.store_media_mentions).map((m: any) => ({
-    id: String(m.id),
-    media_name: String(m.media_name),
-    year: typeof m.year === "number" ? m.year : null,
-  }))
+  const store_media_mentions = asArray(r.store_media_mentions)
+    .filter(isRec)
+    .map((m) => ({
+      id: String(m.id ?? ""),
+      media_name: String(m.media_name ?? ""),
+      year: asNumber(m.year),
+    }))
 
   // =====================
-  // ★ ディスカウント（ここが肝）
-  // =====================
-  // =====================
-  // ★ ディスカウント（正解版）
+  // ★ ディスカウント（details優先表示）
+  //  - 取得は StoreDetailPage で
+  //    store_discounts(...) と store_discount_details(...) を別で取ってOK
   // =====================
   const discount_keys: string[] = []
   const discount_labels: string[] = []
 
+  // 1) details を discount_id で index 化
   const detailsByDiscountId = new Map<string, string[]>()
 
-  // store_discount_details を index 化
-  if (Array.isArray(r.store_discount_details)) {
-    for (const d of r.store_discount_details as any[]) {
-      if (!d.discount_id || !d.text) continue
-
-      if (!detailsByDiscountId.has(d.discount_id)) {
-        detailsByDiscountId.set(d.discount_id, [])
+  const details = asArray(r.store_discount_details)
+    .filter(isRec)
+    .map((d): StoreDiscountDetail | null => {
+      const discount_id = asString(d.discount_id)
+      const text = asString(d.text)
+      if (!discount_id || !text) return null
+      return {
+        id: String(d.id ?? ""),
+        discount_id,
+        text,
       }
-      detailsByDiscountId.get(d.discount_id)!.push(d.text)
+    })
+    .filter((v): v is StoreDiscountDetail => v !== null)
+
+  for (const d of details) {
+    const arr = detailsByDiscountId.get(d.discount_id) ?? []
+    arr.push(d.text)
+    detailsByDiscountId.set(d.discount_id, arr)
+  }
+
+  // 2) store_discounts（= 定義の集合）を基準に組み立て
+  const storeDiscountRows = asArray(r.store_discounts).filter(isRec)
+
+  for (const row of storeDiscountRows) {
+    const defRaw = row.discount_definitions
+    if (!isRec(defRaw)) continue
+
+    const def: DiscountDefinition | null = (() => {
+      const id = asString(defRaw.id)
+      const key = asString(defRaw.key)
+      const label = asString(defRaw.label)
+      if (!id || !key || !label) return null
+      return { id, key, label }
+    })()
+
+    if (!def) continue
+
+    // 検索用
+    discount_keys.push(def.key)
+
+    // 表示用（detailsがあれば text を出す）
+    const detailTexts = detailsByDiscountId.get(def.id)
+    if (detailTexts && detailTexts.length > 0) {
+      discount_labels.push(...detailTexts)
+    } else {
+      discount_labels.push(def.label)
     }
   }
 
-  // store_discounts を基準に組み立て
-  if (Array.isArray(r.store_discounts)) {
-    for (const row of r.store_discounts as any[]) {
-      const def = row.discount_definitions
-      if (!def) continue
-
-      // 検索用 key
-      if (def.key) {
-        discount_keys.push(def.key)
-      }
-
-      // 表示用 label（詳細優先）
-      const detailTexts = detailsByDiscountId.get(def.id)
-      if (detailTexts && detailTexts.length > 0) {
-        discount_labels.push(...detailTexts)
-      } else if (def.label) {
-        discount_labels.push(def.label)
-      }
-    }
-  }
-
+  // =====================
+  // return
+  // =====================
   return {
-    // =====================
-    // 基本
-    // =====================
     id: asString(r.id) ?? "",
     name: asString(r.name) ?? "",
     name_kana: asString(r.name_kana),
 
     prefecture_id: asString(r.prefecture_id),
-    prefecture_label: r.prefectures?.name_ja ?? null,
+    prefecture_label: isRec(r.prefectures) ? asString(r.prefectures.name_ja) : null,
 
     area_id: asString(r.area_id),
-    area_label: r.areas?.name ?? null,
+    area_label: isRec(r.areas) ? asString(r.areas.name) : null,
 
     store_type_id: asString(r.store_type_id),
-    type_label: r.store_types?.label ?? null,
+    type_label: isRec(r.store_types) ? asString(r.store_types.label) : null,
 
     price_range_id: asString(r.price_range_id),
-    price_range_label: r.price_range_definitions?.label ?? null,
+    price_range_label: isRec(r.price_range_definitions)
+      ? asString(r.price_range_definitions.label)
+      : null,
 
     image_url: asString(r.image_url) ?? "",
     description: asString(r.description),
@@ -150,22 +190,16 @@ export function normalizeStore(raw: unknown): HomeStore {
     google_map_url: asString(r.google_map_url),
     address: asString(r.address),
 
-    open_hours: asArray(r.store_open_hours),
-    special_hours: asArray(r.store_special_open_hours),
+    open_hours: asArray(r.store_open_hours) as HomeStore["open_hours"],
+    special_hours: asArray(r.store_special_open_hours) as HomeStore["special_hours"],
 
     updated_at: asString(r.updated_at) ?? "",
 
-    // =====================
-    // 実績
-    // =====================
     hasAward: store_awards.length > 0,
     hasMedia: store_media_mentions.length > 0,
     store_awards,
     store_media_mentions,
 
-    // =====================
-    // M2M
-    // =====================
     event_trend_keys: extractM2M(r.store_event_trends, "event_trend_definitions").keys,
     event_trend_labels: extractM2M(r.store_event_trends, "event_trend_definitions").labels,
 
@@ -199,7 +233,7 @@ export function normalizeStore(raw: unknown): HomeStore {
     pricing_system_keys: extractM2M(r.store_pricing_system, "pricing_system_definitions").keys,
     pricing_system_labels: extractM2M(r.store_pricing_system, "pricing_system_definitions").labels,
 
-    // ★ ここが変わった
+    // ✅ discount は details 優先の完成版
     discount_keys,
     discount_labels,
 
@@ -230,14 +264,15 @@ export function normalizeStore(raw: unknown): HomeStore {
     service_keys: extractM2M(r.store_services, "service_definitions").keys,
     service_labels: extractM2M(r.store_services, "service_definitions").labels,
 
+    // ドリンクは今回は未対応のまま
     drink_keys: [],
     drink_labels: [],
     drink_categories: {},
 
     hospitality_key: asString(r.hospitality),
-    hospitality_label: r.hospitality_definitions?.label ?? null,
+    hospitality_label: isRec(r.hospitality_definitions) ? asString(r.hospitality_definitions.label) : null,
 
     size_key: asString(r.size),
-    size_label: r.size_definitions?.label ?? null,
+    size_label: isRec(r.size_definitions) ? asString(r.size_definitions.label) : null,
   }
 }
