@@ -12,27 +12,21 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "invalid" }, { status: 400 })
     }
 
-    // =========================
     // ① Supabase 保存
-    // =========================
     const { error: insertError } = await supabase
       .from("contacts")
-      .insert({
-        name,
-        email,
-        message,
-      })
+      .insert({ name, email, message })
 
     if (insertError) {
-      console.error("Supabase insert error:", insertError)
+      console.error(insertError)
       return NextResponse.json({ error: "db error" }, { status: 500 })
     }
 
-    // =========================
+    const from = "Otonavi <contact@send.otnv.jp>"
+
     // ② 管理者通知
-    // =========================
     await resend.emails.send({
-      from: `Otonavi <${process.env.RESEND_FROM_EMAIL}>`,
+      from,
       to: process.env.CONTACT_ADMIN_EMAIL!,
       subject: "【お問い合わせ】新着",
       html: `
@@ -42,19 +36,18 @@ export async function POST(req: Request) {
       `,
     })
 
-    // =========================
     // ③ ユーザー自動返信
-    // =========================
     await resend.emails.send({
-      from: `Otonavi <${process.env.RESEND_FROM_EMAIL}>`,
+      from,
       to: email,
       subject: "【オトナビ】お問い合わせありがとうございます",
       html: `
         <p>${name} 様</p>
         <p>お問い合わせありがとうございます。</p>
-        <p>内容を確認の上、3営業日以内にご連絡いたします。</p>
-        <hr />
-        <p>${message}</p>
+        <p>内容を確認のうえ、3営業日以内にご連絡いたします。</p>
+        <br />
+        <p>――――――――――</p>
+        <p>オトナビ運営</p>
       `,
     })
 
