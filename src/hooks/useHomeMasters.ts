@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { supabase } from "@/lib/supabase"
-import type { RegionKey } from "@/app/page"
+import type { RegionKey } from "@/types/region"
 
 // ================================
 // 型定義

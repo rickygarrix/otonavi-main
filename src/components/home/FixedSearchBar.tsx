@@ -24,8 +24,7 @@ export default function FixedSearchBar({
     : `${count}件を検索`
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white z-50 border-t border-slate-200 px-4 py-3">
-
+    <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 px-4 py-3">
       {selectedFilters.length > 0 && (
         <div className="flex gap-2 mb-2 whitespace-nowrap overflow-x-auto scrollbar-none">
           {selectedFilters.map((label) => (
@@ -54,8 +53,8 @@ export default function FixedSearchBar({
           className={`flex-[2] h-12 rounded-xl flex items-center justify-center gap-2 text-lg font-semibold transition
             ${isDisabled
               ? "bg-slate-300 text-slate-500 cursor-not-allowed"
-              : "bg-slate-800 text-white active:scale-[0.97]"}
-          `}
+              : "bg-slate-800 text-white active:scale-[0.97]"
+            }`}
         >
           <Search className="w-5 h-5" />
           {searchLabel}

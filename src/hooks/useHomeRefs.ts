@@ -3,7 +3,7 @@
 
 import { useRef } from "react"
 import type React from "react"
-import type { RegionKey } from "@/app/page"
+import type { RegionKey } from "@/types/region"
 
 export function useHomeRefs() {
   const regionRefs: Record<RegionKey, React.RefObject<HTMLDivElement | null>> = {

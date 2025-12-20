@@ -3,7 +3,7 @@
 
 import { useCallback } from "react"
 import type React from "react"
-import type { RegionKey } from "@/app/page"
+import type { RegionKey } from "@/types/region"
 
 // --------------------
 // Refs 型

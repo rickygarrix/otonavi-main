@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 
 import CurvedBackground from "@/components/home/CurvedBackground"
@@ -10,67 +10,78 @@ import HomeLatestStores from "@/components/home/HomeLatestStores"
 
 import StoreTypeFilter from "@/components/filters/StoreTypeFilter"
 import SearchFilterStickyWrapper from "@/components/filters/SearchFilterStickyWrapper"
-
 import FixedSearchBar from "@/components/home/FixedSearchBar"
 import Footer from "@/components/Footer"
 import HomeFilterSections from "@/components/home/HomeFilterSections"
 
 import { useHomeStores } from "@/hooks/useHomeStores"
 import { useHomeMasters } from "@/hooks/useHomeMasters"
-import { useHomeRefs } from "@/hooks/useHomeRefs"
 import { useHomeStoreFilters } from "@/hooks/useStoreFilters"
 
 import type { StoreType } from "@/types/store"
 
-// ==============================
-// 地域キー
-// ==============================
-export type RegionKey =
-  | "北海道・東北"
-  | "関東"
-  | "中部"
-  | "近畿"
-  | "中国・四国"
-  | "九州・沖縄"
-
 export default function HomePage() {
   const router = useRouter()
 
-  // ✅ 未選択 = null に統一
+  // 🔽 セクションスクロール用 refs
+  const sectionRefs = useRef<Record<string, HTMLElement | null>>({})
+
   const [storeType, setStoreType] = useState<StoreType | null>(null)
+  const [clearKey, setClearKey] = useState(0)
 
   const { stores, loading } = useHomeStores()
   const masters = useHomeMasters()
 
   const filter = useHomeStoreFilters(stores, masters.externalLabelMap, {
-    storeType, // null OK
+    storeType,
   })
 
-  const { filteredStores, selectedFilters, count, handleClear, ...setters } = filter
+  const {
+    filteredStores,
+    selectedFilters,
+    count,
+    handleClear,
+    ...setters
+  } = filter
 
-  const [clearKey, setClearKey] = useState(0)
+  // -----------------------------
+  // クリア
+  // -----------------------------
   const handleClearAll = () => {
     handleClear()
     setClearKey((v) => v + 1)
-    setStoreType(null) // ✅ 店舗タイプもクリアしたいなら入れる
+    setStoreType(null)
   }
 
-  const refs = useHomeRefs()
-
+  // -----------------------------
+  // 検索遷移
+  // -----------------------------
   const handleGoToStores = () => {
     const params = new URLSearchParams()
 
-    // ✅ 選択されているときだけ付与
     if (storeType) params.set("type", storeType)
-
     selectedFilters.forEach((f) => params.append("filters", f))
     filteredStores.forEach((s) => params.append("ids", s.id))
 
     router.push(`/stores?${params.toString()}`)
   }
 
+  // -----------------------------
+  // ✅ チップ → セクションスクロール（正解実装）
+  // -----------------------------
+  const handleClickFilter = (label: string) => {
+    const section = masters.labelToSectionMap.get(label)
+    if (!section) return
+
+    sectionRefs.current[section]?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    })
+  }
+
   return (
     <>
+      {/* ===== Hero ===== */}
       <div className="relative w-full text-white overflow-hidden">
         <CurvedBackground />
 
@@ -91,15 +102,18 @@ export default function HomePage() {
         <div className="h-[160px]" />
       </div>
 
+      {/* ===== Store Type ===== */}
       <SearchFilterStickyWrapper>
         <StoreTypeFilter
-          activeType={storeType}     // ✅ null OK
-          onChange={setStoreType}    // ✅ (StoreType | null) => void
+          activeType={storeType}
+          onChange={setStoreType}
         />
       </SearchFilterStickyWrapper>
 
+      {/* ===== Filters ===== */}
       <HomeFilterSections
         clearKey={clearKey}
+        sectionRefs={sectionRefs}
         setPrefectureIds={setters.setPrefectureIds}
         setAreaIds={setters.setAreaIds}
         setCustomerKeys={setters.setCustomerKeys}
@@ -113,14 +127,15 @@ export default function HomePage() {
         setSmokingKeys={setters.setSmokingKeys}
         setToiletKeys={setters.setToiletKeys}
         setOtherKeys={setters.setOtherKeys}
-        {...refs}
       />
 
+      {/* ===== Fixed Search Bar ===== */}
       <FixedSearchBar
         selectedFilters={selectedFilters}
         onClear={handleClearAll}
         onSearch={handleGoToStores}
         count={count}
+        onClickFilter={handleClickFilter}
       />
 
       <Footer />
