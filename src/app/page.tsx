@@ -8,7 +8,7 @@ import LogoHero from "@/components/home/LogoHero"
 import CommentSlider from "@/components/home/CommentSlider"
 import HomeLatestStores from "@/components/home/HomeLatestStores"
 
-import SearchFilter from "@/components/filters/SearchFilter"
+import StoreTypeFilter from "@/components/filters/StoreTypeFilter"
 import SearchFilterStickyWrapper from "@/components/filters/SearchFilterStickyWrapper"
 
 import FixedSearchBar from "@/components/home/FixedSearchBar"
@@ -16,13 +16,14 @@ import Footer from "@/components/Footer"
 import HomeFilterSections from "@/components/home/HomeFilterSections"
 
 import { useHomeStores } from "@/hooks/useHomeStores"
-import { useStoreFilters } from "@/hooks/useStoreFilters"
 import { useHomeMasters } from "@/hooks/useHomeMasters"
-import { useHomeScroll } from "@/hooks/useHomeScroll"
 import { useHomeRefs } from "@/hooks/useHomeRefs"
+import { useHomeStoreFilters } from "@/hooks/useStoreFilters"
+
+import type { StoreType } from "@/types/store"
 
 // ==============================
-// 地域キー（スクロール用）
+// 地域キー（AreaSelector用）
 // ==============================
 export type RegionKey =
   | "北海道・東北"
@@ -36,54 +37,58 @@ export default function HomePage() {
   const router = useRouter()
 
   // ==============================
+  // 店舗タイプ（最上位）
+  // ==============================
+  const [storeType, setStoreType] = useState<StoreType>("club")
+
+  // ==============================
   // データ取得
   // ==============================
   const { stores, loading } = useHomeStores()
   const masters = useHomeMasters()
-  const filter = useStoreFilters(stores, masters.externalLabelMap)
 
   // ==============================
-  // クリア同期キー
+  // Home 専用フィルタ（軽量）
   // ==============================
-  const [clearKey, setClearKey] = useState(0)
+  const filter = useHomeStoreFilters(
+    stores,
+    masters.externalLabelMap,
+    { storeType }
+  )
 
   const {
     filteredStores,
     selectedFilters,
     count,
-    handleSelectStore,
-    handleClear: rawHandleClear,
+    handleClear,
     ...setters
   } = filter
 
-  const handleClear = () => {
-    rawHandleClear()
+  // ==============================
+  // clearKey（Selector 同期用）
+  // ==============================
+  const [clearKey, setClearKey] = useState(0)
+
+  const handleClearAll = () => {
+    handleClear()
     setClearKey((v) => v + 1)
   }
 
   // ==============================
-  // refs（スクロール管理）
+  // refs（スクロール / セクション管理）
   // ==============================
   const refs = useHomeRefs()
-
-  // ==============================
-  // フィルターチップ → スクロール
-  // ==============================
-  const handleScrollByFilter = useHomeScroll({
-    areaMap: masters.areaMap,
-    drinkCategoryMap: masters.drinkCategoryMap,
-    prefectureRegionMap: masters.prefectureRegionMap,
-    labelToSectionMap: masters.labelToSectionMap,
-    refs,
-  })
 
   // ==============================
   // 検索結果ページ遷移
   // ==============================
   const handleGoToStores = () => {
     const params = new URLSearchParams()
+
+    params.set("type", storeType)
     selectedFilters.forEach((f) => params.append("filters", f))
     filteredStores.forEach((s) => params.append("ids", s.id))
+
     router.push(`/stores?${params.toString()}`)
   }
 
@@ -113,15 +118,11 @@ export default function HomePage() {
         <div className="h-[160px]" />
       </div>
 
-      {/* ================= Sticky Tabs ================= */}
+      {/* ================= Sticky StoreType ================= */}
       <SearchFilterStickyWrapper>
-        <SearchFilter
-          onScroll={(section) => {
-            refs.genericSectionRefs.current[section]?.scrollIntoView({
-              behavior: "smooth",
-              block: "start",
-            })
-          }}
+        <StoreTypeFilter
+          activeType={storeType}
+          onChange={setStoreType}
         />
       </SearchFilterStickyWrapper>
 
@@ -135,10 +136,9 @@ export default function HomePage() {
       {/* ================= Bottom Search Bar ================= */}
       <FixedSearchBar
         selectedFilters={selectedFilters}
-        onClear={handleClear}
+        onClear={handleClearAll}
         onSearch={handleGoToStores}
         count={count}
-        onClickFilter={handleScrollByFilter}
       />
 
       <Footer />

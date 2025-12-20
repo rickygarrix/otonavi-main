@@ -8,7 +8,8 @@ export type StoreOpenHour = {
   last_order_time: string | null // "01:30"
   is_closed: boolean
 }
-
+// types/store.ts
+export type StoreType = "club" | "bar" | "livehouse" | "other"
 // ============================
 // 営業時間（特別）
 // ============================
