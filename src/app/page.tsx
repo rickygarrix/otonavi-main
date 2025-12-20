@@ -18,22 +18,28 @@ import { useHomeStores } from "@/hooks/useHomeStores"
 import { useHomeMasters } from "@/hooks/useHomeMasters"
 import { useHomeStoreFilters } from "@/hooks/useStoreFilters"
 
-import type { StoreType } from "@/types/store"
-
 export default function HomePage() {
   const router = useRouter()
 
-  // 🔽 セクションスクロール用 refs
+  // ============================
+  // section scroll refs
+  // ============================
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({})
 
-  const [storeType, setStoreType] = useState<StoreType | null>(null)
+  // ============================
+  // state
+  // ============================
+  const [storeTypeId, setStoreTypeId] = useState<string | null>(null)
   const [clearKey, setClearKey] = useState(0)
 
+  // ============================
+  // data
+  // ============================
   const { stores, loading } = useHomeStores()
   const masters = useHomeMasters()
 
   const filter = useHomeStoreFilters(stores, masters.externalLabelMap, {
-    storeType,
+    storeTypeId,
   })
 
   const {
@@ -44,31 +50,31 @@ export default function HomePage() {
     ...setters
   } = filter
 
-  // -----------------------------
-  // クリア
-  // -----------------------------
+  // ============================
+  // clear
+  // ============================
   const handleClearAll = () => {
     handleClear()
     setClearKey((v) => v + 1)
-    setStoreType(null)
+    setStoreTypeId(null)
   }
 
-  // -----------------------------
-  // 検索遷移
-  // -----------------------------
+  // ============================
+  // search
+  // ============================
   const handleGoToStores = () => {
     const params = new URLSearchParams()
 
-    if (storeType) params.set("type", storeType)
+    if (storeTypeId) params.set("store_type_id", storeTypeId)
     selectedFilters.forEach((f) => params.append("filters", f))
     filteredStores.forEach((s) => params.append("ids", s.id))
 
     router.push(`/stores?${params.toString()}`)
   }
 
-  // -----------------------------
-  // ✅ チップ → セクションスクロール（正解実装）
-  // -----------------------------
+  // ============================
+  // chip → scroll
+  // ============================
   const handleClickFilter = (label: string) => {
     const section = masters.labelToSectionMap.get(label)
     if (!section) return
@@ -105,8 +111,8 @@ export default function HomePage() {
       {/* ===== Store Type ===== */}
       <SearchFilterStickyWrapper>
         <StoreTypeFilter
-          activeType={storeType}
-          onChange={setStoreType}
+          activeTypeId={storeTypeId}
+          onChange={setStoreTypeId}
         />
       </SearchFilterStickyWrapper>
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { supabase } from "@/lib/supabase"
 import Chip from "@/components/ui/Chip"
 
@@ -16,6 +16,14 @@ type Props = {
   onChange: (keys: string[]) => void
   clearKey: number
 }
+
+// 🔽 最後尾＆2列表示したいドリンク
+const SPECIAL_DRINK_LABELS = [
+  "ノンアルコール",
+  "ソフトドリンク",
+  "オリジナルドリンク",
+  "水無料",
+]
 
 export default function DrinkSelector({
   title,
@@ -49,7 +57,6 @@ export default function DrinkSelector({
         .from("drink_definitions")
         .select("id, key, label, is_active")
         .eq("is_active", true)
-        .order("label", { ascending: true })
 
       if (error) {
         console.error("DrinkSelector load error:", error)
@@ -61,6 +68,30 @@ export default function DrinkSelector({
 
     load()
   }, [])
+
+  // ============================
+  // 並び替えロジック
+  // ============================
+  const { normalDrinks, specialDrinks } = useMemo(() => {
+    const normal: DrinkItem[] = []
+    const special: DrinkItem[] = []
+
+    items.forEach((item) => {
+      if (SPECIAL_DRINK_LABELS.includes(item.label)) {
+        special.push(item)
+      } else {
+        normal.push(item)
+      }
+    })
+
+    // 通常ドリンクは五十音順
+    normal.sort((a, b) => a.label.localeCompare(b.label, "ja"))
+
+    return {
+      normalDrinks: normal,
+      specialDrinks: special,
+    }
+  }, [items])
 
   // ============================
   // toggle
@@ -82,8 +113,9 @@ export default function DrinkSelector({
         {title}
       </h2>
 
+      {/* ===== 通常ドリンク（3列） ===== */}
       <div className="grid grid-cols-3 gap-3">
-        {items.map((item) => (
+        {normalDrinks.map((item) => (
           <Chip
             key={item.id}
             label={item.label}
@@ -92,6 +124,20 @@ export default function DrinkSelector({
           />
         ))}
       </div>
+
+      {/* ===== 特別ドリンク（2列・最後尾） ===== */}
+      {specialDrinks.length > 0 && (
+        <div className="mt-6 grid grid-cols-2 gap-3">
+          {specialDrinks.map((item) => (
+            <Chip
+              key={item.id}
+              label={item.label}
+              selected={selectedKeys.includes(item.key)}
+              onClick={() => toggle(item.key)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }

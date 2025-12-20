@@ -1,10 +1,13 @@
 "use client"
 
 import { useState, useMemo, useCallback } from "react"
-import type { HomeStore, StoreType } from "@/types/store"
+import type { HomeStore } from "@/types/store"
 
+/**
+ * 🔑 storeTypeId = store_types.id（UUID）
+ */
 type Options = {
-  storeType?: StoreType | null
+  storeTypeId?: string | null
 }
 
 export function useHomeStoreFilters(
@@ -12,6 +15,9 @@ export function useHomeStoreFilters(
   externalLabelMap?: Map<string, string>,
   options?: Options
 ) {
+  // ============================
+  // state
+  // ============================
   const [prefectureIds, setPrefectureIds] = useState<string[]>([])
   const [areaIds, setAreaIds] = useState<string[]>([])
 
@@ -29,36 +35,65 @@ export function useHomeStoreFilters(
   const [toiletKeys, setToiletKeys] = useState<string[]>([])
   const [otherKeys, setOtherKeys] = useState<string[]>([])
 
+  // ============================
+  // ID / key → label map
+  // ============================
   const labelMap = useMemo(() => {
     const map = new Map<string, string>()
 
+    // stores に含まれる動的ラベル
     stores.forEach((s) => {
-      if (s.prefecture_id && s.prefecture_label) map.set(s.prefecture_id, s.prefecture_label)
-      if (s.area_id && s.area_label) map.set(s.area_id, s.area_label)
+      if (s.prefecture_id && s.prefecture_label) {
+        map.set(s.prefecture_id, s.prefecture_label)
+      }
+      if (s.area_id && s.area_label) {
+        map.set(s.area_id, s.area_label)
+      }
     })
 
-    externalLabelMap?.forEach((v, k) => {
-      if (!map.has(k)) map.set(k, v)
+    // masters（useHomeMasters 由来）
+    externalLabelMap?.forEach((label, key) => {
+      if (!map.has(key)) {
+        map.set(key, label)
+      }
     })
 
     return map
   }, [stores, externalLabelMap])
 
+  // ============================
+  // filtering core
+  // ============================
   const filteredStores = useMemo(() => {
     return stores.filter((s) => {
-      // ✅ null のときは無視、値があるときだけ絞る
-      if (options?.storeType != null && s.store_type_id !== options.storeType) {
+      /**
+       * ✅ store type filter
+       * store_type_id (UUID) で比較する
+       */
+      if (
+        options?.storeTypeId != null &&
+        s.store_type_id !== options.storeTypeId
+      ) {
         return false
       }
 
-      if (prefectureIds.length && (!s.prefecture_id || !prefectureIds.includes(s.prefecture_id))) {
+      // prefecture
+      if (
+        prefectureIds.length &&
+        (!s.prefecture_id || !prefectureIds.includes(s.prefecture_id))
+      ) {
         return false
       }
 
-      if (areaIds.length && (!s.area_id || !areaIds.includes(s.area_id))) {
+      // area
+      if (
+        areaIds.length &&
+        (!s.area_id || !areaIds.includes(s.area_id))
+      ) {
         return false
       }
 
+      // generic filters
       const checks: [string[], string[]][] = [
         [customerKeys, s.customer_keys ?? []],
         [atmosphereKeys, s.atmosphere_keys ?? []],
@@ -83,7 +118,7 @@ export function useHomeStoreFilters(
     })
   }, [
     stores,
-    options?.storeType,
+    options?.storeTypeId,
     prefectureIds,
     areaIds,
     customerKeys,
@@ -99,6 +134,9 @@ export function useHomeStoreFilters(
     otherKeys,
   ])
 
+  // ============================
+  // derived values
+  // ============================
   const count = filteredStores.length
 
   const selectedFilters = [
@@ -117,6 +155,9 @@ export function useHomeStoreFilters(
     ...otherKeys,
   ].map((k) => labelMap.get(k) ?? k)
 
+  // ============================
+  // clear
+  // ============================
   const handleClear = useCallback(() => {
     setPrefectureIds([])
     setAreaIds([])
@@ -133,7 +174,11 @@ export function useHomeStoreFilters(
     setOtherKeys([])
   }, [])
 
+  // ============================
+  // return
+  // ============================
   return {
+    // setters
     prefectureIds, setPrefectureIds,
     areaIds, setAreaIds,
     customerKeys, setCustomerKeys,
@@ -148,6 +193,7 @@ export function useHomeStoreFilters(
     toiletKeys, setToiletKeys,
     otherKeys, setOtherKeys,
 
+    // results
     filteredStores,
     selectedFilters,
     count,
