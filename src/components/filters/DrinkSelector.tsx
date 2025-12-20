@@ -4,6 +4,9 @@ import { useEffect, useMemo, useState } from "react"
 import { supabase } from "@/lib/supabase"
 import Chip from "@/components/ui/Chip"
 
+// ================================
+// 型定義
+// ================================
 type DrinkItem = {
   id: string
   key: string
@@ -17,14 +20,21 @@ type Props = {
   clearKey: number
 }
 
-// 🔽 最後尾＆2列表示したいドリンク
-const SPECIAL_DRINK_LABELS = [
+// ================================
+// 表示ルール
+// ================================
+const SPECIAL_2COL_LABELS = [
   "ノンアルコール",
   "ソフトドリンク",
   "オリジナルドリンク",
-  "水無料",
-]
+  "スパークリング",
+] as const
 
+const WATER_LABEL = "水無料"
+
+// ================================
+// Component
+// ================================
 export default function DrinkSelector({
   title,
   onChange,
@@ -70,14 +80,21 @@ export default function DrinkSelector({
   }, [])
 
   // ============================
-  // 並び替えロジック
+  // 並び替え & 分類（※型を明示）
   // ============================
-  const { normalDrinks, specialDrinks } = useMemo(() => {
+  const drinkGroups = useMemo<{
+    normalDrinks: DrinkItem[]
+    specialDrinks: DrinkItem[]
+    waterDrink: DrinkItem | null
+  }>(() => {
     const normal: DrinkItem[] = []
     const special: DrinkItem[] = []
+    let water: DrinkItem | null = null
 
     items.forEach((item) => {
-      if (SPECIAL_DRINK_LABELS.includes(item.label)) {
+      if (item.label === WATER_LABEL) {
+        water = item
+      } else if (SPECIAL_2COL_LABELS.includes(item.label as any)) {
         special.push(item)
       } else {
         normal.push(item)
@@ -90,8 +107,11 @@ export default function DrinkSelector({
     return {
       normalDrinks: normal,
       specialDrinks: special,
+      waterDrink: water,
     }
   }, [items])
+
+  const { normalDrinks, specialDrinks, waterDrink } = drinkGroups
 
   // ============================
   // toggle
@@ -125,7 +145,7 @@ export default function DrinkSelector({
         ))}
       </div>
 
-      {/* ===== 特別ドリンク（2列・最後尾） ===== */}
+      {/* ===== 特別ドリンク（2列） ===== */}
       {specialDrinks.length > 0 && (
         <div className="mt-6 grid grid-cols-2 gap-3">
           {specialDrinks.map((item) => (
@@ -136,6 +156,18 @@ export default function DrinkSelector({
               onClick={() => toggle(item.key)}
             />
           ))}
+        </div>
+      )}
+
+      {/* ===== 水無料（完全に最後） ===== */}
+      {waterDrink !== null && (
+        <div className="mt-6 grid grid-cols-2 gap-3">
+          <Chip
+            key={waterDrink.id}
+            label={waterDrink.label}
+            selected={selectedKeys.includes(waterDrink.key)}
+            onClick={() => toggle(waterDrink.key)}
+          />
         </div>
       )}
     </div>

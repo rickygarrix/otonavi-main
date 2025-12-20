@@ -93,6 +93,7 @@ export type HomeStore = {
   // ============================
   open_hours: StoreOpenHour[]
   special_hours: StoreSpecialOpenHour[]
+  business_hours: string | null
 
   // ============================
   // 実績（★今回の肝）

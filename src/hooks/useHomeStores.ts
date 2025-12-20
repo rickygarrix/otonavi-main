@@ -34,6 +34,9 @@ type StoreRow = {
   tiktok_url: string | null
   official_site_url: string | null
 
+  // ★ 追加
+  business_hours: string | null
+
   prefecture: { id: string; name_ja: string } | null
   area: { id: string; name: string } | null
 
@@ -107,6 +110,7 @@ export function useHomeStores() {
           facebook_url,
           tiktok_url,
           official_site_url,
+          business_hours,
 
           prefecture:prefecture_id ( id, name_ja ),
           area:area_id ( id, name ),
@@ -144,13 +148,12 @@ export function useHomeStores() {
           )
         `)
 
-      if (error) {
-        console.error(error)
+      if (!data) {
+        setStores([])
         setLoading(false)
         return
       }
 
-      // 👇 ここだけ追加
       const rows = data as unknown as StoreRow[]
 
       const formatted: HomeStore[] = rows.map((s) => {
@@ -204,9 +207,10 @@ export function useHomeStores() {
           // ============================
           open_hours: s.open_hours,
           special_hours: s.special_hours,
+          business_hours: s.business_hours, // ★ 正解
 
           // ============================
-          // 実績（一覧では空でOK）
+          // 実績
           // ============================
           hasAward: false,
           hasMedia: false,
@@ -223,65 +227,46 @@ export function useHomeStores() {
           rule_labels: extractLabels(s.rules, "rule_definitions"),
 
           // ============================
-          // M2M（未取得：空配列で埋める）
+          // M2M（未取得）
           // ============================
           baggage_keys: [],
           baggage_labels: [],
-
           security_keys: [],
           security_labels: [],
-
           toilet_keys: [],
           toilet_labels: [],
-
           floor_keys: [],
           floor_labels: [],
-
           seat_type_keys: [],
           seat_type_labels: [],
-
           smoking_keys: [],
           smoking_labels: [],
-
           environment_keys: [],
           environment_labels: [],
-
           other_keys: [],
           other_labels: [],
-
           pricing_system_keys: [],
           pricing_system_labels: [],
-
           discount_keys: [],
           discount_labels: [],
-
           vip_keys: [],
           vip_labels: [],
-
           payment_method_keys: [],
           payment_method_labels: [],
-
           sound_keys: [],
           sound_labels: [],
-
           lighting_keys: [],
           lighting_labels: [],
-
           production_keys: [],
           production_labels: [],
-
           customer_keys: [],
           customer_labels: [],
-
           atmosphere_keys: [],
           atmosphere_labels: [],
-
           food_keys: [],
           food_labels: [],
-
           service_keys: [],
           service_labels: [],
-
           drink_keys: [],
           drink_labels: [],
           drink_categories: {},

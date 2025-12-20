@@ -192,6 +192,7 @@ export function normalizeStore(raw: unknown): HomeStore {
 
     open_hours: asArray(r.store_open_hours) as HomeStore["open_hours"],
     special_hours: asArray(r.store_special_open_hours) as HomeStore["special_hours"],
+    business_hours: asString(r.business_hours),
 
     updated_at: asString(r.updated_at) ?? "",
 
