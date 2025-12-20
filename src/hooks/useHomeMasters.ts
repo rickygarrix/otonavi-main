@@ -147,6 +147,9 @@ export function useHomeMasters() {
   const labelToSectionMap = useMemo(() => {
     const map = new Map<string, string>()
 
+    // ============================
+    // Generic masters（既存）
+    // ============================
     genericMasters.forEach(({ label, table }) => {
       const section = TABLE_TO_SECTION[table]
       if (section) {
@@ -154,8 +157,26 @@ export function useHomeMasters() {
       }
     })
 
+    // ============================
+    // エリア（prefecture / area）
+    // ============================
+    prefectures.forEach((p) => {
+      map.set(p.name_ja, "エリア")
+    })
+
+    areas.forEach((a) => {
+      map.set(a.name, "エリア")
+    })
+
+    // ============================
+    // ドリンク
+    // ============================
+    drinkMasters.forEach((d) => {
+      map.set(d.label, "ドリンク")
+    })
+
     return map
-  }, [genericMasters])
+  }, [genericMasters, prefectures, areas, drinkMasters])
 
   // ============================
   // 都道府県名 → 地方
