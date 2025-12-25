@@ -13,6 +13,7 @@ export default function TermsPage() {
         本規約は、ユーザーと当サービスとの間のサービス利用に関わる一切の関係に適用されるものとします。
       </p>
 
+
       <h2 className="text-xl font-semibold mt-10 mb-4">第2条（禁止事項）</h2>
       <p>ユーザーは、当サービスの利用にあたり、以下の行為をしてはなりません。</p>
       <ul className="list-disc pl-6 mb-6 mt-2 space-y-2">
