@@ -5,10 +5,11 @@ import Image from "next/image"
 
 export default function CurvedBackground() {
   return (
-    <div className="absolute inset-0 -z-10">
+    <div className="absolute inset-0 h-160">
       <Image
-        src="/back.png"
-        alt="background"
+        src="/background-sp@2x.png"
+        alt=""
+        aria-hidden="true"
         fill
         priority
         sizes="100vw"
