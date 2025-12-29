@@ -18,23 +18,30 @@ const SPECIAL_2COL_LABELS = [
   "スパークリング",
 ] as const
 
+type SpecialLabel = typeof SPECIAL_2COL_LABELS[number]
+
 const WATER_LABEL = "水無料"
 
-export default function DrinkSelector({ title, onChange, clearKey }: Props) {
+const isSpecialLabel = (label: string): label is SpecialLabel => {
+  return (SPECIAL_2COL_LABELS as readonly string[]).includes(label)
+}
+
+export default function DrinkSelector({
+  title,
+  onChange,
+  clearKey,
+}: Props) {
   const [items, setItems] = useState<DrinkDefinition[]>([])
   const [selectedKeys, setSelectedKeys] = useState<string[]>([])
 
-  // 選択変更 → 親に通知
   useEffect(() => {
     onChange(selectedKeys)
   }, [selectedKeys, onChange])
 
-  // クリア同期
   useEffect(() => {
     setSelectedKeys([])
   }, [clearKey])
 
-  // マスタ読込（id / is_active は不要なら取らない）
   useEffect(() => {
     const load = async () => {
       const { data, error } = await supabase
@@ -47,7 +54,7 @@ export default function DrinkSelector({ title, onChange, clearKey }: Props) {
         return
       }
 
-      setItems(data ?? [])
+      setItems((data ?? []) as DrinkDefinition[])
     }
 
     load()
@@ -59,26 +66,37 @@ export default function DrinkSelector({ title, onChange, clearKey }: Props) {
     let water: DrinkDefinition | null = null
 
     for (const item of items) {
-      if (item.label === WATER_LABEL) water = item
-      else if (SPECIAL_2COL_LABELS.includes(item.label as any)) special.push(item)
-      else normal.push(item)
+      if (item.label === WATER_LABEL) {
+        water = item
+      } else if (isSpecialLabel(item.label)) {
+        special.push(item)
+      } else {
+        normal.push(item)
+      }
     }
 
     normal.sort((a, b) => a.label.localeCompare(b.label, "ja"))
 
-    return { normalDrinks: normal, specialDrinks: special, waterDrink: water }
+    return {
+      normalDrinks: normal,
+      specialDrinks: special,
+      waterDrink: water,
+    }
   }, [items])
 
   const toggle = (key: string) => {
     setSelectedKeys((prev) =>
-      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+      prev.includes(key)
+        ? prev.filter((k) => k !== key)
+        : [...prev, key]
     )
   }
 
   return (
     <div className="w-full px-6 py-6">
-      <h2 className="text-lg font-bold text-slate-900 mb-6">{title}</h2>
-
+      <h2 className="text-lg font-bold text-slate-900 mb-6">
+        {title}
+      </h2>
       <div className="grid grid-cols-3 gap-3">
         {normalDrinks.map((item) => (
           <Chip

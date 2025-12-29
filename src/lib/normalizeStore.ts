@@ -2,16 +2,21 @@
 import type { HomeStore } from "@/types/store"
 import type { StoreRow } from "@/types/store-db"
 
-type Rec = Record<string, unknown>
-
 const asString = (v: unknown): string | null =>
   typeof v === "string" ? v : null
 
 const asNumber = (v: unknown): number | null =>
   typeof v === "number" ? v : null
 
-const asArray = <T = unknown>(v: unknown): T[] =>
+const asArray = <T>(v: unknown): T[] =>
   Array.isArray(v) ? (v as T[]) : []
+
+type DefinitionRef = {
+  key?: unknown
+  label?: unknown
+}
+
+type M2MRow = Record<string, DefinitionRef | undefined>
 
 function extractM2M(
   list: unknown,
@@ -24,8 +29,8 @@ function extractM2M(
     return { keys, labels }
   }
 
-  for (const row of list) {
-    const def = (row as any)?.[defKey]
+  for (const row of list as M2MRow[]) {
+    const def = row[defKey]
     if (!def) continue
 
     if (typeof def.key === "string") keys.push(def.key)
@@ -49,7 +54,13 @@ function selectImage(store_images: StoreRow["store_images"]): string {
 }
 
 export function normalizeStore(raw: StoreRow): HomeStore {
-  const store_awards = asArray(raw.store_awards).map((a: any) => ({
+  const store_awards = asArray<{
+    id?: unknown
+    title?: unknown
+    organization?: unknown
+    year?: unknown
+    url?: unknown
+  }>(raw.store_awards).map((a) => ({
     id: String(a.id ?? ""),
     title: String(a.title ?? ""),
     organization: asString(a.organization),
@@ -57,7 +68,11 @@ export function normalizeStore(raw: StoreRow): HomeStore {
     url: asString(a.url),
   }))
 
-  const store_media_mentions = asArray(raw.store_media_mentions).map((m: any) => ({
+  const store_media_mentions = asArray<{
+    id?: unknown
+    media_name?: unknown
+    year?: unknown
+  }>(raw.store_media_mentions).map((m) => ({
     id: String(m.id ?? ""),
     media_name: String(m.media_name ?? ""),
     year: asNumber(m.year),

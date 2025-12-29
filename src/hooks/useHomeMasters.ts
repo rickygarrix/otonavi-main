@@ -5,6 +5,9 @@ import { supabase } from "@/lib/supabase"
 import type { Area, RegionKey, Prefecture } from "@/types/location"
 import type { DrinkDefinition, GenericMaster } from "@/types/master"
 
+// ================================
+// section 定義
+// ================================
 const TABLE_TO_SECTION: Record<string, string> = {
   store_types: "店舗タイプ",
   event_trend_definitions: "イベントの傾向",
@@ -21,9 +24,18 @@ const TABLE_TO_SECTION: Record<string, string> = {
 }
 
 // ================================
-// Generic Master Loader（★ 衝突防止）
+// Supabase row 型（★ any 排除）
 // ================================
-async function loadGenericMasters() {
+type GenericMasterRow = {
+  id: string
+  key: string
+  label: string
+}
+
+// ================================
+// Generic Master Loader
+// ================================
+async function loadGenericMasters(): Promise<Map<string, GenericMaster>> {
   const map = new Map<string, GenericMaster>()
 
   await Promise.all(
@@ -38,8 +50,8 @@ async function loadGenericMasters() {
         return
       }
 
-      ; (data ?? []).forEach((item: any) => {
-        // ★ table + key で一意にする
+      ; (data as GenericMasterRow[] | null)?.forEach((item) => {
+        // table + key で一意にする（衝突防止）
         const mapKey = `${table}:${item.key}`
 
         map.set(mapKey, {
@@ -67,15 +79,18 @@ export function useHomeMasters() {
 
   useEffect(() => {
     const load = async () => {
-      const [{ data: prefData }, { data: areaData }, { data: drinkData }] =
-        await Promise.all([
-          supabase.from("prefectures").select("id, name_ja, region"),
-          supabase.from("areas").select("id, name, is_23ward"),
-          supabase
-            .from("drink_definitions")
-            .select("key, label")
-            .eq("is_active", true),
-        ])
+      const [
+        { data: prefData },
+        { data: areaData },
+        { data: drinkData },
+      ] = await Promise.all([
+        supabase.from("prefectures").select("id, name_ja, region"),
+        supabase.from("areas").select("id, name, is_23ward"),
+        supabase
+          .from("drink_definitions")
+          .select("key, label")
+          .eq("is_active", true),
+      ])
 
       setPrefectures(prefData ?? [])
       setAreas(areaData ?? [])
@@ -120,12 +135,18 @@ export function useHomeMasters() {
     return map
   }, [genericMasters, prefectures, areas, drinkMasters])
 
+  // ============================
+  // prefecture → region
+  // ============================
   const prefectureRegionMap = useMemo(() => {
     const map = new Map<string, RegionKey>()
     prefectures.forEach((p) => map.set(p.name_ja, p.region))
     return map
   }, [prefectures])
 
+  // ============================
+  // area name → Area
+  // ============================
   const areaMap = useMemo(() => {
     const map = new Map<string, Area>()
     areas.forEach((a) => map.set(a.name, a))
