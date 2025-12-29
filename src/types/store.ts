@@ -50,6 +50,7 @@ export type HomeStore = {
   access: string | null
   google_map_url: string | null
   address: string | null
+  postcode: string | null
   business_hours: string | null
 
   hasAward: boolean

@@ -102,6 +102,7 @@ export function normalizeStore(raw: StoreRow): HomeStore {
     access: raw.access,
     google_map_url: raw.google_map_url,
     address: raw.address,
+    postcode: raw.postcode,
     business_hours: raw.business_hours,
 
     hasAward: store_awards.length > 0,

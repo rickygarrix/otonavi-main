@@ -45,17 +45,23 @@ export default function StoreAccess({ store }: Props) {
         </p>
       )}
 
+      {/* 地図 */}
+      {store.google_map_url && (
+        <GoogleMapEmbed url={store.google_map_url} />
+      )}
+
+      {/* 郵便番号 */}
+      {store.postcode && (
+        <p className="text-slate-500 text-sm mb-1">
+          〒{store.postcode}
+        </p>
+      )}
+
+      {/* 住所 */}
       {store.address && (
         <p className="text-slate-700 whitespace-pre-line mb-3">
           {store.address}
         </p>
-      )}
-
-      {/* 地図 */}
-      {store.google_map_url && (
-        <>
-          <GoogleMapEmbed url={store.google_map_url} />
-        </>
       )}
     </div>
   )
