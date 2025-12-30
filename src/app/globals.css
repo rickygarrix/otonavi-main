@@ -144,19 +144,14 @@ body {
 ================================ */
 
 body {
-  background: url("/background-pc.png");
   color: var(--dark-1);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
   line-height: 1.6;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
-  display: flex;
-  justify-content: center;
 }
 
 .sp-frame {
-  background: #FFFFFF;
-  max-width: 420px;
   box-shadow: 0 0 80px 0 rgba(0, 0, 0, 0.10), 0 0 16px 0 rgba(0, 0, 0, 0.15);
 }
 
