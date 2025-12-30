@@ -6,14 +6,12 @@ import React from 'react'
 
 export default function LogoHero() {
   return (
-    <div className="pt-14 pb-4 flex flex-col items-center justify-center">
-      <Image
-        src="/otnv_logo.svg"
-        alt="オトナビ"
-        width={180}
-        height={60}
-        className="drop-shadow-lg"
-      />
-    </div>
+    <Image
+      src="/logo-white.svg"
+      alt="オトナビ"
+      width={200}
+      height={60}
+      className="drop-shadow-lg"
+    />
   )
 }

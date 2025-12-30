@@ -3,7 +3,6 @@
 import { useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 
-import CurvedBackground from "@/components/home/CurvedBackground"
 import LogoHero from "@/components/home/LogoHero"
 import CommentSlider from "@/components/home/CommentSlider"
 import HomeLatestStores from "@/components/home/HomeLatestStores"
@@ -72,12 +71,9 @@ export default function HomePage() {
   return (
     <>
       {/* ===== Hero ===== */}
-      <div className="relative w-full text-white overflow-hidden">
-        <CurvedBackground />
+      <div className="relative w-full h-160 flex flex-col items-center text-white overflow-hidden bg-[url('/background-sp@2x.png')] bg-cover bg-center px-4 pt-20">
 
-        <div className="mt-[80px]">
-          <LogoHero />
-        </div>
+        <LogoHero />
 
         {!loading && (
           <div className="mt-[40px]">
@@ -85,11 +81,8 @@ export default function HomePage() {
           </div>
         )}
 
-        <div className="absolute left-0 bottom-[30px] w-full flex justify-center pointer-events-none">
-          <CommentSlider />
-        </div>
+        <CommentSlider />
 
-        <div className="h-[160px]" />
       </div>
 
       {/* ===== Store Type ===== */}
