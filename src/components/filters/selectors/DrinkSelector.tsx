@@ -11,21 +11,6 @@ type Props = {
   clearKey: number
 }
 
-const SPECIAL_2COL_LABELS = [
-  "ノンアルコール",
-  "ソフトドリンク",
-  "オリジナルドリンク",
-  "スパークリング",
-] as const
-
-type SpecialLabel = typeof SPECIAL_2COL_LABELS[number]
-
-const WATER_LABEL = "水無料"
-
-const isSpecialLabel = (label: string): label is SpecialLabel => {
-  return (SPECIAL_2COL_LABELS as readonly string[]).includes(label)
-}
-
 export default function DrinkSelector({
   title,
   onChange,
@@ -46,41 +31,29 @@ export default function DrinkSelector({
     const load = async () => {
       const { data, error } = await supabase
         .from("drink_definitions")
-        .select("key, label")
+        .select("key, label, display_order")
         .eq("is_active", true)
+        .order("display_order", { ascending: true })
 
       if (error) {
         console.error("DrinkSelector load error:", error)
         return
       }
 
-      setItems((data ?? []) as DrinkDefinition[])
+      setItems(data ?? [])
     }
 
     load()
   }, [])
 
-  const { normalDrinks, specialDrinks, waterDrink } = useMemo(() => {
-    const normal: DrinkDefinition[] = []
-    const special: DrinkDefinition[] = []
-    let water: DrinkDefinition | null = null
-
-    for (const item of items) {
-      if (item.label === WATER_LABEL) {
-        water = item
-      } else if (isSpecialLabel(item.label)) {
-        special.push(item)
-      } else {
-        normal.push(item)
-      }
-    }
-
-    normal.sort((a, b) => a.label.localeCompare(b.label, "ja"))
-
+  const { normalDrinks, specialDrinks } = useMemo(() => {
     return {
-      normalDrinks: normal,
-      specialDrinks: special,
-      waterDrink: water,
+      normalDrinks: items.filter(
+        (i) => (i.display_order ?? 0) < 90
+      ),
+      specialDrinks: items.filter(
+        (i) => (i.display_order ?? 0) >= 90
+      ),
     }
   }, [items])
 
@@ -97,40 +70,36 @@ export default function DrinkSelector({
       <h2 className="text-lg font-bold text-slate-900 mb-6">
         {title}
       </h2>
-      <div className="grid grid-cols-3 gap-3">
-        {normalDrinks.map((item) => (
-          <Chip
-            key={item.key}
-            label={item.label}
-            selected={selectedKeys.includes(item.key)}
-            onClick={() => toggle(item.key)}
-          />
-        ))}
+
+      <div className="flex flex-col gap-y-6">
+        {/* 通常ドリンク（3列） */}
+        {normalDrinks.length > 0 && (
+          <div className="grid grid-cols-3 gap-3">
+            {normalDrinks.map((item) => (
+              <Chip
+                key={item.key}
+                label={item.label}
+                selected={selectedKeys.includes(item.key)}
+                onClick={() => toggle(item.key)}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* 特殊ドリンク（2列・下段） */}
+        {specialDrinks.length > 0 && (
+          <div className="grid grid-cols-2 gap-3">
+            {specialDrinks.map((item) => (
+              <Chip
+                key={item.key}
+                label={item.label}
+                selected={selectedKeys.includes(item.key)}
+                onClick={() => toggle(item.key)}
+              />
+            ))}
+          </div>
+        )}
       </div>
-
-      {specialDrinks.length > 0 && (
-        <div className="mt-6 grid grid-cols-2 gap-3">
-          {specialDrinks.map((item) => (
-            <Chip
-              key={item.key}
-              label={item.label}
-              selected={selectedKeys.includes(item.key)}
-              onClick={() => toggle(item.key)}
-            />
-          ))}
-        </div>
-      )}
-
-      {waterDrink && (
-        <div className="mt-6 grid grid-cols-2 gap-3">
-          <Chip
-            key={waterDrink.key}
-            label={waterDrink.label}
-            selected={selectedKeys.includes(waterDrink.key)}
-            onClick={() => toggle(waterDrink.key)}
-          />
-        </div>
-      )}
     </div>
   )
 }

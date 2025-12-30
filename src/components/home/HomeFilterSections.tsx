@@ -82,17 +82,18 @@ export default function HomeFilterSections(props: Props) {
 
   const FILTERS: FilterConfig[] = [
     { key: "エリア", type: "area" },
+
     { key: "客層", type: "generic", table: "customer_definitions", columns: 2, onChange: setCustomerKeys },
     { key: "雰囲気", type: "generic", table: "atmosphere_definitions", columns: 3, onChange: setAtmosphereKeys },
     { key: "広さ", type: "generic", table: "size_definitions", columns: 3, onChange: setSizeKey },
     { key: "ドリンク", type: "drink", onChange: setDrinkKeys },
     { key: "価格帯", type: "generic", table: "price_range_definitions", columns: 3, onChange: setPriceRangeKeys },
-    { key: "支払い方法", type: "generic", table: "payment_method_definitions", columns: 3, onChange: setPaymentMethodKeys },
+    { key: "支払い方法", type: "generic", table: "payment_method_definitions", columns: 2, onChange: setPaymentMethodKeys },
     { key: "イベントの傾向", type: "generic", table: "event_trend_definitions", columns: 3, onChange: setEventTrendKeys },
     { key: "荷物預かり", type: "generic", table: "baggage_definitions", columns: 2, onChange: setBaggageKeys },
-    { key: "喫煙", type: "generic", table: "smoking_definitions", columns: 2, onChange: setSmokingKeys },
-    { key: "トイレ", type: "generic", table: "toilet_definitions", columns: 2, onChange: setToiletKeys },
-    { key: "周辺環境", type: "generic", table: "environment_definitions", columns: 3, onChange: setEnvironmentKeys },
+    { key: "喫煙", type: "generic", table: "smoking_definitions", columns: 3, onChange: setSmokingKeys },
+    { key: "トイレ", type: "generic", table: "toilet_definitions", columns: 3, onChange: setToiletKeys },
+    { key: "周辺環境", type: "generic", table: "environment_definitions", columns: 2, onChange: setEnvironmentKeys },
     { key: "その他", type: "generic", table: "other_definitions", columns: 2, onChange: setOtherKeys },
   ]
 
