@@ -76,7 +76,7 @@ export default function HomePage() {
         <LogoHero />
 
         {!loading && (
-          <div className="mt-[40px]">
+          <div className="mt-10">
             <HomeLatestStores stores={stores} />
           </div>
         )}

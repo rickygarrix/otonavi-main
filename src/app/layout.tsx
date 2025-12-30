@@ -23,9 +23,9 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <div className="sp-frame">
+    <html lang="ja">
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[url(/background-pc.png)] bg-cover bg-fixed flex justify-center items-start`}>
+        <div className="sp-frame max-w-105 w-full bg-white mx-auto">
           {children}
         </div>
       </body>
