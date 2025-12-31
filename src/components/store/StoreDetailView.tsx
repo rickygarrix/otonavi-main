@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation"
 import type { HomeStore } from "@/types/store"
 
-import Footer from "@/components/Footer"
+import Footer from "@/components/ui/Footer"
 import BackToHomeButton from "@/components/ui/BackToHomeButton"
 
 import StoreImageCarousel from "@/components/store/StoreImageCarousel"

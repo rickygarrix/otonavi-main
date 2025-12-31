@@ -1,9 +1,10 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import Image from "next/image"
 
 type Props = {
-  onHome: () => void
+  onHome?: () => void   // ← optional にする
   size?: number
   iconSize?: number
   className?: string
@@ -11,35 +12,32 @@ type Props = {
 
 export default function HomeButton({
   onHome,
-  size = 56,
-  iconSize = 28,
+  size = 40,
+  iconSize = 20,
   className = "",
 }: Props) {
+  const router = useRouter()
+
+  const handleClick = () => {
+    if (onHome) {
+      onHome()
+    } else {
+      router.push("/") // ★ デフォルトでホームへ
+    }
+  }
+
   return (
     <button
-      onClick={onHome}
-      className={`
-        active:scale-95 transition
-        flex items-center justify-center
-        rounded-full bg-white shadow
-        ${className}
-      `}
-      style={{
-        width: `${size}px`,
-        height: `${size}px`,
-      }}
+      onClick={handleClick}
+      className={`flex items-center justify-center rounded-full bg-white shadow ${className}`}
+      style={{ width: size, height: size }}
     >
-      <div
-        className="relative"
-        style={{ width: `${iconSize}px`, height: `${iconSize}px` }}
-      >
-        <Image
-          src="/logo_white.svg"
-          alt="Home"
-          fill
-          className="object-contain"
-        />
-      </div>
+      <Image
+        src="/symbol.svg"
+        alt="Home"
+        width={iconSize}
+        height={iconSize}
+      />
     </button>
   )
 }

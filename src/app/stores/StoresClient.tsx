@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 
 import type { HomeStore } from "@/types/store"
 import StoreCard from "@/components/store/StoreCard"
-import Footer from "@/components/Footer"
+import Footer from "@/components/ui/Footer"
 import HomeButton from "@/components/ui/HomeButton"
 import BackToHomeButton from "@/components/ui/BackToHomeButton"
 
@@ -27,7 +27,7 @@ export default function StoresClient() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* ヘッダー */}
-      <div className="px-4 py-4 flex items-center gap-4 border-b sticky top-0 bg-white z-[70]">
+      <div className="px-4 py-4 flex items-center gap-4 sticky top-0 bg-white z-[70]">
         <HomeButton
           onHome={() => router.push("/")}
           size={56}

@@ -1,13 +1,7 @@
 "use client"
 
+import Image from "next/image"
 import type { HomeStore } from "@/types/store"
-import {
-  FaInstagram,
-  FaFacebook,
-  FaLink,
-} from "react-icons/fa"
-import { FaXTwitter } from "react-icons/fa6"
-import { SiTiktok } from "react-icons/si"
 
 type Props = {
   store: HomeStore
@@ -39,63 +33,93 @@ export default function StoreBasicInfo({ store }: Props) {
         </p>
       )}
 
-      {/* SNS */}
+      {/* SNS / Web */}
       <div className="flex gap-5 mt-6 items-center">
-        {store.instagram_url && (
-          <SNSLink href={store.instagram_url}>
-            <FaInstagram />
-          </SNSLink>
-        )}
-
-        {store.x_url && (
-          <SNSLink href={store.x_url}>
-            <FaXTwitter />
-          </SNSLink>
-        )}
-
-        {store.facebook_url && (
-          <SNSLink href={store.facebook_url}>
-            <FaFacebook />
-          </SNSLink>
-        )}
-
-        {store.tiktok_url && (
-          <SNSLink href={store.tiktok_url}>
-            <SiTiktok />
-          </SNSLink>
-        )}
-
+        {/* ① 公式サイト */}
         {store.official_site_url && (
-          <SNSLink href={store.official_site_url}>
-            <FaLink />
-          </SNSLink>
+          <IconLink
+            href={store.official_site_url}
+            off="/WebOff.svg"
+            on="/WebOn.svg"
+            alt="Official Site"
+          />
+        )}
+
+        {/* ② Instagram */}
+        {store.instagram_url && (
+          <IconLink
+            href={store.instagram_url}
+            off="/InstagramOff.svg"
+            on="/InstagramOn.svg"
+            alt="Instagram"
+          />
+        )}
+
+        {/* ③ X */}
+        {store.x_url && (
+          <IconLink
+            href={store.x_url}
+            off="/XOff.svg"
+            on="/XOn.svg"
+            alt="X"
+          />
+        )}
+
+        {/* ④ Facebook */}
+        {store.facebook_url && (
+          <IconLink
+            href={store.facebook_url}
+            off="/FacebookOff.svg"
+            on="/FacebookOn.svg"
+            alt="Facebook"
+          />
+        )}
+
+        {/* ⑤ TikTok */}
+        {store.tiktok_url && (
+          <IconLink
+            href={store.tiktok_url}
+            off="/TikTokOff.svg"
+            on="/TikTokOn.svg"
+            alt="TikTok"
+          />
         )}
       </div>
     </div>
   )
 }
 
-function SNSLink({
+function IconLink({
   href,
-  children,
+  off,
+  on,
+  alt,
 }: {
   href: string
-  children: React.ReactNode
+  off: string
+  on: string
+  alt: string
 }) {
   return (
     <a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="
-        text-slate-600
-        hover:text-slate-900
-        transition
-        text-[26px]
-        hover:scale-110
-      "
+      aria-label={alt}
+      className="relative w-[26px] h-[26px] transition-transform hover:scale-110"
     >
-      {children}
+      <Image
+        src={off}
+        alt={alt}
+        fill
+        className="object-contain transition-opacity duration-200 hover:opacity-0"
+      />
+      <Image
+        src={on}
+        alt={alt}
+        fill
+        className="object-contain opacity-0 transition-opacity duration-200 hover:opacity-100"
+      />
     </a>
   )
 }

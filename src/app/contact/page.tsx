@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 
 import HomeButton from "@/components/ui/HomeButton"
-import Footer from "@/components/Footer"
+import Footer from "@/components/ui/Footer"
 
 type ContactForm = {
   name: string
