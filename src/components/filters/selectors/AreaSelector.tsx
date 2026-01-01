@@ -22,16 +22,32 @@ export default function AreaSelector({ clearKey, onChange }: Props) {
   const [openPref, setOpenPref] = useState(false)
   const [openArea, setOpenArea] = useState(false)
 
+  // ============================
+  // 都道府県（display_order）
+  // ============================
   useEffect(() => {
-    supabase
-      .from("prefectures")
-      .select("id, name_ja, region")
-      .order("code")
-      .then(({ data }) => setPrefectures(data ?? []))
+    const loadPrefectures = async () => {
+      const { data, error } = await supabase
+        .from("prefectures")
+        .select("id, name_ja, region, code")
+        .order("code", { ascending: true })
+
+      if (error) {
+        console.error("prefectures load error:", error)
+        return
+      }
+
+      setPrefectures((data ?? []) as Prefecture[])
+    }
+
+    loadPrefectures()
   }, [])
 
   const isTokyo = selectedPrefecture?.name_ja === TOKYO_NAME
 
+  // ============================
+  // エリア（display_order）
+  // ============================
   useEffect(() => {
     if (!isTokyo || !selectedPrefecture) {
       setAreas([])
@@ -39,14 +55,27 @@ export default function AreaSelector({ clearKey, onChange }: Props) {
       return
     }
 
-    supabase
-      .from("areas")
-      .select("id, name, is_23ward")
-      .eq("prefecture_id", selectedPrefecture.id)
-      .order("name")
-      .then(({ data }) => setAreas(data ?? []))
+    const loadAreas = async () => {
+      const { data, error } = await supabase
+        .from("areas")
+        .select("id, name, is_23ward, display_order")
+        .eq("prefecture_id", selectedPrefecture.id)
+        .order("display_order", { ascending: true })
+
+      if (error) {
+        console.error("areas load error:", error)
+        return
+      }
+
+      setAreas((data ?? []) as Area[])
+    }
+
+    loadAreas()
   }, [isTokyo, selectedPrefecture])
 
+  // ============================
+  // clear
+  // ============================
   useEffect(() => {
     setSelectedPrefecture(null)
     setSelectedArea(null)
@@ -69,8 +98,18 @@ export default function AreaSelector({ clearKey, onChange }: Props) {
     )
   }
 
-  const wards = useMemo(() => areas.filter(a => a.is_23ward), [areas])
-  const others = useMemo(() => areas.filter(a => !a.is_23ward), [areas])
+  // ============================
+  // 分類（順序は DB に従う）
+  // ============================
+  const wards = useMemo(
+    () => areas.filter(a => a.is_23ward),
+    [areas]
+  )
+
+  const others = useMemo(
+    () => areas.filter(a => !a.is_23ward),
+    [areas]
+  )
 
   // ============================
   // UI
@@ -83,7 +122,9 @@ export default function AreaSelector({ clearKey, onChange }: Props) {
           onClick={() => setOpenPref(v => !v)}
           className="flex-1 h-12 px-4 bg-white rounded-full border flex justify-between items-center text-sm"
         >
-          <span className={selectedPrefecture ? "text-gray-800" : "text-gray-400"}>
+          <span
+            className={selectedPrefecture ? "text-gray-800" : "text-gray-400"}
+          >
             {selectedPrefecture?.name_ja ?? "都道府県"}
           </span>
           <span className="text-gray-400">▾</span>
@@ -111,7 +152,9 @@ export default function AreaSelector({ clearKey, onChange }: Props) {
             onClick={() => setOpenArea(v => !v)}
             className="flex-1 h-12 px-4 bg-white rounded-full border flex justify-between items-center text-sm"
           >
-            <span className={selectedArea ? "text-gray-800" : "text-gray-400"}>
+            <span
+              className={selectedArea ? "text-gray-800" : "text-gray-400"}
+            >
               {selectedArea?.name ?? "エリア"}
             </span>
             <span className="text-gray-400">▾</span>

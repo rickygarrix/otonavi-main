@@ -43,9 +43,9 @@ export default function GenericSelector({
     const load = async () => {
       const { data, error } = await supabase
         .from(table)
-        .select('id, key, label')
-        .eq('is_active', true)
-        .order('label');
+        .select("id, key, label, display_order")
+        .eq("is_active", true)
+        .order("display_order", { ascending: true })
 
       if (error) {
         console.error(`GenericSelector load error (${table}):`, error);
