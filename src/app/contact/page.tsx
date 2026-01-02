@@ -29,52 +29,53 @@ export default function ContactPage() {
   };
 
   const styles = {
+    step: "flex items-center justify-center w-16 h-16 z-10",
     wrapper: "flex flex-col gap-2",
-    label: "flex items-center gap-1 text-sm text-dark-1",
+    label: "flex gap-1 text-sm",
     input:
-      "w-full h-12 px-4 bg-Brand-Light-1 rounded-3xl outline outline-1 outline-offset-[-1px] outline-Brand-Light-4 text-base",
+      "h-12 px-4 bg-light-1 rounded-3xl outline outline-1 outline-offset-[-1px] outline-Brand-Light-4 text-base",
     textarea:
-      "w-full min-h-[160px] px-4 py-3 bg-Brand-Light-1 rounded-2xl outline outline-1 outline-offset-[-1px] outline-Brand-Light-4 text-base resize-none",
+      "min-h-40 px-4 py-3 bg-light-1 rounded-3xl outline outline-1 outline-offset-[-1px] outline-Brand-Light-4 text-base resize-none",
   };
 
   return (
-    <div className="min-h-screen bg-Brand-Light-2 flex flex-col">
-      {/* ===== Fixed Header ===== */}
-      <div className="fixed top-0 left-0 right-0 z-50 h-20 px-4 flex items-center gap-4 bg-white/70 backdrop-blur">
-        <HomeButton onHome={() => router.push("/")} />
+    <div className="bg-light-1 text-dark-5">
+      <HomeButton
+        onHome={() => router.push("/")}
+        className="fixed top-3 left-4 z-50"
+      />
 
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold">
+      {/* ===== Stepper ===== */}
+      <div className="relative h-20 pl-24 pr-4 flex items-center justify-between">
+        <div className={styles.step}>
+          <div className="w-10 h-10 outline-4 outline-blue-200 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold">
             入力
           </div>
-          <div className="w-16 h-[2px] bg-blue-400" />
-          <div className="w-3 h-3 rounded-full bg-slate-300" />
-          <div className="w-16 h-[2px] bg-slate-200" />
-          <div className="w-3 h-3 rounded-full bg-slate-300" />
         </div>
+        <div className={styles.step}>
+          <div className="w-4 h-4 rounded-full bg-red-500" />
+        </div>
+        <div className={styles.step}>
+          <div className="w-4 h-4 rounded-full bg-red-500" />
+        </div>
+        <div className="absolute left-32 right-12 h-[2px] bg-gradient-to-r from-blue-600 to-red-500" />
       </div>
 
-      {/* Header Spacer */}
-      <div className="h-20" />
-
       {/* ===== Main Content ===== */}
-      <div className="flex-1 flex flex-col">
+      <main>
         {/* Intro */}
-        <div className="w-full px-6 py-10 flex flex-col items-center gap-6">
-          <h1 className="w-full text-Brand-Dark-1 text-xl font-bold leading-8 tracking-widest">
+        <section className="px-6 py-10">
+          <h1 className="text-xl font-bold leading-[1.5] tracking-widest">
             お問い合わせ
           </h1>
 
-          <p className="w-full text-Brand-Dark-1 text-sm leading-6 text-justify">
-            オトナビについてのご質問や店舗情報に関するご相談など、
-            お気軽にお問い合わせください。
-            <br />
-            3営業日以内にメールにてお返事いたします。
+          <p className="text-sm leading-[1.8] text-justify">
+            オトナビについてのご質問や店舗情報に関するご相談など、お気軽にお問い合わせください。3営業日以内にメールにてお返事いたします。
           </p>
-        </div>
+        </section>
 
         {/* Form */}
-        <div className="px-6 pb-20 flex flex-col gap-6">
+        <div className="px-6 pt-10 pb-20 flex flex-col gap-4 bg-light-2">
           {/* お名前 */}
           <div className={styles.wrapper}>
             <label htmlFor="name" className={styles.label}>
@@ -122,16 +123,14 @@ export default function ContactPage() {
           {/* お問い合わせ内容 */}
           <div className={styles.wrapper}>
             <label htmlFor="message" className={styles.label}>
-              <div className="flex items-center gap-1 text-sm text-Brand-Dark-1">
-                <span>お問い合わせ内容</span>
-                <span className="text-red-4" aria-hidden>
-                  *
-                </span>
-                <span className="sr-only">必須</span>
-              </div>
+              <span>お問い合わせ内容</span>
+              <span className="text-red-4" aria-hidden>
+                *
+              </span>
+              <span className="sr-only">必須</span>
             </label>
 
-            <p id="message-help" className="text-xs text-gray-500 leading-4">
+            <p id="message-help" className="text-xs text-gray-4 leading-[1.5]">
               わかる範囲で概要をご記入ください。
             </p>
 
@@ -152,14 +151,14 @@ export default function ContactPage() {
             type="button"
             disabled={!isValid}
             onClick={handleConfirm}
-            className={`w-full h-12 px-4 flex items-center justify-center gap-1 rounded-lg text-sm text-Brand-Light-1 bg-gradient-to-b from-Brand-Dark-4 to-Brand-Dark-3 outline outline-1 outline-offset-[-1px] outline-slate-300/50 transition ${
+            className={`h-12 px-4 flex items-center justify-center gap-1 rounded-lg text-sm text-Brand-Light-1 bg-gradient-to-b from-Brand-Dark-4 to-Brand-Dark-3 outline outline-1 outline-offset-[-1px] outline-slate-300/50 transition ${
               !isValid ? "opacity-40" : ""
             }`}
           >
             内容確認へ →
           </button>
         </div>
-      </div>
+      </main>
 
       {/* ===== Footer ===== */}
       <Footer />
