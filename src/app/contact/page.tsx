@@ -1,32 +1,44 @@
-"use client";
+"use client"
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 
-import HomeButton from "@/components/ui/HomeButton";
-import Footer from "@/components/Footer";
+import HomeButton from "@/components/ui/HomeButton"
+import Footer from "@/components/ui/Footer"
 
 type ContactForm = {
-  name: string;
-  email: string;
-  message: string;
-};
+  name: string
+  email: string
+  message: string
+}
 
 export default function ContactPage() {
-  const router = useRouter();
+  const router = useRouter()
 
   const [form, setForm] = useState<ContactForm>({
     name: "",
     email: "",
     message: "",
-  });
+  })
 
-  const isValid = Boolean(form.name && form.email && form.message);
+  // ★ confirm から戻ったとき用：値を復元
+  useEffect(() => {
+    const stored = sessionStorage.getItem("contactForm")
+    if (stored) {
+      try {
+        setForm(JSON.parse(stored))
+      } catch {
+        // JSON壊れてたら無視
+      }
+    }
+  }, [])
+
+  const isValid = Boolean(form.name && form.email && form.message)
 
   const handleConfirm = () => {
-    sessionStorage.setItem("contactForm", JSON.stringify(form));
-    router.push("/contact/confirm");
-  };
+    sessionStorage.setItem("contactForm", JSON.stringify(form))
+    router.push("/contact/confirm")
+  }
 
   const styles = {
     step: "flex items-center justify-center w-16 h-16 z-10",
@@ -36,7 +48,7 @@ export default function ContactPage() {
       "h-12 px-4 bg-light-1 rounded-3xl outline outline-1 outline-offset-[-1px] outline-Brand-Light-4 text-base",
     textarea:
       "min-h-40 px-4 py-3 bg-light-1 rounded-3xl outline outline-1 outline-offset-[-1px] outline-Brand-Light-4 text-base resize-none",
-  };
+  }
 
   return (
     <div className="bg-light-1 text-dark-5">
@@ -160,8 +172,7 @@ export default function ContactPage() {
         </div>
       </main>
 
-      {/* ===== Footer ===== */}
       <Footer />
     </div>
-  );
+  )
 }

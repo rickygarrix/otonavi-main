@@ -5,9 +5,6 @@ import { supabase } from "@/lib/supabase"
 import type { Area, RegionKey, Prefecture } from "@/types/location"
 import type { DrinkDefinition, GenericMaster } from "@/types/master"
 
-// ================================
-// section 定義
-// ================================
 const TABLE_TO_SECTION: Record<string, string> = {
   store_types: "店舗タイプ",
   event_trend_definitions: "イベントの傾向",
@@ -23,18 +20,13 @@ const TABLE_TO_SECTION: Record<string, string> = {
   atmosphere_definitions: "雰囲気",
 }
 
-// ================================
-// Supabase row 型（★ any 排除）
-// ================================
 type GenericMasterRow = {
   id: string
   key: string
   label: string
+  display_order: number
 }
 
-// ================================
-// Generic Master Loader
-// ================================
 async function loadGenericMasters(): Promise<Map<string, GenericMaster>> {
   const map = new Map<string, GenericMaster>()
 
@@ -42,8 +34,9 @@ async function loadGenericMasters(): Promise<Map<string, GenericMaster>> {
     Object.keys(TABLE_TO_SECTION).map(async (table) => {
       const { data, error } = await supabase
         .from(table)
-        .select("id, key, label")
+        .select("id, key, label, display_order")
         .eq("is_active", true)
+        .order("display_order", { ascending: true })
 
       if (error) {
         console.error(`loadGenericMasters error (${table}):`, error)
@@ -51,7 +44,6 @@ async function loadGenericMasters(): Promise<Map<string, GenericMaster>> {
       }
 
       ; (data as GenericMasterRow[] | null)?.forEach((item) => {
-        // table + key で一意にする（衝突防止）
         const mapKey = `${table}:${item.key}`
 
         map.set(mapKey, {
@@ -59,6 +51,7 @@ async function loadGenericMasters(): Promise<Map<string, GenericMaster>> {
           key: item.key,
           label: item.label,
           table,
+          display_order: item.display_order,
         })
       })
     })
@@ -67,9 +60,6 @@ async function loadGenericMasters(): Promise<Map<string, GenericMaster>> {
   return map
 }
 
-// ================================
-// Hook
-// ================================
 export function useHomeMasters() {
   const [prefectures, setPrefectures] = useState<Prefecture[]>([])
   const [areas, setAreas] = useState<Area[]>([])
@@ -84,17 +74,24 @@ export function useHomeMasters() {
         { data: areaData },
         { data: drinkData },
       ] = await Promise.all([
-        supabase.from("prefectures").select("id, name_ja, region"),
-        supabase.from("areas").select("id, name, is_23ward"),
+        supabase
+          .from("prefectures")
+          .select("id, name_ja, region, code")
+          .order("code", { ascending: true }),
+        supabase
+          .from("areas")
+          .select("id, name, is_23ward, display_order")
+          .order("display_order", { ascending: true }),
         supabase
           .from("drink_definitions")
-          .select("key, label")
-          .eq("is_active", true),
+          .select("key, label, display_order")
+          .eq("is_active", true)
+          .order("display_order", { ascending: true }),
       ])
 
       setPrefectures(prefData ?? [])
       setAreas(areaData ?? [])
-      setDrinkMasters(drinkData ?? [])
+      setDrinkMasters((drinkData ?? []) as DrinkDefinition[])
 
       const genericMap = await loadGenericMasters()
       setGenericMasters(genericMap)
@@ -103,9 +100,6 @@ export function useHomeMasters() {
     load()
   }, [])
 
-  // ============================
-  // key / id → 表示ラベル
-  // ============================
   const externalLabelMap = useMemo(() => {
     const map = new Map<string, string>()
 
@@ -117,9 +111,6 @@ export function useHomeMasters() {
     return map
   }, [prefectures, areas, drinkMasters, genericMasters])
 
-  // ============================
-  // label → section
-  // ============================
   const labelToSectionMap = useMemo(() => {
     const map = new Map<string, string>()
 
@@ -135,18 +126,12 @@ export function useHomeMasters() {
     return map
   }, [genericMasters, prefectures, areas, drinkMasters])
 
-  // ============================
-  // prefecture → region
-  // ============================
   const prefectureRegionMap = useMemo(() => {
     const map = new Map<string, RegionKey>()
     prefectures.forEach((p) => map.set(p.name_ja, p.region))
     return map
   }, [prefectures])
 
-  // ============================
-  // area name → Area
-  // ============================
   const areaMap = useMemo(() => {
     const map = new Map<string, Area>()
     areas.forEach((a) => map.set(a.name, a))
@@ -159,5 +144,6 @@ export function useHomeMasters() {
     prefectureRegionMap,
     areaMap,
     genericMasters,
+    drinkMasters,
   }
 }
