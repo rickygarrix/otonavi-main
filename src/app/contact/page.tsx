@@ -1,32 +1,41 @@
-"use client"
+"use client";
 
-import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-import HomeButton from "@/components/ui/HomeButton"
-import Footer from "@/components/Footer"
+import HomeButton from "@/components/ui/HomeButton";
+import Footer from "@/components/Footer";
 
 type ContactForm = {
-  name: string
-  email: string
-  message: string
-}
+  name: string;
+  email: string;
+  message: string;
+};
 
 export default function ContactPage() {
-  const router = useRouter()
+  const router = useRouter();
 
   const [form, setForm] = useState<ContactForm>({
     name: "",
     email: "",
     message: "",
-  })
+  });
 
-  const isValid = Boolean(form.name && form.email && form.message)
+  const isValid = Boolean(form.name && form.email && form.message);
 
   const handleConfirm = () => {
-    sessionStorage.setItem("contactForm", JSON.stringify(form))
-    router.push("/contact/confirm")
-  }
+    sessionStorage.setItem("contactForm", JSON.stringify(form));
+    router.push("/contact/confirm");
+  };
+
+  const styles = {
+    wrapper: "flex flex-col gap-2",
+    label: "flex items-center gap-1 text-sm text-dark-1",
+    input:
+      "w-full h-12 px-4 bg-Brand-Light-1 rounded-3xl outline outline-1 outline-offset-[-1px] outline-Brand-Light-4 text-base",
+    textarea:
+      "w-full min-h-[160px] px-4 py-3 bg-Brand-Light-1 rounded-2xl outline outline-1 outline-offset-[-1px] outline-Brand-Light-4 text-base resize-none",
+  };
 
   return (
     <div className="min-h-screen bg-Brand-Light-2 flex flex-col">
@@ -67,14 +76,21 @@ export default function ContactPage() {
         {/* Form */}
         <div className="px-6 pb-20 flex flex-col gap-6">
           {/* お名前 */}
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-1 text-sm text-Brand-Dark-1">
+          <div className={styles.wrapper}>
+            <label htmlFor="name" className={styles.label}>
               <span>お名前</span>
-              <span className="text-red-800">*</span>
-            </div>
+              <span className="text-red-4" aria-hidden>
+                *
+              </span>
+              <span className="sr-only">必須</span>
+            </label>
 
             <input
-              className="w-full h-12 px-4 bg-Brand-Light-1 rounded-3xl outline outline-1 outline-offset-[-1px] outline-Brand-Light-4 text-base"
+              id="name"
+              name="name"
+              required
+              autoComplete="name"
+              className={styles.input}
               placeholder="音箱 太郎"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -82,14 +98,21 @@ export default function ContactPage() {
           </div>
 
           {/* メールアドレス */}
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-1 text-sm text-Brand-Dark-1">
+          <div className={styles.wrapper}>
+            <label htmlFor="email" className={styles.label}>
               <span>メールアドレス</span>
-              <span className="text-red-800">*</span>
-            </div>
+              <span className="text-red-4" aria-hidden>
+                *
+              </span>
+              <span className="sr-only">必須</span>
+            </label>
 
             <input
-              className="w-full h-12 px-4 bg-Brand-Light-1 rounded-3xl outline outline-1 outline-offset-[-1px] outline-Brand-Light-4 text-base"
+              id="email"
+              name="email"
+              required
+              autoComplete="email"
+              className={styles.input}
               placeholder="otonavi@example.jp"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -97,19 +120,28 @@ export default function ContactPage() {
           </div>
 
           {/* お問い合わせ内容 */}
-          <div className="flex flex-col gap-2">
-            <div className="flex flex-col gap-1">
+          <div className={styles.wrapper}>
+            <label htmlFor="message" className={styles.label}>
               <div className="flex items-center gap-1 text-sm text-Brand-Dark-1">
                 <span>お問い合わせ内容</span>
-                <span className="text-red-800">*</span>
+                <span className="text-red-4" aria-hidden>
+                  *
+                </span>
+                <span className="sr-only">必須</span>
               </div>
-              <p className="text-xs text-gray-500 leading-4">
-                わかる範囲で概要をご記入ください。
-              </p>
-            </div>
+            </label>
+
+            <p id="message-help" className="text-xs text-gray-500 leading-4">
+              わかる範囲で概要をご記入ください。
+            </p>
 
             <textarea
-              className="w-full min-h-[160px] px-4 py-3 bg-Brand-Light-1 rounded-2xl outline outline-1 outline-offset-[-1px] outline-Brand-Light-4 text-base resize-none"
+              id="message"
+              name="message"
+              required
+              autoComplete="off"
+              aria-describedby="message-help"
+              className={styles.textarea}
               value={form.message}
               onChange={(e) => setForm({ ...form, message: e.target.value })}
             />
@@ -117,10 +149,12 @@ export default function ContactPage() {
 
           {/* 確認ボタン */}
           <button
+            type="button"
             disabled={!isValid}
             onClick={handleConfirm}
-            className={`w-full h-12 px-4 flex items-center justify-center gap-1 rounded-lg text-sm text-Brand-Light-1 bg-gradient-to-b from-Brand-Dark-4 to-Brand-Dark-3 outline outline-1 outline-offset-[-1px] outline-slate-300/50 transition ${!isValid ? "opacity-40" : ""
-              }`}
+            className={`w-full h-12 px-4 flex items-center justify-center gap-1 rounded-lg text-sm text-Brand-Light-1 bg-gradient-to-b from-Brand-Dark-4 to-Brand-Dark-3 outline outline-1 outline-offset-[-1px] outline-slate-300/50 transition ${
+              !isValid ? "opacity-40" : ""
+            }`}
           >
             内容確認へ →
           </button>
@@ -130,5 +164,5 @@ export default function ContactPage() {
       {/* ===== Footer ===== */}
       <Footer />
     </div>
-  )
+  );
 }
