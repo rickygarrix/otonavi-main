@@ -20,7 +20,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
 export default function StoreTypeFilter({ storeTypes, activeTypeId, onChange }: Props) {
   return (
     <div className="flex w-full items-center justify-center p-4">
-      <div className="bg-light-1 border-light-2 flex h-14 w-full items-center rounded-full border bg-white">
+      <div className="bg-light-1 border-light-2 flex h-14 w-full items-center rounded-full border">
         {storeTypes.map((t) => {
           const isActive = activeTypeId === t.id;
           const Icon = ICON_MAP[t.key] ?? Music;
