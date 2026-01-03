@@ -7,9 +7,9 @@ export default function PrivacyPage() {
   return (
     <div className="flex min-h-screen flex-col bg-white">
       {/* ===== 上部：ホームに戻る ===== */}
-      <div className="px-6 pt-6">
+      <header className="fixed flex h-20 w-full items-center gap-4 px-4">
         <HomeButton />
-      </div>
+      </header>
 
       {/* ===== 本文 ===== */}
       <main className="flex-1">
