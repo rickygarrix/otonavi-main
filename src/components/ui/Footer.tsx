@@ -1,18 +1,18 @@
-"use client"
+'use client';
 
-import Image from "next/image"
-import Link from "next/link"
+import Image from 'next/image';
+import Link from 'next/link';
 
 export default function Footer() {
   return (
-    <footer className="bg-[#0D1B2A] text-white px-6 py-10">
+    <footer className="bg-[#0D1B2A] px-6 py-10 text-white">
       {/* ロゴ */}
       <div className="mb-10">
         <Link href="/" className="inline-block">
           <Image
             src="/otnv_logo.svg"
             alt="Otonavi Logo"
-            width={56}   // ← ロゴ大きく
+            width={56} // ← ロゴ大きく
             height={56}
             priority
           />
@@ -31,27 +31,16 @@ export default function Footer() {
       {/* コピーライト */}
       <p className="mt-10 text-xs text-white/60">© Otonavi</p>
     </footer>
-  )
+  );
 }
 
-function FooterLink({
-  href,
-  children,
-}: {
-  href: string
-  children: React.ReactNode
-}) {
+function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <Link
       href={href}
-      className="
-        h-12 px-4
-        flex items-center
-        text-xs text-white/90
-        hover:opacity-70
-      "
+      className="flex h-12 items-center px-4 text-xs text-white/90 hover:opacity-70"
     >
       {children}
     </Link>
-  )
+  );
 }
