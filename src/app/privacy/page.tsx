@@ -5,11 +5,13 @@ import HomeButton from '@/components/ui/HomeButton';
 
 export default function PrivacyPage() {
   return (
-    <div className="flex min-h-screen flex-col bg-white">
+    <div className="flex min-h-screen flex-col bg-white pt-20">
       {/* ===== 上部：ホームに戻る ===== */}
-      <header className="fixed flex h-20 w-full items-center gap-4 px-4">
-        <HomeButton />
-      </header>
+      <div className="fixed top-0 left-0 z-100 flex w-full justify-center">
+        <header className="m-auto flex h-20 w-full max-w-105 items-center gap-4 px-4">
+          <HomeButton />
+        </header>
+      </div>
 
       {/* ===== 本文 ===== */}
       <main className="flex-1">
