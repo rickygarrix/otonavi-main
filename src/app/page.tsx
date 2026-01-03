@@ -3,7 +3,7 @@
 import { useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import LogoHero from '@/components/home/LogoHero';
+import Image from 'next/image';
 import CommentSlider from '@/components/home/CommentSlider';
 import HomeLatestStores from '@/components/home/HomeLatestStores';
 
@@ -68,14 +68,18 @@ export default function HomePage() {
   return (
     <>
       {/* ===== Hero ===== */}
-      <div className="relative flex h-160 w-full flex-col items-center overflow-hidden bg-[url('/background-sp@2x.png')] bg-cover bg-center px-4 pt-20 text-white">
-        <LogoHero />
+      <div className="text-light-3 relative flex h-146 flex-col items-center gap-10 overflow-hidden bg-[url('/background-sp@2x.png')] bg-cover bg-center px-4 pt-20">
+        <p className="text-[10px] tracking-widest">夜の音楽をもっと楽しむための音箱ナビ</p>
 
-        {!loading && (
-          <div className="mt-10">
-            <HomeLatestStores stores={stores} />
-          </div>
-        )}
+        <Image
+          src="/logo-white.svg"
+          alt="オトナビ"
+          width={200}
+          height={60}
+          className="drop-shadow-lg"
+        />
+
+        {!loading && <HomeLatestStores stores={stores} />}
 
         <CommentSlider />
       </div>
