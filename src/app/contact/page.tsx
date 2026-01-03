@@ -1,93 +1,92 @@
-"use client"
+'use client';
 
-import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
-import HomeButton from "@/components/ui/HomeButton"
-import Footer from "@/components/ui/Footer"
+import HomeButton from '@/components/ui/HomeButton';
+import Footer from '@/components/ui/Footer';
 
 type ContactForm = {
-  name: string
-  email: string
-  message: string
-}
+  name: string;
+  email: string;
+  message: string;
+};
 
 export default function ContactPage() {
-  const router = useRouter()
+  const router = useRouter();
 
   const [form, setForm] = useState<ContactForm>({
-    name: "",
-    email: "",
-    message: "",
-  })
+    name: '',
+    email: '',
+    message: '',
+  });
 
   // ★ confirm から戻ったとき用：値を復元
   useEffect(() => {
-    const stored = sessionStorage.getItem("contactForm")
+    const stored = sessionStorage.getItem('contactForm');
     if (stored) {
       try {
-        setForm(JSON.parse(stored))
+        setForm(JSON.parse(stored));
       } catch {
         // JSON壊れてたら無視
       }
     }
-  }, [])
+  }, []);
 
-  const isValid = Boolean(form.name && form.email && form.message)
+  const isValid = Boolean(form.name && form.email && form.message);
 
   const handleConfirm = () => {
-    sessionStorage.setItem("contactForm", JSON.stringify(form))
-    router.push("/contact/confirm")
-  }
+    sessionStorage.setItem('contactForm', JSON.stringify(form));
+    router.push('/contact/confirm');
+  };
 
   const styles = {
-    step: "flex items-center justify-center w-16 h-16 z-10",
-    wrapper: "flex flex-col gap-2",
-    label: "flex gap-1 text-sm",
+    step: 'flex items-center justify-center w-16 h-16 z-10',
+    wrapper: 'flex flex-col gap-2',
+    label: 'flex gap-1 text-sm',
     input:
-      "h-12 px-4 bg-light-1 rounded-3xl outline outline-1 outline-offset-[-1px] outline-light-4 text-base",
+      'h-12 px-4 bg-light-1 rounded-3xl outline outline-1 outline-offset-[-1px] outline-light-4 text-base',
     textarea:
-      "min-h-40 px-4 py-3 bg-light-1 rounded-3xl outline outline-1 outline-offset-[-1px] outline-light-4 text-base resize-none",
-  }
+      'min-h-40 px-4 py-3 bg-light-1 rounded-3xl outline outline-1 outline-offset-[-1px] outline-light-4 text-base resize-none',
+  };
 
   return (
     <div className="bg-light-1 text-dark-5">
-      <HomeButton
-        onHome={() => router.push("/")}
-        className="fixed top-3 left-4 z-50"
-      />
+      <div className="fixed top-0 left-0 z-100 flex w-full justify-center">
+        <header className="m-auto flex h-20 w-full max-w-105 items-center gap-4 px-4">
+          <HomeButton />
+        </header>
+      </div>
 
       {/* ===== Stepper ===== */}
-      <div className="relative h-20 pl-24 pr-4 flex items-center justify-between">
+      <div className="relative flex h-20 items-center justify-between pr-4 pl-24">
         <div className={styles.step}>
-          <div className="w-10 h-10 outline-4 outline-blue-2 rounded-full bg-blue-4 text-light-1 flex items-center justify-center text-xs font-bold">
+          <div className="outline-blue-2 bg-blue-4 text-light-1 flex h-10 w-10 items-center justify-center rounded-full text-xs font-bold outline-4">
             入力
           </div>
         </div>
         <div className={styles.step}>
-          <div className="w-4 h-4 rounded-full bg-light-5" />
+          <div className="bg-light-5 h-4 w-4 rounded-full" />
         </div>
         <div className={styles.step}>
-          <div className="w-4 h-4 rounded-full bg-light-5" />
+          <div className="bg-light-5 h-4 w-4 rounded-full" />
         </div>
-        <div className="absolute left-32 right-12 h-[2px] bg-gradient-to-r from-blue-3 to-light-5" />
+        <div className="from-blue-3 to-light-5 absolute right-12 left-32 h-[2px] bg-gradient-to-r" />
       </div>
 
       {/* ===== Main Content ===== */}
       <main>
         {/* Intro */}
         <section className="px-6 py-10">
-          <h1 className="text-xl font-bold leading-[1.5] tracking-widest">
-            お問い合わせ
-          </h1>
+          <h1 className="text-xl leading-[1.5] font-bold tracking-widest">お問い合わせ</h1>
 
-          <p className="text-sm leading-[1.8] text-justify">
+          <p className="text-justify text-sm leading-[1.8]">
             オトナビについてのご質問や店舗情報に関するご相談など、お気軽にお問い合わせください。3営業日以内にメールにてお返事いたします。
           </p>
         </section>
 
         {/* Form */}
-        <div className="px-6 pt-10 pb-20 flex flex-col gap-4 bg-light-2">
+        <div className="bg-light-2 flex flex-col gap-4 px-6 pt-10 pb-20">
           {/* お名前 */}
           <div className={styles.wrapper}>
             <label htmlFor="name" className={styles.label}>
@@ -143,10 +142,7 @@ export default function ContactPage() {
                 <span className="sr-only">必須</span>
               </label>
 
-              <p
-                id="message-help"
-                className="text-xs text-gray-4 leading-[1.5]"
-              >
+              <p id="message-help" className="text-gray-4 text-xs leading-[1.5]">
                 わかる範囲で概要をご記入ください。
               </p>
             </div>
@@ -168,8 +164,8 @@ export default function ContactPage() {
             type="button"
             disabled={!isValid}
             onClick={handleConfirm}
-            className={`h-12 px-4 flex items-center justify-center gap-1 rounded-lg text-sm text-Brand-Light-1 bg-gradient-to-b from-Brand-Dark-4 to-Brand-Dark-3 outline outline-1 outline-offset-[-1px] outline-slate-300/50 transition ${
-              !isValid ? "opacity-40" : ""
+            className={`text-Brand-Light-1 from-Brand-Dark-4 to-Brand-Dark-3 flex h-12 items-center justify-center gap-1 rounded-lg bg-gradient-to-b px-4 text-sm outline outline-1 outline-offset-[-1px] outline-slate-300/50 transition ${
+              !isValid ? 'opacity-40' : ''
             }`}
           >
             内容確認へ →
@@ -179,5 +175,5 @@ export default function ContactPage() {
 
       <Footer />
     </div>
-  )
+  );
 }
