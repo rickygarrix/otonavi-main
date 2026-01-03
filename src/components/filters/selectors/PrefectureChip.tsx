@@ -5,9 +5,19 @@ import Chip from "@/components/ui/Chip"
 type Props = {
   label: string
   selected?: boolean
-  onClick?: () => void
+  onChange: (checked: boolean) => void
 }
 
-export default function PrefectureChip({ label, selected, onClick }: Props) {
-  return <Chip label={label} selected={selected} onClick={onClick} />
+export default function PrefectureChip({
+  label,
+  selected = false,   // ← ★ ここが重要
+  onChange,
+}: Props) {
+  return (
+    <Chip
+      label={label}
+      selected={selected}
+      onChange={onChange}
+    />
+  )
 }
