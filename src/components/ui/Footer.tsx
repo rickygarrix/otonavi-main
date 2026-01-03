@@ -5,19 +5,11 @@ import Link from 'next/link';
 
 export default function Footer() {
   return (
-    <footer className="bg-[#0D1B2A] px-6 py-10 text-white">
+    <footer className="bg-dark-5 text-light-3 px-4 pt-8 pb-10">
       {/* ロゴ */}
-      <div className="mb-10">
-        <Link href="/" className="inline-block">
-          <Image
-            src="/otnv_logo.svg"
-            alt="Otonavi Logo"
-            width={56} // ← ロゴ大きく
-            height={56}
-            priority
-          />
-        </Link>
-      </div>
+      <Link href="/" className="ml-2 flex h-10 items-center">
+        <Image src="/logo-white.svg" alt="オトナビ" width={133} height={40} />
+      </Link>
 
       {/* メニュー */}
       <nav className="flex flex-col">
