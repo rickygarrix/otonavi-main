@@ -68,7 +68,7 @@ export default function HomePage() {
   return (
     <>
       {/* ===== Hero ===== */}
-      <div className="text-light-3 relative flex h-160 flex-col items-center gap-10 overflow-hidden bg-[url('/background-sp@2x.png')] bg-cover bg-center px-4 pt-20">
+      <div className="text-light-3 relative flex h-146 flex-col items-center gap-10 overflow-hidden bg-[url('/background-sp@2x.png')] bg-cover bg-center px-4 pt-20">
         <p className="text-[10px] tracking-widest">夜の音楽をもっと楽しむための音箱ナビ</p>
 
         <Image
