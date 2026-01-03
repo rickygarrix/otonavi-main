@@ -77,11 +77,11 @@ export default function DrinkSelector({
           <div className="grid grid-cols-3 gap-3">
             {normalDrinks.map((item) => (
               <Chip
-                key={item.key}
-                label={item.label}
-                selected={selectedKeys.includes(item.key)}
-                onClick={() => toggle(item.key)}
-              />
+              key={item.key}
+              label={item.label}
+              selected={selectedKeys.includes(item.key)}
+              onChange={() => toggle(item.key)}
+            />
             ))}
           </div>
         )}
@@ -91,11 +91,11 @@ export default function DrinkSelector({
           <div className="grid grid-cols-2 gap-3">
             {specialDrinks.map((item) => (
               <Chip
-                key={item.key}
-                label={item.label}
-                selected={selectedKeys.includes(item.key)}
-                onClick={() => toggle(item.key)}
-              />
+              key={item.key}
+              label={item.label}
+              selected={selectedKeys.includes(item.key)}
+              onChange={() => toggle(item.key)}
+            />
             ))}
           </div>
         )}
