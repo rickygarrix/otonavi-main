@@ -1,70 +1,97 @@
-'use client';
+"use client"
 
-import { useMemo, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useMemo, useRef, useState } from "react"
+import { useRouter } from "next/navigation"
 
-import LogoHero from '@/components/home/LogoHero';
-import CommentSlider from '@/components/home/CommentSlider';
-import HomeLatestStores from '@/components/home/HomeLatestStores';
+import LogoHero from "@/components/home/LogoHero"
+import CommentSlider from "@/components/home/CommentSlider"
+import HomeLatestStores from "@/components/home/HomeLatestStores"
 
-import StoreTypeFilter from '@/components/filters/selectors/StoreTypeFilter';
-import SearchFilterStickyWrapper from '@/components/filters/layouts/SearchFilterStickyWrapper';
-import SearchBar from '@/components/home/SearchBar';
-import Footer from '@/components/ui/Footer';
-import HomeFilterSections from '@/components/home/HomeFilterSections';
+import StoreTypeFilter from "@/components/filters/selectors/StoreTypeFilter"
+import SearchFilterStickyWrapper from "@/components/filters/layouts/SearchFilterStickyWrapper"
+import HomeFilterSections from "@/components/home/HomeFilterSections"
+import SearchBar from "@/components/home/SearchBar"
+import Footer from "@/components/ui/Footer"
 
-import { useHomeStores } from '@/hooks/useHomeStores';
-import { useHomeMasters } from '@/hooks/useHomeMasters';
-import { useHomeStoreFilters } from '@/hooks/useStoreFilters';
-import type { GenericMaster } from '@/types/master';
+import {
+  useHomeStoreCards,
+  useHomeMasters,
+  useHomeFilterState,
+} from "@/hooks/home"
+
+import { useStoresForSearch, useStoreFilters } from "@/hooks/store"
+import type { GenericMaster } from "@/types/master"
 
 export default function HomePage() {
-  const router = useRouter();
+  const router = useRouter()
+  const sectionRefs = useRef<Record<string, HTMLElement | null>>({})
 
-  const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
+  const [storeTypeId, setStoreTypeId] = useState<string | null>(null)
+  const [clearKey, setClearKey] = useState(0)
 
-  const [storeTypeId, setStoreTypeId] = useState<string | null>(null);
-  const [clearKey, setClearKey] = useState(0);
+  // ============================
+  // ① Home用：最新カード（表示用）
+  // ============================
+  const { stores: cardStores, loading } = useHomeStoreCards(12)
 
-  const { stores, loading } = useHomeStores();
-  const masters = useHomeMasters();
+  // ============================
+  // ② マスター（ラベル・UI用）
+  // ============================
+  const masters = useHomeMasters()
 
   const storeTypes = useMemo<GenericMaster[]>(() => {
-    return Array.from(masters.genericMasters.values()).filter((m) => m.table === 'store_types');
-  }, [masters.genericMasters]);
+    return Array.from(masters.genericMasters.values()).filter(
+      (m) => m.table === "store_types"
+    )
+  }, [masters.genericMasters])
 
-  const filter = useHomeStoreFilters(stores, masters.externalLabelMap, {
+  // ============================
+  // ③ Home専用：フィルター状態
+  // ============================
+  const filter = useHomeFilterState(masters.externalLabelMap, { storeTypeId })
+  const { selectedKeys, selectedLabels, handleClear, ...setters } = filter
+
+  // ============================
+  // ④ 検索用：全店舗（件数計算専用）
+  // ============================
+  const { stores: searchStores } = useStoresForSearch()
+
+  const { filteredStores } = useStoreFilters(searchStores, {
+    filters: selectedKeys,
     storeTypeId,
-  });
+  })
 
-  const { filteredStores, selectedFilters, count, handleClear, ...setters } = filter;
-
+  // ============================
+  // ⑤ handlers
+  // ============================
   const handleClearAll = () => {
-    handleClear();
-    setClearKey((v) => v + 1);
-    setStoreTypeId(null);
-  };
+    handleClear()
+    setClearKey((v) => v + 1)
+    setStoreTypeId(null)
+  }
 
   const handleGoToStores = () => {
-    const params = new URLSearchParams();
+    const params = new URLSearchParams()
 
-    if (storeTypeId) params.set('store_type_id', storeTypeId);
-    selectedFilters.forEach((f) => params.append('filters', f));
-    filteredStores.forEach((s) => params.append('ids', s.id));
+    if (storeTypeId) params.set("store_type_id", storeTypeId)
+    selectedKeys.forEach((k) => params.append("filters", k))
 
-    router.push(`/stores?${params.toString()}`);
-  };
+    router.push(`/stores?${params.toString()}`)
+  }
 
   const handleClickFilter = (label: string) => {
-    const section = masters.labelToSectionMap.get(label);
-    if (!section) return;
+    const section = masters.labelToSectionMap.get(label)
+    if (!section) return
 
     sectionRefs.current[section]?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
-    });
-  };
+      behavior: "smooth",
+      block: "start",
+    })
+  }
 
+  // ============================
+  // ⑥ View
+  // ============================
   return (
     <>
       {/* ===== Hero ===== */}
@@ -73,7 +100,7 @@ export default function HomePage() {
 
         {!loading && (
           <div className="mt-10">
-            <HomeLatestStores stores={stores} />
+            <HomeLatestStores stores={cardStores} />
           </div>
         )}
 
@@ -83,7 +110,7 @@ export default function HomePage() {
       {/* ===== Store Type ===== */}
       <SearchFilterStickyWrapper>
         <StoreTypeFilter
-          storeTypes={storeTypes} // ★ 必須
+          storeTypes={storeTypes}
           activeTypeId={storeTypeId}
           onChange={setStoreTypeId}
         />
@@ -111,14 +138,14 @@ export default function HomePage() {
 
       {/* ===== Fixed Search Bar ===== */}
       <SearchBar
-        selectedFilters={selectedFilters}
+        selectedFilters={selectedLabels}
         onClear={handleClearAll}
         onSearch={handleGoToStores}
-        count={count}
+        count={filteredStores.length}   // ← ★ここが本命
         onClickFilter={handleClickFilter}
       />
 
       <Footer hasFixedBottom />
     </>
-  );
+  )
 }

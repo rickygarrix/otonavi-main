@@ -1,22 +1,19 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import HomeStoreCard from "../home/HomeStoreCard"
-import type { HomeStore } from "@/types/store"
+import HomeStoreCard from "@/components/home/HomeStoreCard"
+import type { HomeStoreLite } from "@/types/store"
 
 type Props = {
-  stores: HomeStore[]
+  stores: HomeStoreLite[]
 }
 
 export default function HomeLatestStores({ stores }: Props) {
   const router = useRouter()
 
-  const latestStores = [...stores]
-    .sort(
-      (a, b) =>
-        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-    )
-    .slice(0, 3)
+  // useHomeStoreCards 側ですでに
+  // updated_at desc + limit 済みなので、ここでは slice のみ
+  const latestStores = stores.slice(0, 3)
 
   if (latestStores.length === 0) return null
 
