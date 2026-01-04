@@ -7,7 +7,7 @@ import LogoHero from '@/components/home/LogoHero';
 import CommentSlider from '@/components/home/CommentSlider';
 import HomeLatestStores from '@/components/home/HomeLatestStores';
 
-import StoreTypeFilter from '@/components/filters/selectors/StoreTypeFilter';
+import StoreTypeFilter from '@/components/selectors/StoreTypeFilter';
 import SearchBar from '@/components/home/SearchBar';
 import Footer from '@/components/ui/Footer';
 import HomeFilterSections from '@/components/home/HomeFilterSections';
