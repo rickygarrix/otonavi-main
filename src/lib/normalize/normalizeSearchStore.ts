@@ -2,9 +2,6 @@
 import type { StoreRow } from "@/types/store-db"
 import type { SearchStore } from "@/types/store"
 
-const asArray = <T>(v: unknown): T[] =>
-  Array.isArray(v) ? (v as T[]) : []
-
 type DefinitionRef = {
   key?: unknown
   label?: unknown
@@ -21,7 +18,9 @@ function extractKeys(list: unknown, defKey: string): string[] {
     .filter((k): k is string => typeof k === "string")
 }
 
-function selectImage(store_images: StoreRow["store_images"]): string {
+function selectImage(
+  store_images: StoreRow["store_images"]
+): string {
   if (!store_images?.length) return "/noshop.svg"
 
   const main = store_images.find((i) => i.is_main)
@@ -34,7 +33,9 @@ function selectImage(store_images: StoreRow["store_images"]): string {
   return sorted[0]?.image_url ?? "/noshop.svg"
 }
 
-export function normalizeSearchStore(raw: StoreRow): SearchStore {
+export function normalizeSearchStore(
+  raw: StoreRow
+): SearchStore {
   return {
     id: raw.id,
     name: raw.name,
@@ -51,7 +52,6 @@ export function normalizeSearchStore(raw: StoreRow): SearchStore {
 
     image_url: selectImage(raw.store_images),
 
-    // 🔽 検索・絞り込み用キーのみ
     price_range_key: raw.price_range_definitions?.key ?? null,
     size_key: raw.size_definitions?.key ?? null,
 

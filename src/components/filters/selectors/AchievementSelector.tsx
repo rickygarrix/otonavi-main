@@ -41,11 +41,11 @@ export default function AchievementSelector({
           className="scroll-mt-[90px]"
         />
 
-        <Chip
-          label="受賞歴あり"
-          selected={hasAward}
-          onClick={() => setHasAward(!hasAward)}
-        />
+<Chip
+  label="受賞歴あり"
+  selected={hasAward}
+  onChange={() => setHasAward(!hasAward)}
+/>
 
         <div
           ref={(el) => {
@@ -55,11 +55,11 @@ export default function AchievementSelector({
           className="scroll-mt-[90px]"
         />
 
-        <Chip
-          label="メディア掲載あり"
-          selected={hasMedia}
-          onClick={() => setHasMedia(!hasMedia)}
-        />
+<Chip
+  label="メディア掲載あり"
+  selected={hasMedia}
+  onChange={() => setHasMedia(!hasMedia)}
+/>
       </div>
     </div>
   )

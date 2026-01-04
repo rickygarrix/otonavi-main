@@ -64,10 +64,26 @@ function selectImage(
   return sorted[0]?.image_url ?? "/default_shop.svg"
 }
 
+type StoreAwardRow = {
+  id?: unknown
+  title?: unknown
+  organization?: unknown
+  year?: unknown
+  url?: unknown
+}
+
+type StoreMediaRow = {
+  id?: unknown
+  media_name?: unknown
+  year?: unknown
+}
+
 export function normalizeStoreDetail(
   raw: StoreRow
 ): HomeStore {
-  const store_awards = asArray(raw.store_awards).map((a: any) => ({
+  const store_awards = asArray<StoreAwardRow>(
+    raw.store_awards
+  ).map((a) => ({
     id: String(a.id ?? ""),
     title: String(a.title ?? ""),
     organization: asString(a.organization),
@@ -75,13 +91,13 @@ export function normalizeStoreDetail(
     url: asString(a.url),
   }))
 
-  const store_media_mentions = asArray(raw.store_media_mentions).map(
-    (m: any) => ({
-      id: String(m.id ?? ""),
-      media_name: String(m.media_name ?? ""),
-      year: asNumber(m.year),
-    })
-  )
+  const store_media_mentions = asArray<StoreMediaRow>(
+    raw.store_media_mentions
+  ).map((m) => ({
+    id: String(m.id ?? ""),
+    media_name: String(m.media_name ?? ""),
+    year: asNumber(m.year),
+  }))
 
   const drinks = extractM2MOrdered(
     raw.store_drinks,
@@ -89,7 +105,6 @@ export function normalizeStoreDetail(
   )
 
   return {
-    // 👇 ここは元の normalizeStore と同じ
     id: raw.id,
     name: raw.name,
     name_kana: raw.name_kana,

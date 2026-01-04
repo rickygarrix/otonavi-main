@@ -14,6 +14,7 @@ export type Area = {
 export type DrinkDefinition = {
   key: string
   label: string
+  display_order?: number | null
 }
 
 export type GenericMaster = {
