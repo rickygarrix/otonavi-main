@@ -81,13 +81,11 @@ export default function HomePage() {
       </div>
 
       {/* ===== Store Type ===== */}
-      <SearchFilterStickyWrapper>
-        <StoreTypeFilter
-          storeTypes={storeTypes} // ★ 必須
-          activeTypeId={storeTypeId}
-          onChange={setStoreTypeId}
-        />
-      </SearchFilterStickyWrapper>
+      <StoreTypeFilter
+        storeTypes={storeTypes} // ★ 必須
+        activeTypeId={storeTypeId}
+        onChange={setStoreTypeId}
+      />
 
       {/* ===== Filters ===== */}
       <HomeFilterSections
