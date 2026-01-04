@@ -1,6 +1,6 @@
 'use client';
 
-import { Disc3, Martini, MicVocal, Music } from 'lucide-react';
+import { Headphones, Disc3, MicVocal, Music } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { GenericMaster } from '@/types/master';
 
@@ -11,8 +11,8 @@ type Props = {
 };
 
 const ICON_MAP: Record<string, LucideIcon> = {
-  club: Disc3,
-  bar: Martini,
+  club: Headphones,
+  bar: Disc3,
   livehouse: MicVocal,
   other: Music,
 };
