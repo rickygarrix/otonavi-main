@@ -7,13 +7,12 @@ import { ChevronsUpDown } from 'lucide-react';
 
 type Props = {
   clearKey: number;
-  selected: boolean;
   onChange: (prefectureIds: string[], areaIds: string[]) => void;
 };
 
 const TOKYO_NAME = '東京都';
 
-export default function AreaSelector({ clearKey, selected, onChange }: Props) {
+export default function AreaSelector({ clearKey, onChange }: Props) {
   const [prefectures, setPrefectures] = useState<Prefecture[]>([]);
   const [areas, setAreas] = useState<Area[]>([]);
 
@@ -103,9 +102,8 @@ export default function AreaSelector({ clearKey, selected, onChange }: Props) {
   const others = useMemo(() => areas.filter((a) => !a.is_23ward), [areas]);
 
   // ============================
-  // 状態ごとのスタイル
+  // 状態ごとのクラス
   // ============================
-  const isSelected = selected === true;
   const outerUnselected = 'bg-gray-1 active:bg-gray-2';
   const outerSelected =
     'from-blue-3 to-blue-4 bg-gradient-to-tr active:opacity-90 shadow-sm active:shadow-none';
@@ -116,17 +114,22 @@ export default function AreaSelector({ clearKey, selected, onChange }: Props) {
   // UI
   // ============================
   return (
-    <div className="relative flex w-full gap-2">
+    <div className="relative flex w-full">
       {/* 都道府県 */}
       <div className="relative flex-1 text-sm">
-        <button
-          onClick={() => setOpenPref((v) => !v)}
-          className="border-gray-1 active:border-gray-2 flex h-12 flex-1 items-center justify-between rounded-full bg-white px-4"
-        >
-          <span className={selectedPrefecture ? 'text-gray-800' : 'text-gray-400'}>
-            {selectedPrefecture?.name_ja ?? '都道府県'}
-          </span>
-          <span className="text-gray-400">▾</span>
+        <button onClick={() => setOpenPref((v) => !v)} className="h-12 w-full p-1">
+          <div
+            className={`h-full overflow-hidden rounded-full p-px ${selectedPrefecture ? outerSelected : outerUnselected}`}
+          >
+            <div
+              className={`flex h-full items-center gap-2 rounded-full px-4 ${selectedPrefecture ? innerSelected : innerUnselected}`}
+            >
+              <span className="w-full truncate text-start">
+                {selectedPrefecture?.name_ja ?? '都道府県'}
+              </span>
+              <ChevronsUpDown className="h-4 w-4" strokeWidth={1.2} />
+            </div>
+          </div>
         </button>
 
         {openPref && (
