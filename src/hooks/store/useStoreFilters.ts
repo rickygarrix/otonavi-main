@@ -1,19 +1,13 @@
-// src/hooks/store/useStoreFilters.ts
 "use client"
 
 import { useMemo } from "react"
 import type { SearchStore } from "@/types/store"
 
 type Options = {
-  ids?: string[]
   filters?: string[]
-  storeTypeId?: string | null   // ← これを追加
+  storeTypeId?: string | null
 }
 
-/**
- * /stores 用フィルタリング
- * - Home から渡された keys で検索する
- */
 export function useStoreFilters(
   stores: SearchStore[],
   options?: Options
@@ -21,7 +15,7 @@ export function useStoreFilters(
   const filteredStores = useMemo(() => {
     return stores.filter((store) => {
 
-      // ✅ storeTypeId を別判定
+      // ===== storeType =====
       if (
         options?.storeTypeId &&
         store.store_type_id !== options.storeTypeId
@@ -29,30 +23,37 @@ export function useStoreFilters(
         return false
       }
 
-      if (options?.filters?.length) {
+      if (!options?.filters?.length) {
+        return true
+      }
 
-        const storeKeys = [
-          store.prefecture_id,
-          store.area_id,
-          store.price_range_key,
-          store.size_key,
-          ...store.customer_keys,
-          ...store.atmosphere_keys,
-          ...store.environment_keys,
-          ...store.drink_keys,
-          ...store.payment_method_keys,
-          ...store.event_trend_keys,
-          ...store.baggage_keys,
-          ...store.smoking_keys,
-          ...store.toilet_keys,
-          ...store.other_keys,
-        ].filter(Boolean)
+      // ===== グループ別キー =====
+      const groups = {
+        area: [store.prefecture_id, store.area_id].filter(Boolean),
+        price: [store.price_range_key].filter(Boolean),
+        size: [store.size_key].filter(Boolean),
 
-        const hit = options.filters.some((f) =>
-          storeKeys.includes(f)
+        customer: store.customer_keys,
+        atmosphere: store.atmosphere_keys,
+        environment: store.environment_keys,
+        drink: store.drink_keys,
+        payment: store.payment_method_keys,
+        event: store.event_trend_keys,
+        baggage: store.baggage_keys,
+        smoking: store.smoking_keys,
+        toilet: store.toilet_keys,
+        other: store.other_keys,
+      }
+
+      // ===== filters をグループ単位で判定 =====
+      for (const filter of options.filters) {
+        const hit = Object.values(groups).some((keys) =>
+          keys.includes(filter)
         )
 
-        if (!hit) return false
+        if (!hit) {
+          return false
+        }
       }
 
       return true
