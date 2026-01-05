@@ -177,33 +177,49 @@ export default function AreaSelector({ clearKey, onChange }: Props) {
           <div className="text-gray-4 border-gray-1 absolute z-50 mt-2 h-100 w-50 overflow-y-auto rounded-2xl border bg-white/60 p-2 shadow-lg backdrop-blur-lg">
             {wards.length > 0 && (
               <>
-                <div className="px-4 py-2 text-xs font-semibold">東京23区</div>
-                {wards.map((a) => (
-                  <button
-                    key={a.id}
-                    onClick={() => selectArea(a)}
-                    className="w-full px-4 py-3 text-left"
-                  >
-                    {a.name}
-                  </button>
-                ))}
+                <div className="p-2 text-xs font-semibold">東京23区</div>
+                {wards.map((a) => {
+                  const isSelected = selectedArea?.id === a.id;
+
+                  return (
+                    <button
+                      key={a.id}
+                      onClick={() => selectArea(a)}
+                      className={`flex h-12 w-full items-center gap-2 px-2 text-start ${isSelected ? 'text-dark-5' : 'text-gray-4'}`}
+                    >
+                      <Check
+                        className={`h-4 w-4 shrink-0 ${isSelected ? 'opacity-100' : 'opacity-0'}`}
+                        strokeWidth={1.4}
+                      />
+                      <span className="min-w-0 flex-1 truncate">{a.name}</span>
+                    </button>
+                  );
+                })}
               </>
             )}
 
             {others.length > 0 && (
               <>
-                <div className="border-gray-1 mt-2 border-t px-4 pt-6 pb-2 text-xs font-semibold">
+                <div className="border-gray-1 mt-2 border-t px-2 pt-6 pb-2 text-xs font-semibold">
                   その他
                 </div>
-                {others.map((a) => (
-                  <button
-                    key={a.id}
-                    onClick={() => selectArea(a)}
-                    className="w-full px-4 py-3 text-left"
-                  >
-                    {a.name}
-                  </button>
-                ))}
+                {others.map((a) => {
+                  const isSelected = selectedArea?.id === a.id;
+
+                  return (
+                    <button
+                      key={a.id}
+                      onClick={() => selectArea(a)}
+                      className={`flex h-12 w-full items-center gap-2 px-2 text-start ${isSelected ? 'text-dark-5' : 'text-gray-4'}`}
+                    >
+                      <Check
+                        className={`h-4 w-4 shrink-0 ${isSelected ? 'opacity-100' : 'opacity-0'}`}
+                        strokeWidth={1.4}
+                      />
+                      <span className="min-w-0 flex-1 truncate">{a.name}</span>
+                    </button>
+                  );
+                })}
               </>
             )}
           </div>
