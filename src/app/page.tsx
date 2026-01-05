@@ -6,12 +6,13 @@ import Image from "next/image"
 
 import CommentSlider from "@/components/home/CommentSlider"
 import HomeLatestStores from "@/components/home/HomeLatestStores"
-
-import StoreTypeFilter from "@/components/filters/selectors/StoreTypeFilter"
-import SearchFilterStickyWrapper from "@/components/filters/layouts/SearchFilterStickyWrapper"
 import HomeFilterSections from "@/components/home/HomeFilterSections"
 import SearchBar from "@/components/home/SearchBar"
 import Footer from "@/components/ui/Footer"
+import StoreTypeFilter from '@/components/selectors/StoreTypeFilter';
+import SearchBar from '@/components/home/SearchBar';
+import Footer from '@/components/ui/Footer';
+import HomeFilterSections from '@/components/home/HomeFilterSections';
 
 import {useHomeStoreCards,
   useHomeMasters,
@@ -117,13 +118,12 @@ export default function HomePage() {
       </div>
 
       {/* ===== Store Type ===== */}
-      <SearchFilterStickyWrapper>
-        <StoreTypeFilter
-          storeTypes={storeTypes}
-          activeTypeId={storeTypeId}
-          onChange={setStoreTypeId}
-        />
-      </SearchFilterStickyWrapper>
+
+      <StoreTypeFilter
+        storeTypes={storeTypes} // ★ 必須
+        activeTypeId={storeTypeId}
+        onChange={setStoreTypeId}
+      />
 
       {/* ===== Filters ===== */}
       <HomeFilterSections
