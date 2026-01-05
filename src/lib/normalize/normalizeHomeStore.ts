@@ -15,9 +15,9 @@ function selectImage(store_images: HomeStoreRow["store_images"]): string {
 }
 
 export function normalizeHomeStore(raw: HomeStoreRow): HomeStoreLite {
-  const prefecture = raw.prefectures?.[0] ?? null
-  const area = raw.areas?.[0] ?? null
-  const storeType = raw.store_types?.[0] ?? null
+  const prefecture = raw.prefectures
+  const area = raw.areas
+  const storeType = raw.store_types
 
   return {
     id: raw.id,

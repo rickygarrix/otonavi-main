@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
 import type { HomeStoreLite } from "@/types/store"
+import type { HomeStoreRow } from "@/types/store-db-home"
 import { normalizeHomeStore } from "@/lib/normalize/normalizeHomeStore"
 
 export function useHomeStoreCards(limit = 12) {
@@ -23,9 +24,9 @@ export function useHomeStoreCards(limit = 12) {
           name,
           updated_at,
 
-          prefectures ( id, name_ja ),
-          areas ( id, name ),
-          store_types ( id, label ),
+          prefectures:prefecture_id ( id, name_ja ),
+          areas:area_id ( id, name ),
+          store_types:store_type_id ( id, label ),
 
           store_images (
             image_url,
@@ -33,6 +34,7 @@ export function useHomeStoreCards(limit = 12) {
             order_num
           )
         `)
+        .returns<HomeStoreRow[]>()
         .order("updated_at", { ascending: false })
         .limit(limit)
 
@@ -50,10 +52,7 @@ export function useHomeStoreCards(limit = 12) {
     }
 
     load()
-
-    return () => {
-      mounted = false
-    }
+    return () => { mounted = false }
   }, [limit])
 
   return { stores, loading, error }

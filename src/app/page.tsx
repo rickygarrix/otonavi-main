@@ -13,8 +13,7 @@ import HomeFilterSections from "@/components/home/HomeFilterSections"
 import SearchBar from "@/components/home/SearchBar"
 import Footer from "@/components/ui/Footer"
 
-import {
-  useHomeStoreCards,
+import {useHomeStoreCards,
   useHomeMasters,
   useHomeFilterState,
 } from "@/hooks/home"

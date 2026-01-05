@@ -7,17 +7,17 @@ export type HomeStoreRow = {
   prefectures: {
     id: string
     name_ja: string
-  }[] | null
+  } | null
 
   areas: {
     id: string
     name: string
-  }[] | null
+  } | null
 
   store_types: {
     id: string
     label: string
-  }[] | null
+  } | null
 
   store_images: {
     image_url: string

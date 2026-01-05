@@ -1,15 +1,15 @@
 'use client';
 
-import { useRouter } from "next/navigation"
-import HomeStoreCard from "./HomeStoreCard"
-import type { HomeStoreLite } from "@/types/store"
+import { useRouter } from 'next/navigation';
+import HomeStoreCard from '../home/HomeStoreCard';
+import type { HomeStoreLite } from '@/types/store';
 
 type Props = {
-  stores: HomeStoreLite[]
-}
+  stores: HomeStoreLite[];
+};
 
 export default function HomeLatestStores({ stores }: Props) {
-  const router = useRouter()
+  const router = useRouter();
 
   const latestStores = [...stores]
     .sort(
@@ -17,9 +17,9 @@ export default function HomeLatestStores({ stores }: Props) {
         new Date(b.updated_at).getTime() -
         new Date(a.updated_at).getTime()
     )
-    .slice(0, 3)
+    .slice(0, 3);
 
-  if (latestStores.length === 0) return null
+  if (latestStores.length === 0) return null;
 
   return (
     <div className="flex w-full flex-col gap-2 rounded-3xl border border-white/10 bg-black/5 px-2 pt-4 pb-2 backdrop-blur-lg">
@@ -39,5 +39,5 @@ export default function HomeLatestStores({ stores }: Props) {
         ))}
       </ul>
     </div>
-  )
+  );
 }
