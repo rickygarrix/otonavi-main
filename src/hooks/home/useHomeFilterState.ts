@@ -6,73 +6,15 @@ type Options = {
   storeTypeId?: string | null
 }
 
-type EmptyReturn = {
-  storeTypeId: string | null
-  selectedKeys: string[]
-  selectedLabels: string[]
-  handleClear: () => void
-
-  setPrefectureIds: (v: string[]) => void
-  setAreaIds: (v: string[]) => void
-  setCustomerKeys: (v: string[]) => void
-  setAtmosphereKeys: (v: string[]) => void
-  setEnvironmentKeys: (v: string[]) => void
-  setSizeKeys: (v: string[]) => void
-  setDrinkKeys: (v: string[]) => void
-  setPriceRangeKeys: (v: string[]) => void
-  setPaymentMethodKeys: (v: string[]) => void
-  setEventTrendKeys: (v: string[]) => void
-  setBaggageKeys: (v: string[]) => void
-  setSmokingKeys: (v: string[]) => void
-  setToiletKeys: (v: string[]) => void
-  setOtherKeys: (v: string[]) => void
-}
-
-const noop = () => {}
-
-const EMPTY_RETURN: EmptyReturn = {
-  storeTypeId: null,
-  selectedKeys: [],
-  selectedLabels: [],
-  handleClear: noop,
-
-  setPrefectureIds: noop,
-  setAreaIds: noop,
-  setCustomerKeys: noop,
-  setAtmosphereKeys: noop,
-  setEnvironmentKeys: noop,
-  setSizeKeys: noop,
-  setDrinkKeys: noop,
-  setPriceRangeKeys: noop,
-  setPaymentMethodKeys: noop,
-  setEventTrendKeys: noop,
-  setBaggageKeys: noop,
-  setSmokingKeys: noop,
-  setToiletKeys: noop,
-  setOtherKeys: noop,
-}
-
 /**
  * Home 専用フィルター状態管理
  * - Home では検索しない
- * - URL 用 keys / 表示用 labels を分離
- * - masters 未ロード時は idle（爆速化）
+ * - ただし「URLに渡す用の keys」と「表示用 labels」は分けて持つ
  */
 export function useHomeFilterState(
   externalLabelMap?: Map<string, string>,
-  options?: Options,
-  enabled: boolean = true
+  options?: Options
 ) {
-  /**
-   * 🔥 masters 未ロード時は state を一切持たない
-   */
-  if (!enabled || !externalLabelMap) {
-    return {
-      ...EMPTY_RETURN,
-      storeTypeId: options?.storeTypeId ?? null,
-    }
-  }
-
   // ===== エリア系 =====
   const [prefectureIds, setPrefectureIds] = useState<string[]>([])
   const [areaIds, setAreaIds] = useState<string[]>([])
@@ -94,10 +36,12 @@ export function useHomeFilterState(
   const [otherKeys, setOtherKeys] = useState<string[]>([])
 
   /**
-   * URL に渡す “生キー”
+   * ✅ URL に渡す “生キー” 一覧
+   * - prefectureIds / areaIds は id のまま
+   * - 各 *_keys は key のまま
    */
-  const selectedKeys = useMemo(
-    () => [
+  const selectedKeys = useMemo(() => {
+    return [
       ...prefectureIds,
       ...areaIds,
       ...customerKeys,
@@ -112,35 +56,33 @@ export function useHomeFilterState(
       ...smokingKeys,
       ...toiletKeys,
       ...otherKeys,
-    ],
-    [
-      prefectureIds,
-      areaIds,
-      customerKeys,
-      atmosphereKeys,
-      environmentKeys,
-      sizeKeys,
-      drinkKeys,
-      priceRangeKeys,
-      paymentMethodKeys,
-      eventTrendKeys,
-      baggageKeys,
-      smokingKeys,
-      toiletKeys,
-      otherKeys,
     ]
-  )
+  }, [
+    prefectureIds,
+    areaIds,
+    customerKeys,
+    atmosphereKeys,
+    environmentKeys,
+    sizeKeys,
+    drinkKeys,
+    priceRangeKeys,
+    paymentMethodKeys,
+    eventTrendKeys,
+    baggageKeys,
+    smokingKeys,
+    toiletKeys,
+    otherKeys,
+  ])
 
   /**
-   * SearchBar 表示用ラベル
+   * ✅ SearchBar に表示する “ラベル” 一覧
    */
-  const selectedLabels = useMemo(
-    () => selectedKeys.map((k) => externalLabelMap.get(k) ?? k),
-    [selectedKeys, externalLabelMap]
-  )
+  const selectedLabels = useMemo(() => {
+    return selectedKeys.map((k) => externalLabelMap?.get(k) ?? k)
+  }, [selectedKeys, externalLabelMap])
 
   /**
-   * 全解除
+   * ✅ 全解除（Home 用）
    */
   const handleClear = useCallback(() => {
     setPrefectureIds([])
@@ -163,11 +105,16 @@ export function useHomeFilterState(
   }, [])
 
   return {
+    // storeTypeId は HomePage 側 state で持つ想定（optionsは将来用）
     storeTypeId: options?.storeTypeId ?? null,
 
+    // ===== raw keys =====
     selectedKeys,
+
+    // ===== display labels =====
     selectedLabels,
 
+    // ===== state =====
     prefectureIds,
     areaIds,
 
@@ -186,6 +133,7 @@ export function useHomeFilterState(
     toiletKeys,
     otherKeys,
 
+    // ===== setters =====
     setPrefectureIds,
     setAreaIds,
 
@@ -204,6 +152,7 @@ export function useHomeFilterState(
     setToiletKeys,
     setOtherKeys,
 
+    // ===== actions =====
     handleClear,
   }
 }

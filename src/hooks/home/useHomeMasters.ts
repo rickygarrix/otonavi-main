@@ -26,6 +26,7 @@ type GenericMasterRow = {
   label: string
   display_order: number
 }
+
 async function loadGenericMasters(): Promise<Map<string, GenericMaster>> {
   const map = new Map<string, GenericMaster>()
 
@@ -37,9 +38,11 @@ async function loadGenericMasters(): Promise<Map<string, GenericMaster>> {
         .eq("is_active", true)
         .order("display_order", { ascending: true })
 
-      if (error || !data) return
+      if (error) {
+        return
+      }
 
-      ;(data as GenericMasterRow[]).forEach((item) => {
+      ; (data as GenericMasterRow[] | null)?.forEach((item) => {
         const mapKey = `${table}:${item.key}`
 
         map.set(mapKey, {
@@ -56,7 +59,7 @@ async function loadGenericMasters(): Promise<Map<string, GenericMaster>> {
   return map
 }
 
-export function useHomeMasters(enabled: boolean) {
+export function useHomeMasters() {
   const [prefectures, setPrefectures] = useState<Prefecture[]>([])
   const [areas, setAreas] = useState<Area[]>([])
   const [drinkMasters, setDrinkMasters] = useState<DrinkDefinition[]>([])
@@ -64,10 +67,6 @@ export function useHomeMasters(enabled: boolean) {
     useState<Map<string, GenericMaster>>(new Map())
 
   useEffect(() => {
-    if (!enabled) return
-
-    let cancelled = false
-
     const load = async () => {
       const [
         { data: prefData },
@@ -78,12 +77,10 @@ export function useHomeMasters(enabled: boolean) {
           .from("prefectures")
           .select("id, name_ja, region, code")
           .order("code", { ascending: true }),
-
         supabase
           .from("areas")
           .select("id, name, is_23ward, display_order")
           .order("display_order", { ascending: true }),
-
         supabase
           .from("drink_definitions")
           .select("key, label, display_order")
@@ -91,22 +88,16 @@ export function useHomeMasters(enabled: boolean) {
           .order("display_order", { ascending: true }),
       ])
 
-      if (cancelled) return
-
       setPrefectures(prefData ?? [])
       setAreas(areaData ?? [])
       setDrinkMasters((drinkData ?? []) as DrinkDefinition[])
 
       const genericMap = await loadGenericMasters()
-      if (!cancelled) setGenericMasters(genericMap)
+      setGenericMasters(genericMap)
     }
 
     load()
-
-    return () => {
-      cancelled = true
-    }
-  }, [enabled])
+  }, [])
 
   const externalLabelMap = useMemo(() => {
     const map = new Map<string, string>()
@@ -153,6 +144,5 @@ export function useHomeMasters(enabled: boolean) {
     areaMap,
     genericMasters,
     drinkMasters,
-    isReady: enabled && genericMasters.size > 0,
   }
 }
