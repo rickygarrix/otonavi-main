@@ -156,56 +156,57 @@ export default function AreaSelector({ clearKey, onChange }: Props) {
       </div>
 
       {/* 東京エリア */}
-      {isTokyo && (
-        <div className="relative flex-1 text-sm">
-          <button onClick={() => setOpenArea((v) => !v)} className="h-12 w-full p-1">
+      <div
+        className={`relative flex-1 text-sm ${isTokyo ? 'visible' : 'invisible'}`}
+        aria-hidden={!isTokyo}
+      >
+        <button onClick={() => setOpenArea((v) => !v)} className="h-12 w-full p-1">
+          <div
+            className={`h-full overflow-hidden rounded-full p-px ${selectedArea ? outerSelected : outerUnselected}`}
+          >
             <div
-              className={`h-full overflow-hidden rounded-full p-px ${selectedArea ? outerSelected : outerUnselected}`}
+              className={`flex h-full items-center gap-2 rounded-full px-4 ${selectedArea ? innerSelected : innerUnselected}`}
             >
-              <div
-                className={`flex h-full items-center gap-2 rounded-full px-4 ${selectedArea ? innerSelected : innerUnselected}`}
-              >
-                <span className="w-full truncate text-start">{selectedArea?.name ?? 'エリア'}</span>
-                <ChevronsUpDown className="h-4 w-4" strokeWidth={1.2} />
-              </div>
+              <span className="w-full truncate text-start">{selectedArea?.name ?? 'エリア'}</span>
+              <ChevronsUpDown className="h-4 w-4" strokeWidth={1.2} />
             </div>
-          </button>
+          </div>
+        </button>
 
-          {openArea && (
-            <div className="border-gray-1 absolute z-50 mt-2 w-full rounded-xl border bg-white/60 shadow-lg backdrop-blur-lg">
-              {wards.length > 0 && (
-                <>
-                  <div className="px-4 py-2 text-xs font-semibold text-zinc-500">東京23区</div>
-                  {wards.map((a) => (
-                    <button
-                      key={a.id}
-                      onClick={() => selectArea(a)}
-                      className="w-full px-4 py-3 text-left"
-                    >
-                      {a.name}
-                    </button>
-                  ))}
-                </>
-              )}
+        {openArea && (
+          <div className="border-gray-1 absolute z-50 mt-2 w-full rounded-xl border bg-white/60 shadow-lg backdrop-blur-lg">
+            {wards.length > 0 && (
+              <>
+                <div className="px-4 py-2 text-xs font-semibold text-zinc-500">東京23区</div>
+                {wards.map((a) => (
+                  <button
+                    key={a.id}
+                    onClick={() => selectArea(a)}
+                    className="w-full px-4 py-3 text-left"
+                  >
+                    {a.name}
+                  </button>
+                ))}
+              </>
+            )}
 
-              {others.length > 0 && (
-                <>
-                  <div className="px-4 py-2 text-xs font-semibold text-zinc-500">その他</div>
-                  {others.map((a) => (
-                    <button
-                      key={a.id}
-                      onClick={() => selectArea(a)}
-                      className="w-full px-4 py-3 text-left text-sm hover:bg-zinc-50"
-                    >
-                      {a.name}
-                    </button>
-                  ))}
-                </>
-              )}
-            </div>
-          )}
-        </div>
-      )}
+            {others.length > 0 && (
+              <>
+                <div className="px-4 py-2 text-xs font-semibold text-zinc-500">その他</div>
+                {others.map((a) => (
+                  <button
+                    key={a.id}
+                    onClick={() => selectArea(a)}
+                    className="w-full px-4 py-3 text-left text-sm hover:bg-zinc-50"
+                  >
+                    {a.name}
+                  </button>
+                ))}
+              </>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
