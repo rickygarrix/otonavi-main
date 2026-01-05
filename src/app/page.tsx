@@ -6,18 +6,12 @@ import Image from "next/image"
 
 import CommentSlider from "@/components/home/CommentSlider"
 import HomeLatestStores from "@/components/home/HomeLatestStores"
-import HomeFilterSections from "@/components/home/HomeFilterSections"
-import SearchBar from "@/components/home/SearchBar"
-import Footer from "@/components/ui/Footer"
 import StoreTypeFilter from '@/components/selectors/StoreTypeFilter';
 import SearchBar from '@/components/home/SearchBar';
 import Footer from '@/components/ui/Footer';
 import HomeFilterSections from '@/components/home/HomeFilterSections';
 
-import {useHomeStoreCards,
-  useHomeMasters,
-  useHomeFilterState,
-} from "@/hooks/home"
+import {useHomeStoreCards,useHomeMasters,useHomeFilterState,} from "@/hooks/home"
 
 import { useStoresForSearch, useStoreFilters } from "@/hooks/store"
 import type { GenericMaster } from "@/types/master"
