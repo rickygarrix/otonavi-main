@@ -46,7 +46,7 @@ export default function AreaSelector({ clearKey, onChange }: Props) {
   const isTokyo = selectedPrefecture?.name_ja === TOKYO_NAME;
 
   // ============================
-  // エリア（display_order）
+  // 市区町村（display_order）
   // ============================
   useEffect(() => {
     if (!isTokyo || !selectedPrefecture) {
@@ -72,6 +72,11 @@ export default function AreaSelector({ clearKey, onChange }: Props) {
 
     loadAreas();
   }, [isTokyo, selectedPrefecture]);
+
+  // ============================
+  // メニュー外タップで閉じる
+  // ============================
+  const isAnyOpen = openPref || openArea;
 
   // ============================
   // clear
@@ -115,6 +120,19 @@ export default function AreaSelector({ clearKey, onChange }: Props) {
   // ============================
   return (
     <div className="relative flex w-full text-sm">
+      {/* スクリム */}
+      {isAnyOpen && (
+        <button
+          type="button"
+          aria-label="メニューを閉じる"
+          className="fixed inset-0 z-40 cursor-default bg-black/10 backdrop-blur-[1px]"
+          onClick={() => {
+            setOpenPref(false);
+            setOpenArea(false);
+          }}
+        />
+      )}
+
       {/* 都道府県セレクター */}
       <div className="relative flex-1">
         <button
