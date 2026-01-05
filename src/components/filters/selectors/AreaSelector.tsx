@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 import type { Prefecture, Area } from '@/types/location';
-import { ChevronsUpDown } from 'lucide-react';
+import { ChevronsUpDown, Check } from 'lucide-react';
 
 type Props = {
   clearKey: number;
@@ -133,16 +133,24 @@ export default function AreaSelector({ clearKey, onChange }: Props) {
         </button>
 
         {openPref && (
-          <div className="border-gray-1 absolute z-50 mt-2 w-full rounded-xl bg-white/60 shadow-lg backdrop-blur-lg">
-            {prefectures.map((p) => (
-              <button
-                key={p.id}
-                onClick={() => selectPrefecture(p)}
-                className="w-full px-4 py-3 text-left"
-              >
-                {p.name_ja}
-              </button>
-            ))}
+          <div className="border-gray-1 absolute z-50 mt-2 h-100 w-50 overflow-y-auto rounded-2xl border bg-white/60 p-2 shadow-lg backdrop-blur-lg">
+            {prefectures.map((p) => {
+              const isSelected = selectedPrefecture?.id === p.id;
+
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => selectPrefecture(p)}
+                  className={`flex h-12 w-full items-center gap-2 px-2 text-start ${isSelected ? 'text-dark-5' : 'text-gray-4'}`}
+                >
+                  <Check
+                    className={`h-4 w-4 shrink-0 ${isSelected ? 'opacity-100' : 'opacity-0'}`}
+                    strokeWidth={1.4}
+                  />
+                  <span className="min-w-0 flex-1 truncate">{p.name_ja}</span>
+                </button>
+              );
+            })}
           </div>
         )}
       </div>
