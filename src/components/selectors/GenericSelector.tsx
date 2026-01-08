@@ -94,19 +94,20 @@ export default function GenericSelector({
     selection === 'single' ? selected === key : Array.isArray(selected) && selected.includes(key);
 
   return (
-    <div className="flex flex-col gap-4">
+    <>
       <h3 className="text-md text-dark-5 leading-[1.5] font-bold tracking-widest">{title}</h3>
 
-      <div className={`grid ${columns === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
+      <ul className={`grid ${columns === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
         {items.map((item) => (
-          <Chip
-            key={item.key}
-            label={item.label}
-            selected={isSelected(item.key)}
-            onChange={() => toggle(item.key)}
-          />
+          <li key={item.key}>
+            <Chip
+              label={item.label}
+              selected={isSelected(item.key)}
+              onChange={() => toggle(item.key)}
+            />
+          </li>
         ))}
-      </div>
-    </div>
+      </ul>
+    </>
   );
 }

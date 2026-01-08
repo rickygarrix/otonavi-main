@@ -56,38 +56,41 @@ export default function DrinkSelector({ title, onChange, clearKey }: Props) {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <>
       <h3 className="text-md text-dark-5 leading-[1.5] font-bold tracking-widest">{title}</h3>
 
       <div className="flex flex-col">
         {/* 通常ドリンク（3列） */}
         {normalDrinks.length > 0 && (
-          <div className="grid grid-cols-3">
+          <ul className="grid grid-cols-3">
             {normalDrinks.map((item) => (
-              <Chip
-                key={item.key}
-                label={item.label}
-                selected={selectedKeys.includes(item.key)}
-                onChange={() => toggle(item.key)}
-              />
+              <li>
+                <Chip
+                  key={item.key}
+                  label={item.label}
+                  selected={selectedKeys.includes(item.key)}
+                  onChange={() => toggle(item.key)}
+                />
+              </li>
             ))}
-          </div>
+          </ul>
         )}
 
         {/* 特殊ドリンク（2列・下段） */}
         {specialDrinks.length > 0 && (
-          <div className="grid grid-cols-2">
+          <ul className="grid grid-cols-2">
             {specialDrinks.map((item) => (
-              <Chip
-                key={item.key}
-                label={item.label}
-                selected={selectedKeys.includes(item.key)}
-                onChange={() => toggle(item.key)}
-              />
+              <li key={item.key}>
+                <Chip
+                  label={item.label}
+                  selected={selectedKeys.includes(item.key)}
+                  onChange={() => toggle(item.key)}
+                />
+              </li>
             ))}
-          </div>
+          </ul>
         )}
       </div>
-    </div>
+    </>
   );
 }

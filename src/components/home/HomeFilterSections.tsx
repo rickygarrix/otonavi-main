@@ -30,8 +30,6 @@ type Props = {
    設定
 ========================= */
 
-const BASE_SECTION_CLASS = 'p-4 scroll-mt-[90px]';
-
 type FilterConfig =
   | {
       key: string;
@@ -165,15 +163,15 @@ export default function HomeFilterSections(props: Props) {
           ref={(el) => {
             sectionRefs.current[filter.key] = el;
           }}
-          className={index === 0 ? 'p-4' : BASE_SECTION_CLASS}
+          className="flex flex-col gap-4 p-4"
         >
           {filter.type === 'area' && (
-            <div className="flex flex-col gap-4">
+            <>
               <h3 className="text-md text-dark-5 leading-[1.5] font-bold tracking-widest">
                 エリア
               </h3>
               <AreaSelector clearKey={clearKey} onChange={handleAreaChange} />
-            </div>
+            </>
           )}
 
           {filter.type === 'drink' && filter.onChange && (
