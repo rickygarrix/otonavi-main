@@ -30,7 +30,7 @@ type Props = {
    設定
 ========================= */
 
-const BASE_SECTION_CLASS = 'mt-14 px-4 scroll-mt-[90px]';
+const BASE_SECTION_CLASS = 'p-4 scroll-mt-[90px]';
 
 type FilterConfig =
   | {
@@ -165,11 +165,11 @@ export default function HomeFilterSections(props: Props) {
           ref={(el) => {
             sectionRefs.current[filter.key] = el;
           }}
-          className={index === 0 ? 'mt-10 scroll-mt-[90px] px-4' : BASE_SECTION_CLASS}
+          className={index === 0 ? 'p-4' : BASE_SECTION_CLASS}
         >
           {filter.type === 'area' && (
             <>
-              <h2 className="mb-4 pb-2 text-lg font-bold">エリア</h2>
+              <h3 className="text-md text-dark-5 font-bold tracking-widest">エリア</h3>
               <AreaSelector clearKey={clearKey} onChange={handleAreaChange} />
             </>
           )}
