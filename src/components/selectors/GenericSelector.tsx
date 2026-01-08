@@ -94,10 +94,8 @@ export default function GenericSelector({
     selection === 'single' ? selected === key : Array.isArray(selected) && selected.includes(key);
 
   return (
-    <>
-      <div ref={sectionRef ?? null} className="scroll-mt-[90px]" />
-
-      <h3 className="text-md text-dark-5 font-bold tracking-widest">{title}</h3>
+    <div className="flex flex-col gap-4">
+      <h3 className="text-md text-dark-5 leading-[1.5] font-bold tracking-widest">{title}</h3>
 
       <div className={`grid ${columns === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
         {items.map((item) => (
@@ -109,6 +107,6 @@ export default function GenericSelector({
           />
         ))}
       </div>
-    </>
+    </div>
   );
 }

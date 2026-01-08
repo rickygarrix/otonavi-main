@@ -56,8 +56,8 @@ export default function DrinkSelector({ title, onChange, clearKey }: Props) {
   };
 
   return (
-    <>
-      <h3 className="text-md text-dark-5 font-bold tracking-widest">{title}</h3>
+    <div className="flex flex-col gap-4">
+      <h3 className="text-md text-dark-5 leading-[1.5] font-bold tracking-widest">{title}</h3>
 
       <div className="flex flex-col">
         {/* 通常ドリンク（3列） */}
@@ -88,6 +88,6 @@ export default function DrinkSelector({ title, onChange, clearKey }: Props) {
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 }

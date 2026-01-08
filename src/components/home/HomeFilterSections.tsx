@@ -158,7 +158,7 @@ export default function HomeFilterSections(props: Props) {
   ];
 
   return (
-    <>
+    <div className="pb-10">
       {FILTERS.map((filter, index) => (
         <section
           key={filter.key}
@@ -168,10 +168,12 @@ export default function HomeFilterSections(props: Props) {
           className={index === 0 ? 'p-4' : BASE_SECTION_CLASS}
         >
           {filter.type === 'area' && (
-            <>
-              <h3 className="text-md text-dark-5 font-bold tracking-widest">エリア</h3>
+            <div className="flex flex-col gap-4">
+              <h3 className="text-md text-dark-5 leading-[1.5] font-bold tracking-widest">
+                エリア
+              </h3>
               <AreaSelector clearKey={clearKey} onChange={handleAreaChange} />
-            </>
+            </div>
           )}
 
           {filter.type === 'drink' && filter.onChange && (
@@ -190,6 +192,6 @@ export default function HomeFilterSections(props: Props) {
           )}
         </section>
       ))}
-    </>
+    </div>
   );
 }
