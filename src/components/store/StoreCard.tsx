@@ -1,72 +1,62 @@
-"use client"
+'use client';
 
-import { useRouter } from "next/navigation"
-import Image from "next/image"
-import type { HomeStore } from "@/types/store"
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import type { SearchStore } from '@/types/store';
 
 type Props = {
-  store: HomeStore
-  query?: string
-}
+  store: SearchStore;
+  query?: string;
+};
 
 export default function StoreCard({ store, query }: Props) {
-  const router = useRouter()
+  const router = useRouter();
 
   const handleClick = () => {
-    if (query && query.trim() !== "") {
-      router.push(`/stores/${store.id}?${query}`)
+    if (query && query.trim() !== '') {
+      router.push(`/stores/${store.id}?${query}`);
     } else {
-      router.push(`/stores/${store.id}`)
+      router.push(`/stores/${store.id}`);
     }
-  }
+  };
 
   const imageUrl =
-    store.image_url && store.image_url.trim() !== ""
-      ? store.image_url
-      : "/defaultshop.svg"
+    store.image_url && store.image_url.trim() !== '' ? store.image_url : '/noshop.svg';
 
   const locationLabel =
-    store.prefecture_label === "東京都" && store.area_label
+    store.prefecture_label === '東京都' && store.area_label
       ? `東京 ${store.area_label}`
-      : store.prefecture_label ?? ""
+      : (store.prefecture_label ?? '');
 
   return (
     <button
       onClick={handleClick}
-      className="
-        w-full bg-white rounded-2xl
-        border border-black/10
-        shadow-sm hover:shadow-md transition
-        text-left overflow-hidden
-      "
+      className="active:bg-light-1 w-full rounded-3xl py-2 text-left transition active:scale-95"
     >
-      <div className="relative w-full h-[140px] bg-gray-200">
-        <Image
-          src={imageUrl}
-          alt={store.name}
-          fill
-          sizes="(max-width: 768px) 100vw, 33vw"
-          className="object-contain"
-        />
+      {/* 画像 */}
+      <div className="p-2">
+        <div
+          className={`relative aspect-square overflow-hidden rounded-2xl ${imageUrl === '/noshop.svg' ? 'shadow-none' : 'shadow-sm'}`}
+        >
+          <Image
+            src={imageUrl}
+            alt={store.name}
+            fill
+            sizes="(max-width: 420px) 50vw, 210px"
+            className="object-cover"
+          />
+        </div>
       </div>
 
-      <div className="px-3 py-2 flex flex-col gap-1">
-        <div className="px-1">
-          <p className="text-slate-900 text-sm font-bold leading-5 line-clamp-1">
-            {store.name}
-          </p>
-        </div>
+      {/* テキスト */}
+      <div className="flex flex-col gap-1 px-4 py-1">
+        <p className="line-clamp-1 text-sm leading-[1.5] font-bold">{store.name}</p>
 
-        <div className="px-1 flex items-center gap-1 text-xs text-slate-600 leading-4">
-          <span>{locationLabel}</span>
-          {store.type_label && (
-            <>
-              <span>・</span>
-              <span className="line-clamp-1">{store.type_label}</span>
-            </>
-          )}
+        <div className="text-dark-4 line-clamp-1 text-xs leading-[1.5]">
+          {locationLabel}
+          {store.type_label && ` ・ ${store.type_label}`}
         </div>
       </div>
     </button>
-  )
+  );
 }

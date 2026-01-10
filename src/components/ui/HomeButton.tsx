@@ -1,45 +1,34 @@
-"use client"
+'use client';
 
-import Image from "next/image"
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 type Props = {
-  onHome: () => void
-  size?: number
-  iconSize?: number
-  className?: string
-}
+  onHome?: () => void; // ← optional にする
+  size?: number;
+  iconSize?: number;
+  className?: string;
+};
 
-export default function HomeButton({
-  onHome,
-  size = 56,
-  iconSize = 28,
-  className = "",
-}: Props) {
+export default function HomeButton({ onHome, size = 56, iconSize = 32, className = '' }: Props) {
+  const router = useRouter();
+
+  const handleClick = () => {
+    if (onHome) {
+      onHome();
+    } else {
+      router.push('/'); // ★ デフォルトでホームへ
+    }
+  };
+
   return (
     <button
-      onClick={onHome}
-      className={`
-        active:scale-95 transition
-        flex items-center justify-center
-        rounded-full bg-white shadow
-        ${className}
-      `}
-      style={{
-        width: `${size}px`,
-        height: `${size}px`,
-      }}
+      onClick={handleClick}
+      aria-label="ホームへ戻る"
+      className={`flex items-center justify-center rounded-full border border-white/10 bg-white/10 shadow-md backdrop-blur-sm transition-all duration-200 ease-out active:scale-[1.1] ${className}`}
+      style={{ width: size, height: size }}
     >
-      <div
-        className="relative"
-        style={{ width: `${iconSize}px`, height: `${iconSize}px` }}
-      >
-        <Image
-          src="/logo_white.svg"
-          alt="Home"
-          fill
-          className="object-contain"
-        />
-      </div>
+      <Image src="/symbol.svg" alt="" width={iconSize} height={iconSize} />
     </button>
-  )
+  );
 }

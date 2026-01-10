@@ -2,31 +2,28 @@
 
 import { useMemo, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 
-import LogoHero from "@/components/home/LogoHero"
 import CommentSlider from "@/components/home/CommentSlider"
 import HomeLatestStores from "@/components/home/HomeLatestStores"
+import StoreTypeFilter from '@/components/selectors/StoreTypeFilter';
+import SearchBar from '@/components/home/SearchBar';
+import Footer from '@/components/ui/Footer';
+import HomeFilterSections from '@/components/home/HomeFilterSections';
 
-import StoreTypeFilter from "@/components/filters/StoreTypeFilter"
-import SearchFilterStickyWrapper from "@/components/filters/layouts/SearchFilterStickyWrapper"
-import SearchBar from "@/components/home/SearchBar"
-import Footer from "@/components/Footer"
-import HomeFilterSections from "@/components/home/HomeFilterSections"
+import {useHomeStoreCards,useHomeMasters,useHomeFilterState,} from "@/hooks/home"
 
-import { useHomeStores } from "@/hooks/useHomeStores"
-import { useHomeMasters } from "@/hooks/useHomeMasters"
-import { useHomeStoreFilters } from "@/hooks/useStoreFilters"
+import { useStoresForSearch, useStoreFilters } from "@/hooks/store"
 import type { GenericMaster } from "@/types/master"
 
 export default function HomePage() {
   const router = useRouter()
-
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({})
 
   const [storeTypeId, setStoreTypeId] = useState<string | null>(null)
   const [clearKey, setClearKey] = useState(0)
+  const { stores: cardStores, loading } = useHomeStoreCards(12)
 
-  const { stores, loading } = useHomeStores()
   const masters = useHomeMasters()
 
   const storeTypes = useMemo<GenericMaster[]>(() => {
@@ -35,12 +32,15 @@ export default function HomePage() {
     )
   }, [masters.genericMasters])
 
-  const filter = useHomeStoreFilters(stores, masters.externalLabelMap, {
+  const filter = useHomeFilterState(masters.externalLabelMap, { storeTypeId })
+  const { selectedKeys, selectedLabels, handleClear, ...setters } = filter
+
+  const { stores: searchStores } = useStoresForSearch()
+
+  const { filteredStores } = useStoreFilters(searchStores, {
+    filters: selectedKeys,
     storeTypeId,
   })
-
-  const { filteredStores, selectedFilters, count, handleClear, ...setters } =
-    filter
 
   const handleClearAll = () => {
     handleClear()
@@ -52,8 +52,7 @@ export default function HomePage() {
     const params = new URLSearchParams()
 
     if (storeTypeId) params.set("store_type_id", storeTypeId)
-    selectedFilters.forEach((f) => params.append("filters", f))
-    filteredStores.forEach((s) => params.append("ids", s.id))
+    selectedKeys.forEach((k) => params.append("filters", k))
 
     router.push(`/stores?${params.toString()}`)
   }
@@ -71,28 +70,35 @@ export default function HomePage() {
   return (
     <>
       {/* ===== Hero ===== */}
-      <div className="relative w-full h-160 flex flex-col items-center text-white overflow-hidden bg-[url('/background-sp@2x.png')] bg-cover bg-center px-4 pt-20">
+      <div className="text-light-3 relative flex h-146 flex-col items-center gap-10 overflow-hidden bg-[url('/background-sp@2x.png')] bg-cover bg-center px-4 pt-20">
+        <p className="text-[10px] tracking-widest">
+          夜の音楽をもっと楽しむための音箱ナビ
+        </p>
 
-        <LogoHero />
+        <Image
+          src="/logo-white.svg"
+          alt="オトナビ"
+          width={200}
+          height={60}
+          className="drop-shadow-lg"
+        />
 
         {!loading && (
           <div className="mt-10">
-            <HomeLatestStores stores={stores} />
+            <HomeLatestStores stores={cardStores} />
           </div>
         )}
 
         <CommentSlider />
-
       </div>
 
       {/* ===== Store Type ===== */}
-      <SearchFilterStickyWrapper>
-        <StoreTypeFilter
-          storeTypes={storeTypes} // ★ 必須
-          activeTypeId={storeTypeId}
-          onChange={setStoreTypeId}
-        />
-      </SearchFilterStickyWrapper>
+
+      <StoreTypeFilter
+        storeTypes={storeTypes} // ★ 必須
+        activeTypeId={storeTypeId}
+        onChange={setStoreTypeId}
+      />
 
       {/* ===== Filters ===== */}
       <HomeFilterSections
@@ -116,15 +122,14 @@ export default function HomePage() {
 
       {/* ===== Fixed Search Bar ===== */}
       <SearchBar
-        selectedFilters={selectedFilters}
+        selectedFilters={selectedLabels}
         onClear={handleClearAll}
         onSearch={handleGoToStores}
-        count={count}
+        count={filteredStores.length}
         onClickFilter={handleClickFilter}
       />
 
-      <Footer />
-      <div className="h-[50px]" />
+      <Footer hasFixedBottom />
     </>
   )
 }

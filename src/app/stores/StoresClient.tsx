@@ -1,66 +1,91 @@
-"use client"
+'use client';
 
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from 'next/navigation';
 
-import type { HomeStore } from "@/types/store"
-import StoreCard from "@/components/store/StoreCard"
-import Footer from "@/components/Footer"
-import HomeButton from "@/components/ui/HomeButton"
-import BackToHomeButton from "@/components/ui/BackToHomeButton"
+import StoreCard from '@/components/store/StoreCard';
+import Footer from '@/components/ui/Footer';
+import HomeButton from '@/components/ui/HomeButton';
+import BackToHomeButton from '@/components/ui/BackToHomeButton';
 
-import { useHomeStores } from "@/hooks/useHomeStores"
+import { useStoresForSearch, useStoreFilters } from '@/hooks/store';
+import { useHomeMasters } from '@/hooks/home';
 
 export default function StoresClient() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const { stores } = useHomeStores()
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { stores, loading } = useStoresForSearch();
+  const masters = useHomeMasters();
+  const labelMap = masters.externalLabelMap;
 
-  const params = searchParams.toString()
-  const selectedFilters = searchParams.getAll("filters")
-  const idParams = searchParams.getAll("ids")
+  const selectedFilters = searchParams.getAll('filters');
+  const storeTypeId = searchParams.get('store_type_id');
 
-  const filteredStores: HomeStore[] =
-    idParams.length > 0
-      ? stores.filter((s) => idParams.includes(s.id))
-      : stores
+  const { filteredStores } = useStoreFilters(stores, {
+    filters: selectedFilters,
+    storeTypeId,
+  });
+
+  const params = searchParams.toString();
+
+  if (loading) {
+    return <div className="pt-20 text-center">Loading...</div>;
+  }
+
+  const displayLabels: string[] = [];
+
+  // storeTypeId（id → label）
+  if (storeTypeId) {
+    const storeTypeLabel = Array.from(masters.genericMasters.values()).find(
+      (m) => m.table === 'store_types' && m.id === storeTypeId,
+    )?.label;
+
+    if (storeTypeLabel) {
+      displayLabels.push(storeTypeLabel);
+    }
+  }
+
+  // filters（key → label）
+  selectedFilters.forEach((key) => {
+    const label = labelMap.get(key);
+    if (label) displayLabels.push(label);
+  });
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      {/* ヘッダー */}
-      <div className="px-4 py-4 flex items-center gap-4 border-b sticky top-0 bg-white z-[70]">
-        <HomeButton
-          onHome={() => router.push("/")}
-          size={56}
-          iconSize={26}
-        />
+    <div className="text-dark-5 bg-white pt-20">
+      {/* ===== Header ===== */}
+      <div className="fixed top-0 left-0 z-100 flex w-full justify-center">
+        <header className="m-auto flex h-20 w-full max-w-105 items-center gap-4 bg-white/80 px-4 backdrop-blur-lg">
+          <HomeButton />
 
-        <div className="text-slate-900 font-bold text-lg tracking-widest leading-none">
-          {filteredStores.length}
-          <span className="text-[10px] ml-1">件</span>
-        </div>
+          {/* 件数 */}
+          <div className="shrink-0 text-lg font-bold tracking-widest">
+            {filteredStores.length}
+            <span className="ml-1 text-[10px]">件</span>
+          </div>
 
-        <div className="flex-1 text-blue-800 text-xs line-clamp-2">
-          {selectedFilters.join(", ")}
-        </div>
-      </div>
-
-      {/* 店舗一覧 */}
-      <div className="overflow-y-auto px-4 py-4 flex-1">
-        <div className="grid grid-cols-2 gap-4 pb-24">
-          {filteredStores.map((s) => (
-            <div key={s.id} className="min-h-[250px] flex">
-              <StoreCard store={s} query={params} />
+          {/* 検索条件（label 表示） */}
+          {displayLabels.length > 0 && (
+            <div className="line-clamp-2 flex-1 text-xs text-blue-700">
+              {displayLabels.join(', ')}
             </div>
-          ))}
-        </div>
+          )}
+        </header>
       </div>
 
-      <BackToHomeButton
-        onClick={() => router.push("/")}
-        className="px-6 pb-8"
-      />
+      {/* ===== Store List ===== */}
+      <ul className="grid grid-cols-2">
+        {filteredStores.map((store) => (
+          <li key={store.id}>
+            <StoreCard store={store} query={params} />
+          </li>
+        ))}
+      </ul>
+
+      <div className="p-10">
+        <BackToHomeButton onClick={() => router.push('/')} />
+      </div>
 
       <Footer />
     </div>
-  )
+  );
 }

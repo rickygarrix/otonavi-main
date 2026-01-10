@@ -11,10 +11,12 @@ export type Prefecture = {
   id: string
   name_ja: string
   region: RegionKey
+  code: number
 }
 
 export type Area = {
   id: string
   name: string
   is_23ward: boolean
+  display_order: number
 }

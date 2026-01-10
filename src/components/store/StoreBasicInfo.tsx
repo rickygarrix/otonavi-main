@@ -1,90 +1,73 @@
-"use client"
+'use client';
 
-import type { HomeStore } from "@/types/store"
-import {
-  FaInstagram,
-  FaFacebook,
-  FaLink,
-} from "react-icons/fa"
-import { FaXTwitter } from "react-icons/fa6"
-import { SiTiktok } from "react-icons/si"
+import Image from 'next/image';
+import type { HomeStore } from '@/types/store';
 
 type Props = {
-  store: HomeStore
-}
+  store: HomeStore;
+};
 
 export default function StoreBasicInfo({ store }: Props) {
   return (
-    <div className="px-4 py-5">
-      <p className="text-sm text-slate-600">
-        {store.prefecture_label} {store.area_label} {store.type_label}
-      </p>
+    <div className="mt-8 flex flex-col gap-4 p-4 text-center">
+      <div className="text-dark-2 flex justify-center gap-1 text-xs">
+        <span>{store.prefecture_label}</span>
+        <span>{store.area_label}</span>
+        <span>・</span>
+        <span>{store.type_label}</span>
+      </div>
 
-      <h1 className="text-2xl font-extrabold mt-1">{store.name}</h1>
+      <div className="flex flex-col gap-2 font-bold">
+        {/* 店舗名 */}
+        <h1 className="text-2xl leading-[1.5]">{store.name}</h1>
 
+        {/* 読み仮名 */}
+        {store.name_kana && (
+          <p className="text-dark-3 text-[10px] leading-[1.5] tracking-widest">{store.name_kana}</p>
+        )}
+      </div>
+
+      {/* 説明文 */}
       {store.description && (
-        <p className="mt-4 whitespace-pre-line text-slate-700">
-          {store.description}
-        </p>
+        <p className="text-dark-2 text-xs whitespace-pre-line">{store.description}</p>
       )}
 
-      {/* SNS */}
-      <div className="flex gap-5 mt-6 items-center">
-        {store.instagram_url && (
-          <SNSLink href={store.instagram_url}>
-            <FaInstagram />
-          </SNSLink>
+      {/* シェアボタン */}
+      <div className="flex items-center justify-center gap-2 py-2">
+        {store.official_site_url && (
+          <ShareButton href={store.official_site_url} image="/web@2x.png" alt="公式サイトを開く" />
         )}
 
-        {store.x_url && (
-          <SNSLink href={store.x_url}>
-            <FaXTwitter />
-          </SNSLink>
+        {store.instagram_url && (
+          <ShareButton
+            href={store.instagram_url}
+            image="/instagram@2x.png"
+            alt="公式Instagramを開く"
+          />
         )}
+
+        {store.x_url && <ShareButton href={store.x_url} image="/x@2x.png" alt="公式Xを開く" />}
 
         {store.facebook_url && (
-          <SNSLink href={store.facebook_url}>
-            <FaFacebook />
-          </SNSLink>
+          <ShareButton
+            href={store.facebook_url}
+            image="/facebook@2x.png"
+            alt="公式Facebookを開く"
+          />
         )}
 
         {store.tiktok_url && (
-          <SNSLink href={store.tiktok_url}>
-            <SiTiktok />
-          </SNSLink>
-        )}
-
-        {store.official_site_url && (
-          <SNSLink href={store.official_site_url}>
-            <FaLink />
-          </SNSLink>
+          <ShareButton href={store.tiktok_url} image="/tiktok@2x.png" alt="公式TikTokを開く" />
         )}
       </div>
     </div>
-  )
+  );
 }
 
-function SNSLink({
-  href,
-  children,
-}: {
-  href: string
-  children: React.ReactNode
-}) {
+function ShareButton({ href, image, alt }: { href: string; image: string; alt: string }) {
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="
-        text-slate-600
-        hover:text-slate-900
-        transition
-        text-[26px]
-        hover:scale-110
-      "
-    >
-      {children}
+    <a href={href} target="_blank" rel="noopener noreferrer" className="relative h-14 w-14">
+      <Image src={image} alt={alt} fill className="object-contain" />
     </a>
-  )
+  );
 }
