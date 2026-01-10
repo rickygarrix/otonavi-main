@@ -23,21 +23,31 @@ export default function Footer({ hasFixedBottom }: FooterProps) {
       {/* メニュー */}
       <nav>
         <ul>
+          {/* ===== LP（今は非表示） ===== */}
+          {/*
           <li>
             <FooterLink href="/lp">オトナビとは？</FooterLink>
           </li>
+          */}
+
           <li>
             <FooterLink href="/contact">お問い合わせ</FooterLink>
           </li>
+
           <li>
             <FooterLink href="/terms">利用規約</FooterLink>
           </li>
+
           <li>
             <FooterLink href="/privacy">プライバシーポリシー</FooterLink>
           </li>
+
+          {/* ===== 特定商取引法（今は非表示） ===== */}
+          {/*
           <li>
             <FooterLink href="/disclosure">特定商取引法に基づく表記</FooterLink>
           </li>
+          */}
         </ul>
       </nav>
 
@@ -49,7 +59,13 @@ export default function Footer({ hasFixedBottom }: FooterProps) {
   );
 }
 
-function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
+function FooterLink({
+  href,
+  children,
+}: {
+  href: string;
+  children: React.ReactNode;
+}) {
   return (
     <Link
       href={href}
