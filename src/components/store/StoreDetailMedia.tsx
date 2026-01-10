@@ -1,72 +1,59 @@
-"use client"
+'use client';
 
-import { useMemo } from "react"
-import type {
-  StoreAward,
-  StoreMediaMention,
-} from "@/types/store"
+import { useMemo } from 'react';
+import type { StoreAward, StoreMediaMention } from '@/types/store';
 
 type Props = {
-  awards?: StoreAward[] | null
-  mediaMentions?: StoreMediaMention[] | null
-}
+  awards?: StoreAward[] | null;
+  mediaMentions?: StoreMediaMention[] | null;
+};
 
 type AchievementItem = {
-  id: string
-  text: string
-}
+  id: string;
+  text: string;
+};
 
-export default function StoreDetailMedia({
-  awards,
-  mediaMentions,
-}: Props) {
+export default function StoreDetailMedia({ awards, mediaMentions }: Props) {
   const grouped = useMemo(() => {
-    const map = new Map<number, AchievementItem[]>()
+    const map = new Map<number, AchievementItem[]>();
 
     awards?.forEach((a) => {
-      if (!a.year) return
-      if (!map.has(a.year)) map.set(a.year, [])
+      if (!a.year) return;
+      if (!map.has(a.year)) map.set(a.year, []);
       map.get(a.year)!.push({
         id: `award-${a.id}`,
         text: a.title,
-      })
-    })
+      });
+    });
 
     mediaMentions?.forEach((m) => {
-      if (!m.year) return
-      if (!map.has(m.year)) map.set(m.year, [])
+      if (!m.year) return;
+      if (!map.has(m.year)) map.set(m.year, []);
       map.get(m.year)!.push({
         id: `media-${m.id}`,
         text: m.media_name,
-      })
-    })
+      });
+    });
 
-    return map
-  }, [awards, mediaMentions])
+    return map;
+  }, [awards, mediaMentions]);
 
-  if (grouped.size === 0) return null
+  if (grouped.size === 0) return null;
 
-  const years = Array.from(grouped.keys()).sort((a, b) => b - a)
+  const years = Array.from(grouped.keys()).sort((a, b) => b - a);
 
   return (
-    <section className="px-4 mt-10">
-      <h2 className="text-lg font-bold mb-6">
-        受賞歴 / メディア掲載
-      </h2>
+    <section className="text-dark-4 flex flex-col gap-4 p-4 text-sm">
+      <h2 className="text-dark-5 text-lg font-bold tracking-widest">受賞歴／メディア掲載</h2>
 
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         {years.map((year) => (
-          <div key={year}>
-            <div className="text-sm font-semibold text-slate-500 mb-2">
-              {year}
-            </div>
+          <div key={year} className="flex flex-col gap-2">
+            <span className="text-dark-1 text-[10px] font-bold">{year}</span>
 
-            <ul className="space-y-2">
+            <ul className="flex flex-col gap-2">
               {grouped.get(year)!.map((item) => (
-                <li
-                  key={item.id}
-                  className="text-sm text-slate-700"
-                >
+                <li key={item.id} className="leading-[1.5]">
                   {item.text}
                 </li>
               ))}
@@ -75,5 +62,5 @@ export default function StoreDetailMedia({
         ))}
       </div>
     </section>
-  )
+  );
 }
