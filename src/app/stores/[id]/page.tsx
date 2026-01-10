@@ -82,7 +82,7 @@ export default function StoreDetailPage() {
   }
 
   return (
-    <div className="relative min-h-screen bg-white">
+    <div className="relative -mt-20 min-h-screen bg-white">
       {/* ===== Header ===== */}
       <header className="sticky top-0 z-100 flex h-20 w-full max-w-105 items-center gap-4 px-4 mix-blend-difference">
         <HomeButton />
@@ -90,9 +90,7 @@ export default function StoreDetailPage() {
       </header>
 
       {/* コンテンツ */}
-      <div className="pt-[90px]">
-        <StoreDetailView store={store} />
-      </div>
+      <StoreDetailView store={store} />
     </div>
   );
 }
