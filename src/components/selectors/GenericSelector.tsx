@@ -31,7 +31,6 @@ export default function GenericSelector({
   selection,
   onChange,
   columns = 2,
-  sectionRef,
   clearKey,
 }: Props) {
   const [items, setItems] = useState<GenericMaster[]>([]);

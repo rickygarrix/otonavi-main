@@ -32,18 +32,6 @@ export default function StoreImageCarousel({ storeId, storeName }: Props) {
 
   const mainImages = images.length > 0 ? images : [{ id: 'default', image_url: '/noshop.svg' }];
 
-  const scrollToIndex = (index: number) => {
-    const el = containerRef.current;
-    if (!el) return;
-
-    el.scrollTo({
-      left: index * el.clientWidth,
-      behavior: 'smooth',
-    });
-
-    setCurrent(index);
-  };
-
   return (
     <div className="relative">
       {/* カルーセル */}

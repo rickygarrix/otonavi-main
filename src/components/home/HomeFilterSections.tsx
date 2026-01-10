@@ -157,7 +157,7 @@ export default function HomeFilterSections(props: Props) {
 
   return (
     <div className="pb-10">
-      {FILTERS.map((filter, index) => (
+      {FILTERS.map((filter) => (
         <section
           key={filter.key}
           ref={(el) => {

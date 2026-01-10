@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useParams, useSearchParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { normalizeStoreDetail } from '@/lib/normalize/normalizeStoreDetail';
 import type { HomeStore } from '@/types/store';
@@ -9,11 +9,7 @@ import StoreDetailView from '@/components/store/StoreDetailView';
 import HomeButton from '@/components/ui/HomeButton';
 
 export default function StoreDetailPage() {
-  const router = useRouter();
   const params = useParams();
-  const searchParams = useSearchParams();
-  const query = searchParams.toString();
-
   const storeId = params?.id as string;
   const [store, setStore] = useState<HomeStore | null>(null);
   const [loading, setLoading] = useState(true);
