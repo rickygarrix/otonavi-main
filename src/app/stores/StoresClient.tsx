@@ -51,7 +51,7 @@ export default function StoresClient() {
   });
 
   return (
-    <div className="text-dark-5 flex min-h-screen flex-col bg-white pt-20">
+    <div className="text-dark-5 bg-white pt-20">
       {/* ===== Header ===== */}
       <div className="fixed top-0 left-0 z-100 flex w-full justify-center">
         <header className="m-auto flex h-20 w-full max-w-105 items-center gap-4 bg-white/80 px-4 backdrop-blur-lg">
@@ -81,7 +81,6 @@ export default function StoresClient() {
         ))}
       </ul>
 
-      {/* ===== Footer ===== */}
       <div className="p-10">
         <BackToHomeButton onClick={() => router.push('/')} />
       </div>
