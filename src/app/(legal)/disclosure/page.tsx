@@ -1,4 +1,4 @@
-export default function TokushoPage() {
+export default function DisclosurePage() {
   return (
     <>
       <h1>特定商取引法に基づく表記</h1>

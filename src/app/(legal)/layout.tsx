@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+
 import HomeButton from '@/components/ui/HomeButton';
 import Footer from '@/components/ui/Footer';
 
