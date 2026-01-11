@@ -1,70 +1,78 @@
-'use client';
-
-import Footer from '@/components/ui/Footer';
-import HomeButton from '@/components/ui/HomeButton';
-
 export default function PrivacyPage() {
   return (
-    <div className="flex min-h-screen flex-col bg-white pt-20">
-      {/* ===== 上部：ホームに戻る ===== */}
-      <div className="fixed top-0 left-0 z-100 flex w-full justify-center">
-        <header className="m-auto flex h-20 w-full max-w-105 items-center gap-4 px-4">
-          <HomeButton />
-        </header>
-      </div>
+    <>
+      <h1>プライバシーポリシー</h1>
 
-      {/* ===== 本文 ===== */}
-      <main className="flex-1">
-        <div className="mx-auto max-w-3xl px-6 py-12 leading-relaxed text-gray-800">
-          <h1 className="mb-8 text-3xl font-bold">プライバシーポリシー</h1>
+      <p>
+        オトナビ（以下「本サービス」といいます。）は、ユーザーの個人情報の重要性を認識し、個人情報の保護に関する法律および関連法令を遵守するとともに、以下のとおりプライバシーポリシーを定め、個人情報の適切な取扱いに努めます。
+      </p>
 
-          <p className="mb-6">
-            オトナビ（以下、「当サービス」といいます。）は、ユーザーの個人情報を適切に取り扱うことを重要な責務と考え、
-            以下の方針に基づき個人情報の保護に努めます。
-          </p>
+      <section>
+        <h2>第1条（取得する個人情報）</h2>
+        <p>本サービスでは、ユーザーからのお問い合わせに際し、以下の個人情報を取得します。</p>
+        <ol>
+          <li>氏名</li>
+          <li>メールアドレス</li>
+          <li>お問い合わせ内容</li>
+        </ol>
+      </section>
 
-          <h2 className="mt-10 mb-4 text-xl font-semibold">1. 取得する情報</h2>
-          <ul className="mb-6 list-disc space-y-2 pl-6">
-            <li>メールアドレス</li>
-            <li>プロフィール情報（ニックネーム・画像など）</li>
-            <li>レビュー投稿・お気に入り情報</li>
-            <li>アクセスログ（IP、ブラウザ情報等）</li>
-          </ul>
+      <section>
+        <h2>第2条（個人情報の利用目的）</h2>
+        <p>取得した個人情報は、以下の目的の範囲内で利用します。</p>
+        <ol>
+          <li>お問い合わせへの対応および連絡</li>
+          <li>本サービスに関する必要なご案内および連絡</li>
+        </ol>
+      </section>
 
-          <h2 className="mt-10 mb-4 text-xl font-semibold">2. 利用目的</h2>
-          <ul className="mb-6 list-disc space-y-2 pl-6">
-            <li>サービス提供およびユーザー管理のため</li>
-            <li>不正利用の防止・安全なサービス運営のため</li>
-            <li>お問い合わせ対応のため</li>
-            <li>サービス改善のための分析</li>
-          </ul>
+      <section>
+        <h2>第3条（個人情報の第三者提供）</h2>
+        <p>運営者は、次の場合を除き、ユーザーの個人情報を第三者に提供することはありません。</p>
+        <ol>
+          <li>本人の同意がある場合</li>
+          <li>法令に基づき開示が求められた場合</li>
+          <li>
+            人の生命、身体または財産の保護のために必要がある場合で、本人の同意を得ることが困難な場合
+          </li>
+        </ol>
+      </section>
 
-          <h2 className="mt-10 mb-4 text-xl font-semibold">3. 個人情報の第三者提供</h2>
-          <p className="mb-6">
-            法令に基づく場合を除き、ユーザーの同意なく個人情報を第三者へ提供することはありません。
-          </p>
+      <section>
+        <h2>第4条（個人情報の管理）</h2>
+        <p>
+          運営者は、個人情報への不正アクセス、漏えい、滅失、改ざん等を防止するため、適切な安全管理措置を講じます。
+        </p>
+      </section>
 
-          <h2 className="mt-10 mb-4 text-xl font-semibold">4. Cookie（クッキー）について</h2>
-          <p className="mb-6">
-            当サービスでは、アクセス解析やログイン状態の維持のため Cookie を利用します。
-            ブラウザ設定で Cookie を拒否できますが、一部機能が利用できない場合があります。
-          </p>
+      <section>
+        <h2>第5条（個人情報の開示・訂正・削除）</h2>
+        <p>
+          ユーザーは、自己の個人情報について、開示、訂正、削除等を求めることができます。これらの請求があった場合、運営者は、本人確認を行った上で、法令に従い適切に対応します。
+        </p>
+      </section>
 
-          <h2 className="mt-10 mb-4 text-xl font-semibold">5. プライバシーポリシーの変更</h2>
-          <p className="mb-6">
-            本ポリシーは、必要に応じて内容を変更することがあります。
-            変更後の内容は当ページに掲載した時点で効力を生じます。
-          </p>
+      <section>
+        <h2>第6条（プライバシーポリシーの変更）</h2>
+        <p>
+          運営者は、必要に応じて本プライバシーポリシーの内容を変更することがあります。変更後のプライバシーポリシーは、本サービス上に掲載した時点から効力を生じるものとします。
+        </p>
+      </section>
 
-          <h2 className="mt-10 mb-4 text-xl font-semibold">6. お問い合わせ</h2>
-          <p className="mb-6">個人情報に関するご質問は、お問い合わせフォームよりご連絡ください。</p>
+      <section>
+        <h2>第7条（お問い合わせ窓口）</h2>
+        <p>本プライバシーポリシーに関するお問い合わせは、以下の窓口までご連絡ください。</p>
+        <address>
+          事業者名：髙石 卓実（屋号：coulomb）
+          <br />
+          メールアドレス：
+          <a href="mailto:contact@otnv.jp">contact@otnv.jp</a>
+        </address>
+      </section>
 
-          <p className="mt-12 text-sm text-gray-500">制定日：2025年1月1日</p>
-        </div>
-      </main>
+      <p>以上</p>
 
-      {/* ===== フッター ===== */}
-      <Footer />
-    </div>
+      <p>2026年1月11日 施行</p>
+    </>
   );
 }
