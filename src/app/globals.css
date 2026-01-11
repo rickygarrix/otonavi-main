@@ -38,7 +38,6 @@ html::before {
 }
 
 body {
-  color: var(--dark-1);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
   line-height: 1.6;
   overflow-x: hidden;
