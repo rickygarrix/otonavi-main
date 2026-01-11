@@ -3,11 +3,19 @@
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
-export default function HomeButton() {
+type HomeButtonProps = {
+  onHome?: () => void;
+};
+
+export default function HomeButton({ onHome }: HomeButtonProps) {
   const router = useRouter();
 
   const handleClick = () => {
-    router.push('/');
+    if (onHome) {
+      onHome();
+    } else {
+      router.push('/');
+    }
   };
 
   return (
