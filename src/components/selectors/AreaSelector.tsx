@@ -13,6 +13,27 @@ type Props = {
 type OpenMenu = 'pref' | 'city' | null;
 const MENU_ID = { pref: 'pref-menu', city: 'city-menu' } as const;
 
+type OptionRowProps = {
+  label: string;
+  selected: boolean;
+  onClick: () => void;
+};
+
+function OptionRow({ label, selected, onClick }: OptionRowProps) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex h-12 w-full items-center gap-2 rounded-xs px-2 text-start active:bg-black/3 ${selected ? 'text-dark-5 bg-black/5 font-semibold' : 'text-gray-4'}`}
+    >
+      <Check
+        className={`h-4 w-4 shrink-0 ${selected ? 'opacity-100' : 'opacity-0'}`}
+        strokeWidth={2.0}
+      />
+      <span className="min-w-0 flex-1 truncate">{label}</span>
+    </button>
+  );
+}
+
 export default function AreaSelector({ clearKey, onChange }: Props) {
   const [prefectures, setPrefectures] = useState<Prefecture[]>([]);
   const [cities, setCities] = useState<City[]>([]);
@@ -169,32 +190,22 @@ export default function AreaSelector({ clearKey, onChange }: Props) {
             aria-label="都道府県"
             className="border-gray-1 absolute top-12 left-0 z-20 h-100 w-full overflow-y-auto rounded-2xl border bg-white/40 p-2 shadow-lg backdrop-blur-lg"
           >
-            <button
+            <OptionRow
+              label="都道府県を選択"
+              selected={selectPrefecture === null}
               onClick={clearPrefecture}
-              className="text-gray-4 flex h-12 w-full items-center gap-2 rounded-xs px-2 text-start active:bg-black/3"
-            >
-              <Check
-                className={`h-4 w-4 shrink-0 ${selectedPrefecture === null ? 'opacity-100' : 'opacity-0'}`}
-                strokeWidth={2.0}
-              />
-              <span className="min-w-0 flex-1 truncate">都道府県を選択</span>
-            </button>
+            />
 
             {prefectures.map((p) => {
               const isSelected = selectedPrefecture?.id === p.id;
 
               return (
-                <button
+                <OptionRow
                   key={p.id}
+                  label={p.name_ja}
+                  selected={isSelected}
                   onClick={() => selectPrefecture(p)}
-                  className={`flex h-12 w-full items-center gap-2 rounded-xs px-2 text-start active:bg-black/3 ${isSelected ? 'text-dark-5 bg-black/5 font-semibold' : 'text-gray-4'}`}
-                >
-                  <Check
-                    className={`h-4 w-4 shrink-0 ${isSelected ? 'opacity-100' : 'opacity-0'}`}
-                    strokeWidth={2.0}
-                  />
-                  <span className="min-w-0 flex-1 truncate">{p.name_ja}</span>
-                </button>
+                />
               );
             })}
           </div>
@@ -236,16 +247,7 @@ export default function AreaSelector({ clearKey, onChange }: Props) {
             aria-label="市区町村"
             className="text-gray-4 border-gray-1 absolute top-12 left-0 z-20 h-100 w-full overflow-y-auto rounded-2xl border bg-white/40 p-2 shadow-lg backdrop-blur-lg"
           >
-            <button
-              onClick={clearCity}
-              className="text-gray-4 flex h-12 w-full items-center gap-2 rounded-xs px-2 text-start active:bg-black/3"
-            >
-              <Check
-                className={`h-4 w-4 shrink-0 ${selectedCity === null ? 'opacity-100' : 'opacity-0'}`}
-                strokeWidth={2.0}
-              />
-              <span className="min-w-0 flex-1 truncate">市区町村を選択</span>
-            </button>
+            <OptionRow label="市区町村を選択" selected={selectCity === null} onClick={clearCity} />
 
             {wards.length > 0 && (
               <>
@@ -254,17 +256,12 @@ export default function AreaSelector({ clearKey, onChange }: Props) {
                   const isSelected = selectedCity?.id === c.id;
 
                   return (
-                    <button
+                    <OptionRow
                       key={c.id}
+                      label={c.name}
+                      selected={isSelected}
                       onClick={() => selectCity(c)}
-                      className={`flex h-12 w-full items-center gap-2 rounded-xs px-2 text-start active:bg-black/3 ${isSelected ? 'text-dark-5 bg-black/5 font-semibold' : 'text-gray-4'}`}
-                    >
-                      <Check
-                        className={`h-4 w-4 shrink-0 ${isSelected ? 'opacity-100' : 'opacity-0'}`}
-                        strokeWidth={2.0}
-                      />
-                      <span className="min-w-0 flex-1 truncate">{c.name}</span>
-                    </button>
+                    />
                   );
                 })}
               </>
@@ -279,17 +276,12 @@ export default function AreaSelector({ clearKey, onChange }: Props) {
                   const isSelected = selectedCity?.id === c.id;
 
                   return (
-                    <button
+                    <OptionRow
                       key={c.id}
+                      label={c.name}
+                      selected={isSelected}
                       onClick={() => selectCity(c)}
-                      className={`flex h-12 w-full items-center gap-2 rounded-xs px-2 text-start active:bg-black/3 ${isSelected ? 'text-dark-5 bg-black/5 font-semibold' : 'text-gray-4'}`}
-                    >
-                      <Check
-                        className={`h-4 w-4 shrink-0 ${isSelected ? 'opacity-100' : 'opacity-0'}`}
-                        strokeWidth={2.0}
-                      />
-                      <span className="min-w-0 flex-1 truncate">{c.name}</span>
-                    </button>
+                    />
                   );
                 })}
               </>
