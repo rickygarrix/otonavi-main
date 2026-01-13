@@ -10,6 +10,9 @@ type Props = {
   onChange: (prefectureIds: string[], cityIds: string[]) => void;
 };
 
+type OpenMenu = 'pref' | 'city' | null;
+const MENU_ID = { pref: 'pref-menu', city: 'city-menu' } as const;
+
 const TOKYO_NAME = '東京都';
 
 export default function AreaSelector({ clearKey, onChange }: Props) {
@@ -19,8 +22,11 @@ export default function AreaSelector({ clearKey, onChange }: Props) {
   const [selectedPrefecture, setSelectedPrefecture] = useState<Prefecture | null>(null);
   const [selectedCity, setSelectedCity] = useState<City | null>(null);
 
-  const [openPref, setOpenPref] = useState(false);
-  const [openCity, setOpenCity] = useState(false);
+  // メニューの開閉
+  const [openMenu, setOpenMenu] = useState<OpenMenu>(null);
+  const openPref = openMenu === 'pref';
+  const openCity = openMenu === 'city';
+  const isAnyOpen = openMenu !== null;
 
   // ============================
   // 都道府県（display_order）
@@ -73,33 +79,24 @@ export default function AreaSelector({ clearKey, onChange }: Props) {
     loadCities();
   }, [isTokyo, selectedPrefecture]);
 
-  // ============================
-  // メニュー外タップで閉じる
-  // ============================
-  const isAnyOpen = openPref || openCity;
-
-  const prefMenuId = 'pref-menu';
-  const cityMenuId = 'city-menu';
-
-  // ============================
   // clear
-  // ============================
   useEffect(() => {
     setSelectedPrefecture(null);
     setSelectedCity(null);
+    setOpenMenu(null);
     onChange([], []);
   }, [clearKey, onChange]);
 
   const selectPrefecture = (p: Prefecture) => {
     setSelectedPrefecture(p);
     setSelectedCity(null);
-    setOpenPref(false);
+    setOpenMenu(null);
     onChange([p.id], []);
   };
 
   const selectCity = (a: City) => {
     setSelectedCity(a);
-    setOpenCity(false);
+    setOpenMenu(null);
     onChange(selectedPrefecture ? [selectedPrefecture.id] : [], [a.id]);
   };
 
@@ -118,9 +115,7 @@ export default function AreaSelector({ clearKey, onChange }: Props) {
   const innerUnselected = 'text-gray-3 bg-white active:bg-light-1';
   const innerSelected = 'bg-blue-1 active:opacity-90 text-blue-4';
 
-  // ============================
   // UI
-  // ============================
   return (
     <div className="relative flex w-full text-sm">
       {/* スクリム */}
@@ -129,10 +124,7 @@ export default function AreaSelector({ clearKey, onChange }: Props) {
           type="button"
           aria-label="メニューを閉じる"
           className="fixed inset-0 z-10 cursor-default"
-          onClick={() => {
-            setOpenPref(false);
-            setOpenCity(false);
-          }}
+          onClick={() => setOpenMenu(null)}
         />
       )}
 
@@ -140,11 +132,8 @@ export default function AreaSelector({ clearKey, onChange }: Props) {
       <div className="relative flex-1">
         <button
           aria-expanded={openPref}
-          aria-controls={prefMenuId}
-          onClick={() => {
-            setOpenCity(false);
-            setOpenPref((v) => !v);
-          }}
+          aria-controls={MENU_ID.pref}
+          onClick={() => setOpenMenu((current) => (current === 'pref' ? null : 'pref'))}
           className="h-12 w-full p-1"
         >
           <div
@@ -164,7 +153,7 @@ export default function AreaSelector({ clearKey, onChange }: Props) {
         {/* 都道府県メニュー */}
         {openPref && (
           <div
-            id={prefMenuId}
+            id={MENU_ID.pref}
             role="listbox"
             aria-label="都道府県"
             className="border-gray-1 absolute top-12 left-0 z-20 h-100 w-full overflow-y-auto rounded-2xl border bg-white/40 p-2 shadow-lg backdrop-blur-lg"
@@ -197,12 +186,13 @@ export default function AreaSelector({ clearKey, onChange }: Props) {
       >
         <button
           aria-expanded={openCity}
-          aria-controls={cityMenuId}
+          aria-controls={MENU_ID.city}
           onClick={() => {
-            setOpenPref(false);
-            setOpenCity((v) => !v);
+            if (!isTokyo) return;
+            setOpenMenu((current) => (current === 'city' ? null : 'city'));
           }}
           className="h-12 w-full p-1"
+          disabled={!isTokyo}
         >
           <div
             className={`h-full overflow-hidden rounded-full p-px ${selectedCity ? outerSelected : outerUnselected}`}
@@ -210,7 +200,7 @@ export default function AreaSelector({ clearKey, onChange }: Props) {
             <div
               className={`flex h-full items-center gap-2 rounded-full px-4 ${selectedCity ? innerSelected : innerUnselected}`}
             >
-              <span className="w-full truncate text-start">{selectedCity?.name ?? 'エリア'}</span>
+              <span className="w-full truncate text-start">{selectedCity?.name ?? '市区町村'}</span>
               <ChevronsUpDown className="h-4 w-4" strokeWidth={1.2} />
             </div>
           </div>
@@ -219,7 +209,7 @@ export default function AreaSelector({ clearKey, onChange }: Props) {
         {/* 市区町村メニュー */}
         {openCity && (
           <div
-            id={cityMenuId}
+            id={MENU_ID.city}
             role="listbox"
             aria-label="市区町村"
             className="text-gray-4 border-gray-1 absolute top-12 left-0 z-20 h-100 w-full overflow-y-auto rounded-2xl border bg-white/40 p-2 shadow-lg backdrop-blur-lg"
