@@ -128,7 +128,7 @@ export default function AreaSelector({ clearKey, onChange }: Props) {
         <button
           type="button"
           aria-label="メニューを閉じる"
-          className="fixed inset-0 z-40 cursor-default bg-black/10"
+          className="fixed inset-0 z-10 cursor-default"
           onClick={() => {
             setOpenPref(false);
             setOpenArea(false);
@@ -167,7 +167,7 @@ export default function AreaSelector({ clearKey, onChange }: Props) {
             id={prefMenuId}
             role="listbox"
             aria-label="都道府県"
-            className="border-gray-1 absolute top-12 left-0 z-50 h-100 w-full overflow-y-auto rounded-2xl border bg-white/40 p-2 shadow-lg backdrop-blur-lg"
+            className="border-gray-1 absolute top-12 left-0 z-20 h-100 w-full overflow-y-auto rounded-2xl border bg-white/40 p-2 shadow-lg backdrop-blur-lg"
           >
             {prefectures.map((p) => {
               const isSelected = selectedPrefecture?.id === p.id;
@@ -222,7 +222,7 @@ export default function AreaSelector({ clearKey, onChange }: Props) {
             id={areaMenuId}
             role="listbox"
             aria-label="市区町村"
-            className="text-gray-4 border-gray-1 absolute top-12 left-0 z-50 h-100 w-full overflow-y-auto rounded-2xl border bg-white/40 p-2 shadow-lg backdrop-blur-lg"
+            className="text-gray-4 border-gray-1 absolute top-12 left-0 z-20 h-100 w-full overflow-y-auto rounded-2xl border bg-white/40 p-2 shadow-lg backdrop-blur-lg"
           >
             {wards.length > 0 && (
               <>
