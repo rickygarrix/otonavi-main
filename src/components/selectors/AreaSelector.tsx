@@ -12,7 +12,7 @@ type Props = {
 
 const TOKYO_NAME = '東京都';
 
-export default function CitySelector({ clearKey, onChange }: Props) {
+export default function AreaSelector({ clearKey, onChange }: Props) {
   const [prefectures, setPrefectures] = useState<Prefecture[]>([]);
   const [cities, setCities] = useState<City[]>([]);
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback } from 'react';
-import CitySelector from '@/components/selectors/CitySelector';
+import AreaSelector from '@/components/selectors/AreaSelector';
 import GenericSelector from '@/components/selectors/GenericSelector';
 import DrinkSelector from '@/components/selectors/DrinkSelector';
 
@@ -170,7 +170,7 @@ export default function HomeFilterSections(props: Props) {
               <h3 className="text-md text-dark-5 leading-[1.5] font-bold tracking-widest">
                 エリア
               </h3>
-              <CitySelector clearKey={clearKey} onChange={handleCityChange} />
+              <AreaSelector clearKey={clearKey} onChange={handleCityChange} />
             </>
           )}
 
