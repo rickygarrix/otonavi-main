@@ -146,14 +146,6 @@ export default function AreaSelector({ clearKey, onChange }: Props) {
     loadCities();
   }, [isTokyo, selectedPrefecture]);
 
-  // clear
-  useEffect(() => {
-    setSelectedPrefecture(null);
-    setSelectedCity(null);
-    setOpenMenu(null);
-    onChange([], []);
-  }, [clearKey, onChange]);
-
   const selectPrefecture = (p: Prefecture) => {
     setSelectedPrefecture(p);
     setSelectedCity(null);
