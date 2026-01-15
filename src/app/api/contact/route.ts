@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server"
 import { Resend } from "resend"
-import { getSupabaseServer } from "@/lib/supabaseServer"
-
-const supabase = getSupabaseServer()
 
 const resend = new Resend(process.env.RESEND_API_KEY!)
 
@@ -14,19 +11,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "invalid" }, { status: 400 })
     }
 
-    // ① Supabase 保存
-    const { error: insertError } = await supabase
-      .from("contacts")
-      .insert({ name, email, message })
-
-    if (insertError) {
-      console.error(insertError)
-      return NextResponse.json({ error: "db error" }, { status: 500 })
-    }
-
     const from = "Otonavi <contact@send.otnv.jp>"
 
-    // ② 管理者通知
+    // ① 管理者通知
     await resend.emails.send({
       from,
       to: process.env.CONTACT_ADMIN_EMAIL!,
@@ -38,7 +25,7 @@ export async function POST(req: Request) {
       `,
     })
 
-    // ③ ユーザー自動返信
+    // ② ユーザー自動返信
     await resend.emails.send({
       from,
       to: email,
