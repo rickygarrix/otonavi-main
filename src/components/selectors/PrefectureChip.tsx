@@ -10,7 +10,7 @@ type Props = {
 
 export default function PrefectureChip({
   label,
-  selected = false,   // ← ★ ここが重要
+  selected = false,
   onChange,
 }: Props) {
   return (
