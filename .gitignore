@@ -1,17 +1,3 @@
-<<<<<<< HEAD
-# macOS
-.DS_Store
-
-# Next.js build
-.next
-
-# dependencies
-node_modules
-
-# env
-.env
-.env.local
-=======
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # ==============================
@@ -89,4 +75,3 @@ supabase/.env
 .vscode/
 .idea/
 *.swp
->>>>>>> fab9ad48916d5735dd0afa7a4044e3f0b4326c74
