@@ -52,7 +52,9 @@ export default function HomeStoreCard({ store }: Props) {
           <p className="line-clamp-2 text-xs leading-[1.2]">{store.name}</p>
         </div>
 
-        {locationLabel && <p className="text-light-5 line-clamp-1 text-[10px]">{locationLabel}</p>}
+        {locationLabel && (
+          <p className="text-light-5 line-clamp-1 text-[10px]">{locationLabel}</p>
+        )}
       </div>
     </div>
   );
