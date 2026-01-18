@@ -11,7 +11,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "invalid" }, { status: 400 })
     }
 
-    const from = "Otonavi <noreply@send.otnv.jp>"
+    // ★ 差出人名を「オトナビ」に変更
+    const from = "オトナビ <noreply@send.otnv.jp>"
 
     /* =========================
        ① 管理者向け通知メール
@@ -61,6 +62,15 @@ export async function POST(req: Request) {
         <p>
           ――――――――――<br />
           オトナビ運営
+        </p>
+
+        <hr />
+
+        <p style="font-size:12px; color:#666;">
+          ※本メールは送信専用です。<br />
+          ご不明な点がございましたら
+          <a href="mailto:contact@otnv.jp">contact@otnv.jp</a>
+          までご連絡ください。
         </p>
       `,
     })
