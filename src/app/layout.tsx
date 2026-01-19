@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
@@ -17,8 +17,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: 'オトナビ｜音箱検索サイト',
-  description:
-    '夜の音楽体験をもっと身近にする音箱検索サイト。',
+  description: '夜の音楽体験をもっと身近にする音箱検索サイト。',
   icons: {
     apple: '/apple-touch-icon.png',
   },
@@ -27,6 +26,9 @@ export const metadata: Metadata = {
     title: 'オトナビ',
     statusBarStyle: 'black-translucent',
   },
+};
+
+export const viewport: Viewport = {
   themeColor: '#000000',
 };
 

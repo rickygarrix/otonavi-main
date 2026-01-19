@@ -6,9 +6,6 @@ import type { HomeStore } from '@/types/store';
    utils
 ========================= */
 
-const asString = (v: unknown): string | null =>
-  typeof v === 'string' ? v : null;
-
 const asNumber = (v: unknown): number | null =>
   typeof v === 'number' ? v : null;
 
