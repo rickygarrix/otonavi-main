@@ -96,6 +96,7 @@ export function normalizeStoreDetail(raw: StoreRow): HomeStore {
   return {
     /* ========= basic ========= */
     id: raw.id,
+    slug: raw.slug,
     name: raw.name,
     kana: raw.kana,
 

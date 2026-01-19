@@ -12,6 +12,7 @@ export type HomeStore = {
   id: string;
   name: string;
   kana: string | null;
+  slug: string;
 
   prefecture_id: string | null;
   prefecture_label: string | null;
@@ -83,6 +84,7 @@ export type HomeStore = {
 export type HomeStoreLite = {
   id: string;
   name: string;
+  slug: string;
 
   prefecture_id: string | null;
   prefecture_label: string | null;
@@ -99,6 +101,7 @@ export type HomeStoreLite = {
 
 export type SearchStore = {
   id: string;
+  slug: string;
   name: string;
   kana: string | null;
 
@@ -113,7 +116,6 @@ export type SearchStore = {
 
   image_url: string;
 
-  /* 検索・絞り込み用 */
   price_range_key: string | null;
   size_key: string | null;
 

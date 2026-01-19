@@ -13,6 +13,7 @@ export function normalizeHomeStore(raw: StoreRow): HomeStoreLite {
   return {
     id: raw.id,
     name: raw.name,
+    slug: raw.slug,
 
     prefecture_id: raw.prefectures?.id ?? null,
     prefecture_label: raw.prefectures?.name ?? null,

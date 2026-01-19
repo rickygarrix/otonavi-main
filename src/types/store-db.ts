@@ -32,6 +32,7 @@ export type StoreRow = {
   name: string;
   kana: string | null;
   updated_at: string;
+  slug: string;
 
   // ===== Text / Info =====
   description: string | null;

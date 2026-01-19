@@ -50,6 +50,7 @@ export function normalizeSearchStore(raw: StoreRow): SearchStore {
   return {
     id: raw.id,
     name: raw.name,
+    slug: raw.slug,
     kana: raw.kana,
 
     prefecture_id: raw.prefectures?.id ?? null,

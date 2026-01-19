@@ -32,7 +32,12 @@ export function useStoresForSearch(
         .from('stores')
         .select(
           `
-          *,
+          id,
+          slug,
+          name,
+          kana,
+          updated_at,
+
           prefectures ( id, name ),
           cities ( id, name ),
           venue_types ( id, label ),
@@ -50,6 +55,7 @@ export function useStoresForSearch(
           store_amenities ( amenities ( key, label ) ),
           store_event_trends ( event_trends ( key, label ) ),
           store_payment_methods ( payment_methods ( key, label ) ),
+
           store_images:store_images!store_images_store_id_fkey (
             image_url,
             order_num

@@ -12,14 +12,14 @@ import LoadingOverlay from '@/components/ui/LoadingOverlay';
 
 export default function StoreDetailPage() {
   const params = useParams();
-  const storeId = params?.id as string | undefined;
+  const slug = params?.slug as string | undefined;
 
   const [store, setStore] = useState<HomeStore | null>(null);
   const [dataLoading, setDataLoading] = useState(true);
   const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
-    if (!storeId) return;
+    if (!slug) return;
 
     const load = async () => {
       setDataLoading(true);
@@ -48,7 +48,8 @@ export default function StoreDetailPage() {
 
           mentions:mentions!mentions_store_id_fkey(*)
         `)
-        .eq('id', storeId)
+        .eq('slug', slug)
+        .eq('is_active', true)
         .maybeSingle();
 
       if (error || !data) {
@@ -63,7 +64,7 @@ export default function StoreDetailPage() {
     };
 
     load();
-  }, [storeId]);
+  }, [slug]);
 
   return (
     <div className="relative -mt-20 bg-white">
