@@ -2,11 +2,22 @@
 import type { StoreRow } from '@/types/store-db';
 import type { HomeStore } from '@/types/store';
 
-const asString = (v: unknown): string | null => (typeof v === 'string' ? v : null);
+/* =========================
+   utils
+========================= */
 
-const asNumber = (v: unknown): number | null => (typeof v === 'number' ? v : null);
+const asString = (v: unknown): string | null =>
+  typeof v === 'string' ? v : null;
 
-const asArray = <T>(v: unknown): T[] => (Array.isArray(v) ? (v as T[]) : []);
+const asNumber = (v: unknown): number | null =>
+  typeof v === 'number' ? v : null;
+
+const asArray = <T>(v: unknown): T[] =>
+  Array.isArray(v) ? (v as T[]) : [];
+
+/* =========================
+   M2M helpers
+========================= */
 
 type DefinitionRef = {
   key?: unknown;
@@ -16,7 +27,10 @@ type DefinitionRef = {
 
 type M2MRow = Record<string, DefinitionRef | undefined>;
 
-function extractM2MOrdered(list: unknown, defKey: string): { keys: string[]; labels: string[] } {
+function extractM2MOrdered(
+  list: unknown,
+  defKey: string,
+): { keys: string[]; labels: string[] } {
   if (!Array.isArray(list)) {
     return { keys: [], labels: [] };
   }
@@ -30,7 +44,9 @@ function extractM2MOrdered(list: unknown, defKey: string): { keys: string[]; lab
         key: string;
         label: string;
         sort_order?: number;
-      } => typeof d?.key === 'string' && typeof d?.label === 'string',
+      } =>
+        typeof d?.key === 'string' &&
+        typeof d?.label === 'string',
     )
     .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
 
@@ -40,70 +56,82 @@ function extractM2MOrdered(list: unknown, defKey: string): { keys: string[]; lab
   };
 }
 
+/* =========================
+   image helper
+========================= */
+
 function selectImage(store_images: StoreRow['store_images']): string {
   if (!store_images?.length) return '/noshop.svg';
 
-  const sorted = [...store_images].sort((a, b) => (a.order_num ?? 999) - (b.order_num ?? 999));
+  const sorted = [...store_images].sort(
+    (a, b) => (a.order_num ?? 999) - (b.order_num ?? 999),
+  );
 
   return sorted[0]?.image_url ?? '/noshop.svg';
 }
 
-type StoreAwardRow = {
+/* =========================
+   mentions
+========================= */
+
+type MentionRow = {
   id?: unknown;
-  title?: unknown;
-  organization?: unknown;
+  text?: unknown;
   year?: unknown;
-  url?: unknown;
+  is_active?: unknown;
 };
 
-type StoreMediaRow = {
-  id?: unknown;
-  media_name?: unknown;
-  year?: unknown;
-};
+/* =========================
+   normalize
+========================= */
 
 export function normalizeStoreDetail(raw: StoreRow): HomeStore {
-  const store_awards = asArray<StoreAwardRow>(raw.store_awards).map((a) => ({
-    id: String(a.id ?? ''),
-    title: String(a.title ?? ''),
-    organization: asString(a.organization),
-    year: asNumber(a.year),
-    url: asString(a.url),
-  }));
-
-  const store_media_mentions = asArray<StoreMediaRow>(raw.store_media_mentions).map((m) => ({
-    id: String(m.id ?? ''),
-    media_name: String(m.media_name ?? ''),
-    year: asNumber(m.year),
-  }));
+  const mentions = asArray<MentionRow>(raw.mentions)
+    .filter((m) => m.is_active === true)
+    .map((m) => ({
+      id: String(m.id ?? ''),
+      text: String(m.text ?? ''),
+      year: asNumber(m.year),
+    }));
 
   const drinks = extractM2MOrdered(raw.store_drinks, 'drinks');
 
   return {
+    /* ========= basic ========= */
     id: raw.id,
     name: raw.name,
     kana: raw.kana,
 
+    /* ========= location ========= */
     prefecture_id: raw.prefectures?.id ?? null,
     prefecture_label: raw.prefectures?.name ?? null,
 
     city_id: raw.cities?.id ?? null,
     city_label: raw.cities?.name ?? null,
 
+    /* ========= type ========= */
     venue_type_id: raw.venue_types?.id ?? null,
     type_label: raw.venue_types?.label ?? null,
 
+    /* ========= price / size ========= */
     price_range_key: raw.price_ranges?.key ?? null,
     price_range_label: raw.price_ranges?.label ?? null,
 
-    payment_method_keys: extractM2MOrdered(raw.store_payment_methods, 'payment_methods')
-      .keys,
+    size_key: raw.sizes?.key ?? null,
+    size_label: raw.sizes?.label ?? null,
+
+    /* ========= payment ========= */
+    payment_method_keys: extractM2MOrdered(
+      raw.store_payment_methods,
+      'payment_methods',
+    ).keys,
     payment_method_labels: extractM2MOrdered(
       raw.store_payment_methods,
       'payment_methods',
     ).labels,
     other_payment_method: raw.other_payment_method,
 
+    /* ========= media ========= */
     image_url: selectImage(raw.store_images),
     description: raw.description,
 
@@ -113,46 +141,92 @@ export function normalizeStoreDetail(raw: StoreRow): HomeStore {
     tiktok_url: raw.tiktok_url,
     official_site_url: raw.official_site_url,
 
+    /* ========= access ========= */
     access: raw.access,
     place_id: raw.place_id,
     address: raw.address,
-    postsort_order: raw.postsort_order,
+    postcode: raw.postcode,
     business_hours: raw.business_hours,
 
-    hasAward: store_awards.length > 0,
-    hasMedia: store_media_mentions.length > 0,
-    store_awards,
-    store_media_mentions,
+    /* ========= mentions ========= */
+    hasMentions: mentions.length > 0,
+    mentions,
 
-    event_trend_keys: extractM2MOrdered(raw.store_event_trends, 'event_trends').keys,
-    event_trend_labels: extractM2MOrdered(raw.store_event_trends, 'event_trends').labels,
+    /* ========= M2M ========= */
+    event_trend_keys: extractM2MOrdered(
+      raw.store_event_trends,
+      'event_trends',
+    ).keys,
+    event_trend_labels: extractM2MOrdered(
+      raw.store_event_trends,
+      'event_trends',
+    ).labels,
 
-    baggage_keys: extractM2MOrdered(raw.store_luggages, 'luggages').keys,
-    baggage_labels: extractM2MOrdered(raw.store_luggages, 'luggages').labels,
+    baggage_keys: extractM2MOrdered(
+      raw.store_luggages,
+      'luggages',
+    ).keys,
+    baggage_labels: extractM2MOrdered(
+      raw.store_luggages,
+      'luggages',
+    ).labels,
 
-    toilet_keys: extractM2MOrdered(raw.store_toilets, 'toilets').keys,
-    toilet_labels: extractM2MOrdered(raw.store_toilets, 'toilets').labels,
+    toilet_keys: extractM2MOrdered(
+      raw.store_toilets,
+      'toilets',
+    ).keys,
+    toilet_labels: extractM2MOrdered(
+      raw.store_toilets,
+      'toilets',
+    ).labels,
 
-    smoking_keys: extractM2MOrdered(raw.store_smoking_policies, 'smoking_policies').keys,
-    smoking_labels: extractM2MOrdered(raw.store_smoking_policies, 'smoking_policies').labels,
+    smoking_keys: extractM2MOrdered(
+      raw.store_smoking_policies,
+      'smoking_policies',
+    ).keys,
+    smoking_labels: extractM2MOrdered(
+      raw.store_smoking_policies,
+      'smoking_policies',
+    ).labels,
 
-    environment_keys: extractM2MOrdered(raw.store_environments, 'environments').keys,
-    environment_labels: extractM2MOrdered(raw.store_environments, 'environments').labels,
+    environment_keys: extractM2MOrdered(
+      raw.store_environments,
+      'environments',
+    ).keys,
+    environment_labels: extractM2MOrdered(
+      raw.store_environments,
+      'environments',
+    ).labels,
 
-    other_keys: extractM2MOrdered(raw.store_amenities, 'amenities').keys,
-    other_labels: extractM2MOrdered(raw.store_amenities, 'amenities').labels,
+    other_keys: extractM2MOrdered(
+      raw.store_amenities,
+      'amenities',
+    ).keys,
+    other_labels: extractM2MOrdered(
+      raw.store_amenities,
+      'amenities',
+    ).labels,
 
-    customer_keys: extractM2MOrdered(raw.store_audience_types, 'audience_types').keys,
-    customer_labels: extractM2MOrdered(raw.store_audience_types, 'audience_types').labels,
+    customer_keys: extractM2MOrdered(
+      raw.store_audience_types,
+      'audience_types',
+    ).keys,
+    customer_labels: extractM2MOrdered(
+      raw.store_audience_types,
+      'audience_types',
+    ).labels,
 
-    atmosphere_keys: extractM2MOrdered(raw.store_atmospheres, 'atmospheres').keys,
-    atmosphere_labels: extractM2MOrdered(raw.store_atmospheres, 'atmospheres').labels,
+    atmosphere_keys: extractM2MOrdered(
+      raw.store_atmospheres,
+      'atmospheres',
+    ).keys,
+    atmosphere_labels: extractM2MOrdered(
+      raw.store_atmospheres,
+      'atmospheres',
+    ).labels,
 
     drink_keys: drinks.keys,
     drink_labels: drinks.labels,
-
-    size_key: raw.sizes?.key ?? null,
-    size_label: raw.sizes?.label ?? null,
 
     updated_at: raw.updated_at,
   };

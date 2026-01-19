@@ -38,7 +38,7 @@ export type StoreRow = {
   access: string | null;
   place_id: string | null;
   address: string | null;
-  postsort_order: string | null;
+  postcode: string | null;
   business_hours: string | null;
 
   // ===== SNS / Web =====
@@ -72,8 +72,6 @@ export type StoreRow = {
 
   // ===== Images =====
   store_images: StoreImageRow[];
+  mentions?: unknown[];
 
-  // ===== Optional =====
-  store_awards?: unknown[];
-  store_media_mentions?: unknown[];
 };

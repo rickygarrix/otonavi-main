@@ -2,17 +2,9 @@
 
 export type StoreType = 'club' | 'bar' | 'livehouse' | 'other';
 
-export type StoreAward = {
+export type StoreMention = {
   id: string;
-  title: string;
-  organization: string | null;
-  year: number | null;
-  url: string | null;
-};
-
-export type StoreMediaMention = {
-  id: string;
-  media_name: string;
+  text: string;
   year: number | null;
 };
 
@@ -49,13 +41,11 @@ export type HomeStore = {
   access: string | null;
   place_id: string | null;
   address: string | null;
-  postsort_order: string | null;
+  postcode: string | null;
   business_hours: string | null;
 
-  hasAward: boolean;
-  hasMedia: boolean;
-  store_awards: StoreAward[];
-  store_media_mentions: StoreMediaMention[];
+  hasMentions: boolean;
+  mentions: StoreMention[];
 
   event_trend_keys: string[];
   event_trend_labels: string[];
