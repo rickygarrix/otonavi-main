@@ -56,7 +56,7 @@ export function noindex(partial: Metadata): Metadata {
 }
 
 // 静的ページ用
-export function staticPage(opts: { title: string; path: string; description?: string }): Metadata {
+export function staticMeta(opts: { title: string; path: string; description?: string }): Metadata {
   const url = new URL(opts.path, SITE_URL).toString();
   const title = `${opts.title}｜${SITE_NAME}`;
   const description = opts.description ?? SITE_DESC;
@@ -71,11 +71,8 @@ export function staticPage(opts: { title: string; path: string; description?: st
 }
 
 // 検索結果ページのクエリは無視して正規化
-export function storesSearch(opts: { filters: string[]; storeTypeId?: string }): Metadata {
-  const title =
-    !opts.filters.length && !opts.storeTypeId
-      ? `検索結果｜${SITE_NAME}`
-      : `条件付き検索結果｜${SITE_NAME}`;
+export function storesMeta(opts: { filters: string[]; storeTypeId?: string }): Metadata {
+  const title = !opts.filters.length && !opts.storeTypeId ? '検索結果' : '条件付き検索結果';
 
   const description =
     'オトナビの検索結果一覧。エリアやこだわり条件で音箱（クラブ・バー・ライブハウス等）を探せます。';
