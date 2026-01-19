@@ -1,8 +1,10 @@
+// src/hooks/store/useStoresForSearch.ts
 'use client';
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import type { SearchStore } from '@/types/store';
+import type { SearchStoreRow } from '@/types/store-db';
 import { normalizeSearchStore } from '@/lib/normalize/normalizeSearchStore';
 
 type UseStoresForSearchOptions = {
@@ -42,19 +44,19 @@ export function useStoresForSearch(
           cities ( id, name ),
           venue_types ( id, label ),
 
-          price_ranges ( key, label ),
-          sizes ( key, label ),
+          price_ranges ( key ),
+          sizes ( key ),
 
-          store_audience_types ( audience_types ( key, label ) ),
-          store_atmospheres ( atmospheres ( key, label ) ),
-          store_drinks ( drinks ( key, label, sort_order ) ),
-          store_luggages ( luggages ( key, label ) ),
-          store_toilets ( toilets ( key, label ) ),
-          store_smoking_policies ( smoking_policies ( key, label ) ),
-          store_environments ( environments ( key, label ) ),
-          store_amenities ( amenities ( key, label ) ),
-          store_event_trends ( event_trends ( key, label ) ),
-          store_payment_methods ( payment_methods ( key, label ) ),
+          store_audience_types ( audience_types ( key ) ),
+          store_atmospheres ( atmospheres ( key ) ),
+          store_drinks ( drinks ( key, sort_order ) ),
+          store_luggages ( luggages ( key ) ),
+          store_toilets ( toilets ( key ) ),
+          store_smoking_policies ( smoking_policies ( key ) ),
+          store_environments ( environments ( key ) ),
+          store_amenities ( amenities ( key ) ),
+          store_event_trends ( event_trends ( key ) ),
+          store_payment_methods ( payment_methods ( key ) ),
 
           store_images:store_images!store_images_store_id_fkey (
             image_url,
@@ -63,7 +65,8 @@ export function useStoresForSearch(
         `
         )
         .eq('is_active', true)
-        .order('updated_at', { ascending: false });
+        .order('updated_at', { ascending: false })
+        .returns<SearchStoreRow[]>();
 
       if (!mounted) return;
 

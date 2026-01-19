@@ -1,6 +1,6 @@
 // src/lib/searchStores.ts
 import { supabase } from '@/lib/supabase';
-import type { StoreRow } from '@/types/store-db';
+import type { SearchStoreRow } from '@/types/store-db';
 import type { SearchStore } from '@/types/store';
 import { normalizeSearchStore } from '@/lib/normalize/normalizeSearchStore';
 
@@ -38,8 +38,7 @@ export async function searchStores({
 }: SearchParams): Promise<SearchStore[]> {
   /**
    * =========================
-   * ① ベースクエリ
-   * useStoresForSearch と完全一致
+   * ① ベースクエリ（検索用）
    * =========================
    */
   let query = supabase
@@ -84,7 +83,7 @@ export async function searchStores({
 
   /**
    * =========================
-   * ② stores 直カラム
+   * ② 直カラム条件
    * =========================
    */
   if (storeTypeId) query = query.eq('venue_type_id', storeTypeId);
@@ -170,10 +169,12 @@ export async function searchStores({
    * ⑤ 実行 & normalize
    * =========================
    */
-  const { data, error } = await query.order('updated_at', { ascending: false });
+  const { data, error } = await query
+    .order('updated_at', { ascending: false })
+    .returns<SearchStoreRow[]>();
 
   if (error) throw error;
   if (!data) return [];
 
-  return (data as StoreRow[]).map(normalizeSearchStore);
+  return data.map(normalizeSearchStore);
 }
