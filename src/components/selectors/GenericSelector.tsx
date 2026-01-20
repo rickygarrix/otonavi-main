@@ -243,20 +243,42 @@ export default function GenericSelector({
   ========================= */
   const renderList = (list: MasterRow[], cols: 2 | 3) => (
     <ul className={`grid ${cols === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
-      {list.map((item) => (
-        <li key={item.key}>
-          <div
-            onTouchStart={(e) => onTouchStart(item.hint, e.currentTarget)}
-            onTouchMove={onTouchMove}
-            onTouchEnd={onTouchEnd}
-            onTouchCancel={onTouchEnd}
-            onMouseEnter={(e) => onMouseEnter(item.hint, e.currentTarget)}
-            onMouseLeave={onMouseLeave}
-          >
-            <Chip label={item.label} selected={isSelected(item.key)} hinted={enableHint && !!item.hint} onChange={() => toggle(item.key)} />
-          </div>
-        </li>
-      ))}
+      {list.map((item) => {
+        const hinted = enableHint && !!item.hint;
+
+        return (
+          <li key={item.key}>
+            <div
+              // テキスト選択抑止（Tailwind）
+              className={hinted ? 'select-none touch-pan-y' : undefined}
+              // iOSの長押しコールアウト/選択を抑止（保険で userSelect も）
+              style={
+                hinted
+                  ? ({
+                    WebkitTouchCallout: 'none',
+                    WebkitUserSelect: 'none',
+                    userSelect: 'none',
+                  } as React.CSSProperties)
+                  : undefined
+              }
+              // OS/ブラウザのコンテキストメニューを潰す
+              onContextMenu={(e) => {
+                if (!hinted) return;
+                e.preventDefault();
+              }}
+
+              onTouchStart={(e) => onTouchStart(item.hint, e.currentTarget)}
+              onTouchMove={onTouchMove}
+              onTouchEnd={onTouchEnd}
+              onTouchCancel={onTouchEnd}
+              onMouseEnter={(e) => onMouseEnter(item.hint, e.currentTarget)}
+              onMouseLeave={onMouseLeave}
+            >
+              <Chip label={item.label} selected={isSelected(item.key)} hinted={enableHint && !!item.hint} onChange={() => toggle(item.key)} />
+            </div>
+          </li>
+        )
+      })}
     </ul>
   );
 
