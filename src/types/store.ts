@@ -2,17 +2,9 @@
 
 export type StoreType = 'club' | 'bar' | 'livehouse' | 'other';
 
-export type StoreAward = {
+export type StoreMention = {
   id: string;
-  title: string;
-  organization: string | null;
-  year: number | null;
-  url: string | null;
-};
-
-export type StoreMediaMention = {
-  id: string;
-  media_name: string;
+  text: string;
   year: number | null;
 };
 
@@ -20,6 +12,7 @@ export type HomeStore = {
   id: string;
   name: string;
   kana: string | null;
+  slug: string;
 
   prefecture_id: string | null;
   prefecture_label: string | null;
@@ -49,13 +42,11 @@ export type HomeStore = {
   access: string | null;
   place_id: string | null;
   address: string | null;
-  postsort_order: string | null;
+  postcode: string | null;
   business_hours: string | null;
 
-  hasAward: boolean;
-  hasMedia: boolean;
-  store_awards: StoreAward[];
-  store_media_mentions: StoreMediaMention[];
+  hasMentions: boolean;
+  mentions: StoreMention[];
 
   event_trend_keys: string[];
   event_trend_labels: string[];
@@ -93,6 +84,7 @@ export type HomeStore = {
 export type HomeStoreLite = {
   id: string;
   name: string;
+  slug: string;
 
   prefecture_id: string | null;
   prefecture_label: string | null;
@@ -109,6 +101,7 @@ export type HomeStoreLite = {
 
 export type SearchStore = {
   id: string;
+  slug: string;
   name: string;
   kana: string | null;
 
@@ -123,7 +116,6 @@ export type SearchStore = {
 
   image_url: string;
 
-  /* 検索・絞り込み用 */
   price_range_key: string | null;
   size_key: string | null;
 

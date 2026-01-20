@@ -1,6 +1,10 @@
 // src/types/store-db.ts
 import type { DefinitionKV } from './common';
 
+/* =========================
+   Basic FK rows
+========================= */
+
 export type IdLabelRow = {
   id: string;
   label: string;
@@ -16,19 +20,32 @@ export type PrefectureRow = {
   name: string;
 };
 
+/* =========================
+   Image
+========================= */
+
 export type StoreImageRow = {
   image_url: string | null;
   is_main: boolean | null;
   order_num: number | null;
 };
 
+/* =========================
+   M2M generic
+========================= */
+
 export type M2MRow<T extends string> = {
   [K in T]: DefinitionKV | null;
 };
 
+/* =========================
+   StoreRow（詳細ページ用・完全版）
+========================= */
+
 export type StoreRow = {
   // ===== Core =====
   id: string;
+  slug: string;
   name: string;
   kana: string | null;
   updated_at: string;
@@ -38,7 +55,7 @@ export type StoreRow = {
   access: string | null;
   place_id: string | null;
   address: string | null;
-  postsort_order: string | null;
+  postcode: string | null;
   business_hours: string | null;
 
   // ===== SNS / Web =====
@@ -73,7 +90,46 @@ export type StoreRow = {
   // ===== Images =====
   store_images: StoreImageRow[];
 
-  // ===== Optional =====
-  store_awards?: unknown[];
-  store_media_mentions?: unknown[];
+  // ===== Mentions =====
+  mentions?: unknown[];
+};
+
+/* =========================
+   SearchStoreRow（検索・一覧用）
+   ★ useStoresForSearch / searchStores 専用
+========================= */
+
+export type SearchStoreRow = {
+  // ===== Core =====
+  id: string;
+  slug: string;
+  name: string;
+  kana: string | null;
+  updated_at: string;
+
+  // ===== Location =====
+  prefectures: PrefectureRow | null;
+  cities: IdNameRow | null;
+
+  // ===== Type =====
+  venue_types: IdLabelRow | null;
+
+  // ===== Size / Price =====
+  price_ranges: DefinitionKV | null;
+  sizes: DefinitionKV | null;
+
+  // ===== M:N（key だけ使う）=====
+  store_event_trends: M2MRow<'event_trends'>[];
+  store_luggages: M2MRow<'luggages'>[];
+  store_toilets: M2MRow<'toilets'>[];
+  store_smoking_policies: M2MRow<'smoking_policies'>[];
+  store_environments: M2MRow<'environments'>[];
+  store_amenities: M2MRow<'amenities'>[];
+  store_payment_methods: M2MRow<'payment_methods'>[];
+  store_audience_types: M2MRow<'audience_types'>[];
+  store_atmospheres: M2MRow<'atmospheres'>[];
+  store_drinks: M2MRow<'drinks'>[];
+
+  // ===== Images =====
+  store_images: StoreImageRow[];
 };

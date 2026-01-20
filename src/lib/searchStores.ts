@@ -1,6 +1,6 @@
 // src/lib/searchStores.ts
 import { supabase } from '@/lib/supabase';
-import type { StoreRow } from '@/types/store-db';
+import type { SearchStoreRow } from '@/types/store-db';
 import type { SearchStore } from '@/types/store';
 import { normalizeSearchStore } from '@/lib/normalize/normalizeSearchStore';
 
@@ -18,56 +18,16 @@ type FilterConfig = {
 };
 
 const FILTER_MAP: FilterConfig[] = [
-  {
-    definitionTable: 'atmospheres',
-    middleTable: 'store_atmospheres',
-    definitionIdColumn: 'atmosphere_id',
-  },
-  {
-    definitionTable: 'event_trends',
-    middleTable: 'store_event_trends',
-    definitionIdColumn: 'event_trend_id',
-  },
-  {
-    definitionTable: 'drinks',
-    middleTable: 'store_drinks',
-    definitionIdColumn: 'drink_id',
-  },
-  {
-    definitionTable: 'payment_methods',
-    middleTable: 'store_payment_methods',
-    definitionIdColumn: 'payment_method_id',
-  },
-  {
-    definitionTable: 'smoking_policies',
-    middleTable: 'store_smoking_policies',
-    definitionIdColumn: 'smoking_id',
-  },
-  {
-    definitionTable: 'toilets',
-    middleTable: 'store_toilets',
-    definitionIdColumn: 'toilet_id',
-  },
-  {
-    definitionTable: 'environments',
-    middleTable: 'store_environments',
-    definitionIdColumn: 'environment_id',
-  },
-  {
-    definitionTable: 'luggages',
-    middleTable: 'store_luggages',
-    definitionIdColumn: 'baggage_id',
-  },
-  {
-    definitionTable: 'audience_types',
-    middleTable: 'store_audience_types',
-    definitionIdColumn: 'customer_id',
-  },
-  {
-    definitionTable: 'amenities',
-    middleTable: 'store_amenities',
-    definitionIdColumn: 'other_id',
-  },
+  { definitionTable: 'atmospheres', middleTable: 'store_atmospheres', definitionIdColumn: 'atmosphere_id' },
+  { definitionTable: 'event_trends', middleTable: 'store_event_trends', definitionIdColumn: 'event_trend_id' },
+  { definitionTable: 'drinks', middleTable: 'store_drinks', definitionIdColumn: 'drink_id' },
+  { definitionTable: 'payment_methods', middleTable: 'store_payment_methods', definitionIdColumn: 'payment_method_id' },
+  { definitionTable: 'smoking_policies', middleTable: 'store_smoking_policies', definitionIdColumn: 'smoking_id' },
+  { definitionTable: 'toilets', middleTable: 'store_toilets', definitionIdColumn: 'toilet_id' },
+  { definitionTable: 'environments', middleTable: 'store_environments', definitionIdColumn: 'environment_id' },
+  { definitionTable: 'luggages', middleTable: 'store_luggages', definitionIdColumn: 'baggage_id' },
+  { definitionTable: 'audience_types', middleTable: 'store_audience_types', definitionIdColumn: 'customer_id' },
+  { definitionTable: 'amenities', middleTable: 'store_amenities', definitionIdColumn: 'other_id' },
 ];
 
 export async function searchStores({
@@ -78,21 +38,29 @@ export async function searchStores({
 }: SearchParams): Promise<SearchStore[]> {
   /**
    * =========================
-   * ① ベースクエリ（★重要）
-   * useStoresForSearch と完全一致
+   * ① ベースクエリ（検索用）
    * =========================
    */
   let query = supabase
     .from('stores')
     .select(
       `
-      *,
+      id,
+      slug,
+      name,
+      kana,
+      updated_at,
+
+      prefecture_id,
+      city_id,
+      venue_type_id,
+
       prefectures ( id, name ),
       cities ( id, name ),
       venue_types ( id, label ),
 
       price_ranges ( key ),
-      size_id ( key ),
+      sizes ( key ),
 
       store_audience_types ( audience_types ( key ) ),
       store_atmospheres ( atmospheres ( key ) ),
@@ -109,18 +77,20 @@ export async function searchStores({
         image_url,
         order_num
       )
-      `,
+      `
     )
     .eq('is_active', true);
 
   /**
    * =========================
-   * ② stores 直カラム
+   * ② 直カラム条件
    * =========================
    */
   if (storeTypeId) query = query.eq('venue_type_id', storeTypeId);
   if (prefectureId) query = query.eq('prefecture_id', prefectureId);
-  if (prefectureId && cityIds.length > 0) query = query.in('city_id', cityIds);
+  if (prefectureId && cityIds.length > 0) {
+    query = query.in('city_id', cityIds);
+  }
 
   /**
    * =========================
@@ -137,7 +107,7 @@ export async function searchStores({
     if (sizeDefs?.length) {
       query = query.in(
         'size_id',
-        sizeDefs.map((s) => s.id),
+        sizeDefs.map((s) => s.id)
       );
     }
 
@@ -150,7 +120,7 @@ export async function searchStores({
     if (priceDefs?.length) {
       query = query.in(
         'price_range_id',
-        priceDefs.map((p) => p.id),
+        priceDefs.map((p) => p.id)
       );
     }
   }
@@ -199,10 +169,12 @@ export async function searchStores({
    * ⑤ 実行 & normalize
    * =========================
    */
-  const { data, error } = await query.order('updated_at', { ascending: false });
+  const { data, error } = await query
+    .order('updated_at', { ascending: false })
+    .returns<SearchStoreRow[]>();
 
   if (error) throw error;
   if (!data) return [];
 
-  return (data as StoreRow[]).map(normalizeSearchStore);
+  return data.map(normalizeSearchStore);
 }

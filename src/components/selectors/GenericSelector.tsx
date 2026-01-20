@@ -1,9 +1,8 @@
 'use client';
 
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import Chip from '@/components/ui/Chip';
-import type { GenericMaster } from '@/types/master';
 
 /* =========================
    Types
@@ -35,6 +34,18 @@ type TooltipState = {
   y: number;
 };
 
+/**
+ * DBから取れる「マスター1行」の最小セット
+ * ※ GenericMaster の `table` はここでは不要＆DBから返らないので使わない
+ */
+type MasterRow = {
+  id: string;
+  key: string;
+  label: string;
+  sort_order: number | null;
+  hint?: string | null;
+};
+
 /* =========================
    Utils
 ========================= */
@@ -56,7 +67,7 @@ export default function GenericSelector({
   clearKey,
   variant = 'default',
 }: Props) {
-  const [items, setItems] = useState<(GenericMaster & { hint?: string | null })[]>([]);
+  const [items, setItems] = useState<MasterRow[]>([]);
   const [selected, setSelected] = useState<string[] | string | null>(
     selection === 'single' ? null : [],
   );
@@ -69,36 +80,45 @@ export default function GenericSelector({
   const hoverTimer = useRef<number | null>(null);
   const isTouchingRef = useRef(false);
 
-  const enableDescription =
-    table === 'sizes' ||
-    table === 'price_ranges' ||
-    table === 'luggages';
+  const enableHint =
+    table === 'sizes' || table === 'price_ranges' || table === 'luggages';
 
   /* =========================
      Data fetch
   ========================= */
   useEffect(() => {
     const load = async () => {
-      const selectColumns = enableDescription
-        ? 'id, key, label, sort_order, hint'
-        : 'id, key, label, sort_order';
+      if (enableHint) {
+        const { data, error } = await supabase
+          .from(table)
+          .select('id, key, label, sort_order, hint')
+          .eq('is_active', true)
+          .order('sort_order', { ascending: true });
 
-      const { data, error } = await supabase
-        .from(table)
-        .select(selectColumns)
-        .eq('is_active', true)
-        .order('sort_order', { ascending: true });
+        if (error) {
+          console.error(`GenericSelector load error (${table})`, error);
+          return;
+        }
 
-      if (error) {
-        console.error(`GenericSelector load error (${table}):`, error);
-        return;
+        setItems((data ?? []) as MasterRow[]);
+      } else {
+        const { data, error } = await supabase
+          .from(table)
+          .select('id, key, label, sort_order')
+          .eq('is_active', true)
+          .order('sort_order', { ascending: true });
+
+        if (error) {
+          console.error(`GenericSelector load error (${table})`, error);
+          return;
+        }
+
+        setItems((data ?? []) as MasterRow[]);
       }
-
-      setItems((data ?? []) as (GenericMaster & { hint?: string | null })[]);
     };
 
     load();
-  }, [table, enableDescription]);
+  }, [table, enableHint]);
 
   /* =========================
      Clear selection
@@ -127,10 +147,7 @@ export default function GenericSelector({
     }
 
     const prev = Array.isArray(selected) ? selected : [];
-    const next = prev.includes(key)
-      ? prev.filter((v) => v !== key)
-      : [...prev, key];
-
+    const next = prev.includes(key) ? prev.filter((v) => v !== key) : [...prev, key];
     setSelected(next);
     onChange?.(next);
   };
@@ -145,7 +162,7 @@ export default function GenericSelector({
   ========================= */
   const { normalItems, specialItems } = useMemo(() => {
     if (variant !== 'drink') {
-      return { normalItems: items, specialItems: [] };
+      return { normalItems: items, specialItems: [] as MasterRow[] };
     }
 
     return {
@@ -181,11 +198,8 @@ export default function GenericSelector({
   /* =========================
      Touch / Mouse handlers
   ========================= */
-  const onTouchStart = (
-    hint: string | null | undefined,
-    target: HTMLElement,
-  ) => {
-    if (!enableDescription || !hint) return;
+  const onTouchStart = (hint: string | null | undefined, target: HTMLElement) => {
+    if (!enableHint || !hint) return;
 
     isTouchingRef.current = true;
     clearAllTimers();
@@ -208,12 +222,9 @@ export default function GenericSelector({
     }, 50);
   };
 
-  const onMouseEnter = (
-    hint: string | null | undefined,
-    target: HTMLElement,
-  ) => {
+  const onMouseEnter = (hint: string | null | undefined, target: HTMLElement) => {
     if (isTouchingRef.current) return;
-    if (!enableDescription || !hint) return;
+    if (!enableHint || !hint) return;
 
     clearAllTimers();
 
@@ -230,7 +241,7 @@ export default function GenericSelector({
   /* =========================
      UI helpers
   ========================= */
-  const renderList = (list: typeof items, cols: 2 | 3) => (
+  const renderList = (list: MasterRow[], cols: 2 | 3) => (
     <ul className={`grid ${cols === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
       {list.map((item) => (
         <li key={item.key}>
@@ -242,11 +253,7 @@ export default function GenericSelector({
             onMouseEnter={(e) => onMouseEnter(item.hint, e.currentTarget)}
             onMouseLeave={onMouseLeave}
           >
-            <Chip
-              label={item.label}
-              selected={isSelected(item.key)}
-              onChange={() => toggle(item.key)}
-            />
+            <Chip label={item.label} selected={isSelected(item.key)} onChange={() => toggle(item.key)} />
           </div>
         </li>
       ))}
@@ -258,9 +265,7 @@ export default function GenericSelector({
   ========================= */
   return (
     <>
-      <h3 className="text-md text-dark-5 leading-[1.5] font-bold tracking-widest">
-        {title}
-      </h3>
+      <h3 className="text-md text-dark-5 leading-[1.5] font-bold tracking-widest">{title}</h3>
 
       {variant === 'drink' ? (
         <div>

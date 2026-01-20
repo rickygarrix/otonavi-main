@@ -13,10 +13,12 @@ export default function StoreCard({ store, query }: Props) {
   const router = useRouter();
 
   const handleClick = () => {
+    const base = `/stores/${store.slug}`;
+
     if (query && query.trim() !== '') {
-      router.push(`/stores/${store.id}?${query}`);
+      router.push(`${base}?${query}`);
     } else {
-      router.push(`/stores/${store.id}`);
+      router.push(base);
     }
   };
 
