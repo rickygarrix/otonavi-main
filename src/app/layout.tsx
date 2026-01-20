@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
 import ServiceWorkerRegister from './_pwa/ServiceWorkerRegister';
-import { baseMetadata } from '@/lib/metadata';
+import { baseMetadata, baseViewport } from '@/lib/metadata';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -17,7 +17,8 @@ const geistMono = Geist_Mono({
 
 const GA_ID = 'G-WEZPMCLCSW';
 
-export const metadata = baseMetadata;
+export const metadata: Metadata = baseMetadata;
+export const viewport: Viewport = baseViewport;
 
 export default function RootLayout({
   children,
@@ -29,12 +30,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} bg-light-1 text-dark-5 mx-auto w-full max-w-105 antialiased`}
       >
-        {/* ★ PWA判定用（超重要） */}
         <ServiceWorkerRegister />
 
         {children}
 
-        {/* Google Analytics */}
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
           strategy="afterInteractive"
