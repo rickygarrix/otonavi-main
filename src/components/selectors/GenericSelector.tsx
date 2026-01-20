@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import Tooltip from '@/components/ui/Tooltip';
 import Chip from '@/components/ui/Chip';
 
 /* =========================
@@ -27,12 +28,6 @@ type MultiProps = BaseProps & {
 };
 
 type Props = SingleProps | MultiProps;
-
-type TooltipState = {
-  text: string;
-  x: number;
-  y: number;
-};
 
 /**
  * DBから取れる「マスター1行」の最小セット
@@ -75,13 +70,8 @@ export default function GenericSelector({
   /* =========================
      Tooltip state
   ========================= */
-  const [tooltip, setTooltip] = useState<TooltipState | null>(null);
-  const pressTimer = useRef<number | null>(null);
-  const hoverTimer = useRef<number | null>(null);
-  const isTouchingRef = useRef(false);
-
   const enableHint =
-    table === 'sizes' || table === 'price_ranges' || table === 'luggages';
+    table === 'sizes' || table === 'price_ranges' || table === 'luggages' || table === 'smoking_policies';
 
   /* =========================
      Data fetch
@@ -172,110 +162,24 @@ export default function GenericSelector({
   }, [items, variant]);
 
   /* =========================
-     Tooltip helpers
-  ========================= */
-  const getAnchorPoint = (el: HTMLElement) => {
-    const rect = el.getBoundingClientRect();
-    return {
-      x: clamp(rect.left + rect.width / 2, 12, window.innerWidth - 12),
-      y: clamp(rect.top, 12, window.innerHeight - 12),
-    };
-  };
-
-  const showTooltipAtTargetTop = (text: string, target: HTMLElement) => {
-    const { x, y } = getAnchorPoint(target);
-    setTooltip({ text, x, y });
-  };
-
-  const hideTooltip = () => setTooltip(null);
-
-  const clearAllTimers = () => {
-    if (pressTimer.current) window.clearTimeout(pressTimer.current);
-    if (hoverTimer.current) window.clearTimeout(hoverTimer.current);
-    pressTimer.current = hoverTimer.current = null;
-  };
-
-  /* =========================
-     Touch / Mouse handlers
-  ========================= */
-  const onTouchStart = (hint: string | null | undefined, target: HTMLElement) => {
-    if (!enableHint || !hint) return;
-
-    isTouchingRef.current = true;
-    clearAllTimers();
-
-    pressTimer.current = window.setTimeout(() => {
-      showTooltipAtTargetTop(hint, target);
-    }, 1000);
-  };
-
-  const onTouchMove = () => {
-    clearAllTimers();
-    hideTooltip();
-  };
-
-  const onTouchEnd = () => {
-    clearAllTimers();
-    hideTooltip();
-    setTimeout(() => {
-      isTouchingRef.current = false;
-    }, 50);
-  };
-
-  const onMouseEnter = (hint: string | null | undefined, target: HTMLElement) => {
-    if (isTouchingRef.current) return;
-    if (!enableHint || !hint) return;
-
-    clearAllTimers();
-
-    hoverTimer.current = window.setTimeout(() => {
-      showTooltipAtTargetTop(hint, target);
-    }, 1000);
-  };
-
-  const onMouseLeave = () => {
-    clearAllTimers();
-    hideTooltip();
-  };
-
-  /* =========================
      UI helpers
   ========================= */
   const renderList = (list: MasterRow[], cols: 2 | 3) => (
     <ul className={`grid ${cols === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
       {list.map((item) => {
         const hinted = enableHint && !!item.hint;
+        const chip = (
+          <Chip
+            label={item.label}
+            selected={isSelected(item.key)}
+            hinted={hinted}
+            onChange={() => toggle(item.key)}
+          />
+        );
 
         return (
           <li key={item.key}>
-            <div
-              // テキスト選択抑止（Tailwind）
-              className={hinted ? 'select-none touch-pan-y' : undefined}
-              // iOSの長押しコールアウト/選択を抑止（保険で userSelect も）
-              style={
-                hinted
-                  ? ({
-                    WebkitTouchCallout: 'none',
-                    WebkitUserSelect: 'none',
-                    userSelect: 'none',
-                  } as React.CSSProperties)
-                  : undefined
-              }
-              // OS/ブラウザのコンテキストメニューを潰す
-              onContextMenu={(e) => {
-                if (!hinted) return;
-                e.preventDefault();
-              }}
-
-              onTouchStart={(e) => onTouchStart(item.hint, e.currentTarget)}
-              onTouchMove={onTouchMove}
-              onTouchEnd={onTouchEnd}
-              onTouchCancel={onTouchEnd}
-              onMouseEnter={(e) => onMouseEnter(item.hint, e.currentTarget)}
-              onMouseLeave={onMouseLeave}
-            >
-              <Chip label={item.label} selected={isSelected(item.key)} hinted={enableHint && !!item.hint} onChange={() => toggle(item.key)} />
-            </div>
+            {hinted ? <Tooltip content={item.hint!}>{chip}</Tooltip> : chip}
           </li>
         )
       })}
@@ -296,28 +200,6 @@ export default function GenericSelector({
         </div>
       ) : (
         renderList(items, columns)
-      )}
-
-      {tooltip && (
-        <div
-          className="fixed z-50"
-          style={{
-            left: tooltip.x,
-            top: tooltip.y - 12,
-            transform: 'translate(-50%, -100%)',
-          }}
-        >
-          <div className="relative flex flex-col items-center">
-            <div className="max-w-[260px] rounded-full bg-dark-5 px-5 py-2 text-center text-xs text-white shadow-lg">
-              {tooltip.text}
-            </div>
-            <div
-              className="w-0 h-0 border-l-[8px] border-r-[8px] border-t-[6px]
-                         border-l-transparent border-r-transparent border-t-dark-5"
-              style={{ marginTop: '-1px' }}
-            />
-          </div>
-        </div>
       )}
     </>
   );
