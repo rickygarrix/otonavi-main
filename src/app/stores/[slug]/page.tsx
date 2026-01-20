@@ -36,5 +36,5 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default function Page({ params }: Props) {
-    return <StoreDetailClient slug={params.slug} />;
+    return <StoreClient slug={params.slug} />;
 }
