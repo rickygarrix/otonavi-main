@@ -58,9 +58,9 @@ export function useStoresForSearch(
           store_event_trends ( event_trends ( key ) ),
           store_payment_methods ( payment_methods ( key ) ),
 
-          store_images:store_images!store_images_store_id_fkey (
-            image_url,
-            sort_order
+          store_galleries:store_galleries!store_galleries_store_id_fkey (
+          gallery_url,
+          sort_order
           )
         `
         )

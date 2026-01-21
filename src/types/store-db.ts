@@ -24,8 +24,8 @@ export type PrefectureRow = {
    Image
 ========================= */
 
-export type StoreImageRow = {
-  image_url: string | null;
+export type StoreGalleryRow = {
+  gallery_url: string | null;
   is_main: boolean | null;
   sort_order: number | null;
 };
@@ -88,7 +88,7 @@ export type StoreRow = {
   store_drinks: M2MRow<'drinks'>[];
 
   // ===== Images =====
-  store_images: StoreImageRow[];
+  store_galleries: StoreGalleryRow[];
 
   // ===== Mentions =====
   mentions?: unknown[];
@@ -131,5 +131,5 @@ export type SearchStoreRow = {
   store_drinks: M2MRow<'drinks'>[];
 
   // ===== Images =====
-  store_images: StoreImageRow[];
+  store_galleries: StoreGalleryRow[];
 };

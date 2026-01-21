@@ -21,7 +21,7 @@ export async function generateMetadata(
   // meta 用：最小限の取得（重い join はしない）
   const { data } = await supabase
     .from('stores')
-    .select('name, slug, description, og_image_url, is_active')
+    .select('name, slug, description, og_gallery_url, is_active')
     .eq('slug', slug)
     .maybeSingle();
 
@@ -47,7 +47,7 @@ export async function generateMetadata(
       title: data.name,
       description: data.description ?? SITE_DESC,
       url: `${SITE_URL}/stores/${data.slug}`,
-      images: data.og_image_url ? [data.og_image_url] : [],
+      images: data.og_gallery_url ? [data.og_gallery_url] : [],
     },
   };
 }

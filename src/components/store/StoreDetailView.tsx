@@ -6,7 +6,7 @@ import type { HomeStore } from '@/types/store';
 import Footer from '@/components/ui/Footer';
 import BackToHomeButton from '@/components/ui/BackToHomeButton';
 
-import StoreImageCarousel from '@/components/store/StoreImageCarousel';
+import StoreGalleryCarousel from '@/components/store/StoreGalleryCarousel';
 import StoreBasicInfo from '@/components/store/StoreBasicInfo';
 import StoreAccess from '@/components/store/StoreAccess';
 import StoreOpenHours from '@/components/store/StoreOpenHours';
@@ -80,7 +80,7 @@ export default function StoreDetailView({ store, onMainImageLoaded }: Props) {
   return (
     <div className="bg-white">
       <main>
-        <StoreImageCarousel
+        <StoreGalleryCarousel
           storeId={store.id}
           storeName={store.name}
           onMainImageLoaded={onMainImageLoaded}

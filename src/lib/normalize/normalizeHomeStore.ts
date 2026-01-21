@@ -1,12 +1,12 @@
 import type { HomeStoreLite } from '@/types/store';
 import type { StoreRow } from '@/types/store-db';
 
-function selectImage(store_images: StoreRow['store_images']): string {
-  if (!store_images?.length) return '/noshop.svg';
+function selectImage(store_galleries: StoreRow['store_galleries']): string {
+  if (!store_galleries?.length) return '/noshop.svg';
 
-  const sorted = [...store_images].sort((a, b) => (a.sort_order?? 999) - (b.sort_order?? 999));
+  const sorted = [...store_galleries].sort((a, b) => (a.sort_order?? 999) - (b.sort_order?? 999));
 
-  return sorted[0]?.image_url ?? '/noshop.svg';
+  return sorted[0]?.gallery_url ?? '/noshop.svg';
 }
 
 export function normalizeHomeStore(raw: StoreRow): HomeStoreLite {
@@ -24,7 +24,7 @@ export function normalizeHomeStore(raw: StoreRow): HomeStoreLite {
     venue_type_id: raw.venue_types?.id ?? null,
     type_label: raw.venue_types?.label ?? null,
 
-    image_url: selectImage(raw.store_images),
+    gallery_url: selectImage(raw.store_galleries),
     updated_at: raw.updated_at,
   };
 }

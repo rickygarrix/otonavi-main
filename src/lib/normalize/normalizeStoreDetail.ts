@@ -57,14 +57,14 @@ function extractM2MOrdered(
    image helper
 ========================= */
 
-function selectImage(store_images: StoreRow['store_images']): string {
-  if (!store_images?.length) return '/noshop.svg';
+function selectImage(store_galleries: StoreRow['store_galleries']): string {
+  if (!store_galleries?.length) return '/noshop.svg';
 
-  const sorted = [...store_images].sort(
+  const sorted = [...store_galleries].sort(
     (a, b) => (a.sort_order ?? 999) - (b.sort_order ?? 999),
   );
 
-  return sorted[0]?.image_url ?? '/noshop.svg';
+  return sorted[0]?.gallery_url ?? '/noshop.svg';
 }
 
 /* =========================
@@ -130,7 +130,7 @@ export function normalizeStoreDetail(raw: StoreRow): HomeStore {
     other_payment_method: raw.other_payment_method,
 
     /* ========= media ========= */
-    image_url: selectImage(raw.store_images),
+    gallery_url: selectImage(raw.store_galleries),
     description: raw.description,
 
     instagram_url: raw.instagram_url,

@@ -13,8 +13,8 @@ export default function HomeStoreCard({ store }: Props) {
   // 画像
   // =========================
   const imageUrl =
-    store.image_url && store.image_url.trim() !== ''
-      ? store.image_url
+    store.gallery_url && store.gallery_url.trim() !== ''
+      ? store.gallery_url
       : '/noshop.svg';
 
   // =========================

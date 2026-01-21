@@ -27,8 +27,8 @@ export default function StoreCard({ store, query }: Props) {
    * Next/Image に「空文字・undefined」を絶対に渡さない
    */
   const imageUrl =
-    typeof store.image_url === 'string' && store.image_url.trim() !== ''
-      ? store.image_url
+    typeof store.gallery_url === 'string' && store.gallery_url.trim() !== ''
+      ? store.gallery_url
       : '/noshop.svg';
 
   const locationLabel =

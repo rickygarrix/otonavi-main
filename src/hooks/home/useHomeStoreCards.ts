@@ -40,8 +40,8 @@ export function useHomeStoreCards(limit = 12) {
             label
           ),
 
-          store_images (
-            image_url,
+         store_galleries (
+            gallery_url,
             sort_order
           )
         `

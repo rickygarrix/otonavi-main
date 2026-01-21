@@ -12,10 +12,10 @@ type Props = {
 
 type StoreImage = {
   id: string;
-  image_url: string;
+  gallery_url: string;
 };
 
-export default function StoreImageCarousel({
+export default function StoreGalleryCarousel({
   storeId,
   storeName,
   onMainImageLoaded,
@@ -28,13 +28,13 @@ export default function StoreImageCarousel({
     if (!storeId) return;
 
     supabase
-      .from('store_images')
-      .select('id, image_url')
+      .from('store_galleries')
+      .select('gallery_url')
       .eq('store_id', storeId)
       .order('sort_order')
       .then(({ data, error }) => {
         if (error) {
-          console.error('store_images load error', error);
+          console.error('store_galleries load error', error);
           onMainImageLoaded?.();
           return;
         }
@@ -65,7 +65,7 @@ export default function StoreImageCarousel({
         {images.map((img, index) => (
           <div key={img.id} className="relative aspect-[3/4] min-w-full snap-start">
             <Image
-              src={img.image_url}
+              src={img.gallery_url}
               alt={storeName}
               fill
               sizes="100vw"

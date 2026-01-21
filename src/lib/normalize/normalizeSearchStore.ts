@@ -20,14 +20,14 @@ function extractKeys(list: unknown, defKey: string): string[] {
     .filter((k): k is string => typeof k === 'string');
 }
 
-function selectImage(store_images: SearchStoreRow['store_images']): string {
-  if (!store_images?.length) return '/noshop.svg';
+function selectImage(store_galleries: SearchStoreRow['store_galleries']): string {
+  if (!store_galleries?.length) return '/noshop.svg';
 
-  const sorted = [...store_images].sort(
+  const sorted = [...store_galleries].sort(
    (a, b) => (a.sort_order ?? 999) - (b.sort_order ?? 999),
   );
 
-  const url = sorted[0]?.image_url;
+  const url = sorted[0]?.gallery_url;
   return typeof url === 'string' && url.trim() !== ''
     ? url
     : '/noshop.svg';
@@ -53,7 +53,7 @@ export function normalizeSearchStore(raw: SearchStoreRow): SearchStore {
     venue_type_id: raw.venue_types?.id ?? null,
     type_label: raw.venue_types?.label ?? null,
 
-    image_url: selectImage(raw.store_images),
+    gallery_url: selectImage(raw.store_galleries),
 
     price_range_key: raw.price_ranges?.key ?? null,
     size_key: raw.sizes?.key ?? null,

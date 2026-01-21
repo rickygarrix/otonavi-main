@@ -30,7 +30,7 @@ export type HomeStore = {
   payment_method_labels: string[];
   other_payment_method: string | null;
 
-  image_url: string;
+  gallery_url: string;
   description: string | null;
 
   instagram_url: string | null;
@@ -95,7 +95,7 @@ export type HomeStoreLite = {
   venue_type_id: string | null;
   type_label: string | null;
 
-  image_url: string;
+  gallery_url: string;
   updated_at: string;
 };
 
@@ -114,7 +114,7 @@ export type SearchStore = {
   venue_type_id: string | null;
   type_label: string | null;
 
-  image_url: string;
+  gallery_url: string;
 
   price_range_key: string | null;
   size_key: string | null;
