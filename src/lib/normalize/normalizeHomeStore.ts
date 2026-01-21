@@ -4,7 +4,7 @@ import type { StoreRow } from '@/types/store-db';
 function selectImage(store_images: StoreRow['store_images']): string {
   if (!store_images?.length) return '/noshop.svg';
 
-  const sorted = [...store_images].sort((a, b) => (a.order_num ?? 999) - (b.order_num ?? 999));
+  const sorted = [...store_images].sort((a, b) => (a.sort_order?? 999) - (b.sort_order?? 999));
 
   return sorted[0]?.image_url ?? '/noshop.svg';
 }

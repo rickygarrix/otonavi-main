@@ -24,7 +24,7 @@ function selectImage(store_images: SearchStoreRow['store_images']): string {
   if (!store_images?.length) return '/noshop.svg';
 
   const sorted = [...store_images].sort(
-    (a, b) => (a.order_num ?? 999) - (b.order_num ?? 999),
+   (a, b) => (a.sort_order ?? 999) - (b.sort_order ?? 999),
   );
 
   const url = sorted[0]?.image_url;

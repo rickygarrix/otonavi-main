@@ -60,7 +60,7 @@ export function useStoresForSearch(
 
           store_images:store_images!store_images_store_id_fkey (
             image_url,
-            order_num
+            sort_order
           )
         `
         )

@@ -27,7 +27,7 @@ export type PrefectureRow = {
 export type StoreImageRow = {
   image_url: string | null;
   is_main: boolean | null;
-  order_num: number | null;
+  sort_order: number | null;
 };
 
 /* =========================

@@ -42,7 +42,7 @@ export function useHomeStoreCards(limit = 12) {
 
           store_images (
             image_url,
-            order_num
+            sort_order
           )
         `
         )

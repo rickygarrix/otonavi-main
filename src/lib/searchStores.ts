@@ -22,12 +22,12 @@ const FILTER_MAP: FilterConfig[] = [
   { definitionTable: 'event_trends', middleTable: 'store_event_trends', definitionIdColumn: 'event_trend_id' },
   { definitionTable: 'drinks', middleTable: 'store_drinks', definitionIdColumn: 'drink_id' },
   { definitionTable: 'payment_methods', middleTable: 'store_payment_methods', definitionIdColumn: 'payment_method_id' },
-  { definitionTable: 'smoking_policies', middleTable: 'store_smoking_policies', definitionIdColumn: 'smoking_id' },
+  { definitionTable: 'smoking_policies', middleTable: 'store_smoking_policies', definitionIdColumn: 'smoking_policy_id' },
   { definitionTable: 'toilets', middleTable: 'store_toilets', definitionIdColumn: 'toilet_id' },
   { definitionTable: 'environments', middleTable: 'store_environments', definitionIdColumn: 'environment_id' },
-  { definitionTable: 'luggages', middleTable: 'store_luggages', definitionIdColumn: 'baggage_id' },
-  { definitionTable: 'audience_types', middleTable: 'store_audience_types', definitionIdColumn: 'customer_id' },
-  { definitionTable: 'amenities', middleTable: 'store_amenities', definitionIdColumn: 'other_id' },
+  { definitionTable: 'luggages', middleTable: 'store_luggages', definitionIdColumn: 'luggage_id' },
+  { definitionTable: 'audience_types', middleTable: 'store_audience_types', definitionIdColumn: 'audience_type_id' },
+  { definitionTable: 'amenities', middleTable: 'store_amenities', definitionIdColumn: 'amenity_id' },
 ];
 
 export async function searchStores({
@@ -75,7 +75,7 @@ export async function searchStores({
 
       store_images:store_images!store_images_store_id_fkey (
         image_url,
-        order_num
+        sort_order
       )
       `
     )
