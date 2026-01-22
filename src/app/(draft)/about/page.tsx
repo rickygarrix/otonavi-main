@@ -1,16 +1,15 @@
-// src/app/lp/page.tsx
-
 import Image from "next/image"
 import Link from "next/link"
 import { Search } from "lucide-react"
+import { staticMeta } from '@/lib/metadata';
 import Footer from "@/components/ui/Footer"
 
-export const metadata = {
-  title: "オトナビ｜小さな非日常は、いつもの帰り道に。",
-  description: "クラブもミュージックバーも。夜の音楽体験をもっと身近にする音箱ナビ。",
-}
+export const metadata: Metadata = staticMeta({
+  title: 'オトナビとは？',
+  path: '/about',
+});
 
-export default function LPPage() {
+export default function AboutPage() {
   return (
     <main className="w-full bg-[#F6F6F6] text-zinc-900">
       {/* Hero */}
