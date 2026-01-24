@@ -174,7 +174,7 @@ serve(async (req) => {
         store_id: body.store_id,
         text: body.text,
         year: body.year || null,
-        is_active: true,
+        is_active: body.is_active ?? true,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
@@ -203,6 +203,43 @@ serve(async (req) => {
         JSON.stringify({ success: true, data: { id: inserted.id } }),
         { status: 200 }
       );
+    }
+
+    /**************************************
+     * mentions UPSERT（★追加・更新用）
+     **************************************/
+    if (action === "upsert_mention") {
+      console.log("=== UPSERT MENTION START ===");
+
+      const mentionId = body.id;
+      if (!mentionId) {
+        return new Response(
+          JSON.stringify({ success: false, error: "MISSING_MENTION_ID" }),
+          { status: 400 }
+        );
+      }
+
+      const payload = {
+        store_id: body.store_id,
+        text: body.text,
+        year: body.year || null,
+        is_active: body.is_active ?? true,
+        updated_at: new Date().toISOString(),
+      };
+
+      const { error } = await supabase
+        .from("mentions")
+        .update(payload)
+        .eq("id", mentionId);
+
+      if (error) {
+        return new Response(
+          JSON.stringify({ success: false, step: "mentions_upsert", error }),
+          { status: 500 }
+        );
+      }
+
+      return new Response(JSON.stringify({ success: true }), { status: 200 });
     }
 
     /**************************************
@@ -238,85 +275,83 @@ serve(async (req) => {
     }
 
     /**************************************
-     * store_galleries INSERT / UPDATE（★追加）
+     * store_galleries INSERT / UPDATE
      **************************************/
     if (action === "upsert_store_gallery") {
-  console.log("=== UPSERT STORE GALLERY START ===");
+      console.log("=== UPSERT STORE GALLERY START ===");
 
-  const payload = {
-    id: body.id || undefined,
-    store_id: body.store_id,
-    gallery_url: body.gallery_url,
-    sort_order: body.sort_order,
-    is_active: body.is_active ?? true,
-    updated_at: new Date().toISOString(),
-  };
+      const payload = {
+        id: body.id || undefined,
+        store_id: body.store_id,
+        gallery_url: body.gallery_url,
+        sort_order: body.sort_order,
+        is_active: body.is_active ?? true,
+        updated_at: new Date().toISOString(),
+      };
 
-  if (!payload.store_id || !payload.gallery_url || !payload.sort_order) {
-    return new Response(
-      JSON.stringify({ success: false, error: "MISSING_REQUIRED_FIELDS" }),
-      { status: 400 }
-    );
-  }
+      if (!payload.store_id || !payload.gallery_url || !payload.sort_order) {
+        return new Response(
+          JSON.stringify({ success: false, error: "MISSING_REQUIRED_FIELDS" }),
+          { status: 400 }
+        );
+      }
 
-  if (!payload.id) {
-    payload.created_at = new Date().toISOString();
-  }
+      if (!payload.id) {
+        payload.created_at = new Date().toISOString();
+      }
 
-  const { data, error } = await supabase
-    .from("store_galleries")
-    .upsert(payload, {
-      // 👇 DBの制約に合わせてどちらか
-      // onConflict: "id",
-      onConflict: "store_id,sort_order",
-    })
-    .select("id")
-    .single();
+      const { data, error } = await supabase
+        .from("store_galleries")
+        .upsert(payload, {
+          onConflict: "store_id,sort_order",
+        })
+        .select("id")
+        .single();
 
-  if (error) {
-    return new Response(
-      JSON.stringify({ success: false, step: "store_galleries_upsert", error }),
-      { status: 500 }
-    );
-  }
+      if (error) {
+        return new Response(
+          JSON.stringify({ success: false, step: "store_galleries_upsert", error }),
+          { status: 500 }
+        );
+      }
 
-  return new Response(
-    JSON.stringify({ success: true, data: { id: data.id } }),
-    { status: 200 }
-  );
-}
+      return new Response(
+        JSON.stringify({ success: true, data: { id: data.id } }),
+        { status: 200 }
+      );
+    }
 
     /**************************************
- * store_galleries 非公開
- **************************************/
-if (action === "deactivate_store_gallery") {
-  console.log("=== DEACTIVATE STORE GALLERY START ===");
+     * store_galleries 非公開
+     **************************************/
+    if (action === "deactivate_store_gallery") {
+      console.log("=== DEACTIVATE STORE GALLERY START ===");
 
-  const galleryId = body.id;
-  if (!galleryId) {
-    return new Response(
-      JSON.stringify({ success: false, error: "MISSING_GALLERY_ID" }),
-      { status: 400 }
-    );
-  }
+      const galleryId = body.id;
+      if (!galleryId) {
+        return new Response(
+          JSON.stringify({ success: false, error: "MISSING_GALLERY_ID" }),
+          { status: 400 }
+        );
+      }
 
-  const { error } = await supabase
-    .from("store_galleries")
-    .update({
-      is_active: false,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", galleryId);
+      const { error } = await supabase
+        .from("store_galleries")
+        .update({
+          is_active: false,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", galleryId);
 
-  if (error) {
-    return new Response(
-      JSON.stringify({ success: false, step: "store_galleries_deactivate", error }),
-      { status: 500 }
-    );
-  }
+      if (error) {
+        return new Response(
+          JSON.stringify({ success: false, step: "store_galleries_deactivate", error }),
+          { status: 500 }
+        );
+      }
 
-  return new Response(JSON.stringify({ success: true }), { status: 200 });
-}
+      return new Response(JSON.stringify({ success: true }), { status: 200 });
+    }
 
     return new Response(
       JSON.stringify({ success: false, error: "UNKNOWN_ACTION" }),

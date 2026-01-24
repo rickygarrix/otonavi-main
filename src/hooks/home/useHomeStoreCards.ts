@@ -41,10 +41,11 @@ export function useHomeStoreCards(limit = 12) {
           ),
 
          store_galleries (
+            id,
             gallery_url,
-            sort_order
-          )
-        `
+            sort_order,
+            is_active
+          )`
         )
         .eq('is_active', true)
         .order('updated_at', { ascending: false })

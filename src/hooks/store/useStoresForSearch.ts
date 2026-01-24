@@ -59,8 +59,10 @@ export function useStoresForSearch(
           store_payment_methods ( payment_methods ( key ) ),
 
           store_galleries:store_galleries!store_galleries_store_id_fkey (
-          gallery_url,
-          sort_order
+            id,
+            gallery_url,
+            sort_order,
+            is_active
           )
         `
         )

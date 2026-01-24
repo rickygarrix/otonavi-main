@@ -20,14 +20,23 @@ function extractKeys(list: unknown, defKey: string): string[] {
     .filter((k): k is string => typeof k === 'string');
 }
 
-function selectImage(store_galleries: SearchStoreRow['store_galleries']): string {
+function selectImage(
+  store_galleries: SearchStoreRow['store_galleries'],
+): string {
   if (!store_galleries?.length) return '/noshop.svg';
 
-  const sorted = [...store_galleries].sort(
-   (a, b) => (a.sort_order ?? 999) - (b.sort_order ?? 999),
+  const activeOnly = store_galleries.filter(
+    (g) => g.is_active === true,
+  );
+
+  if (!activeOnly.length) return '/noshop.svg';
+
+  const sorted = [...activeOnly].sort(
+    (a, b) => (a.sort_order ?? 999) - (b.sort_order ?? 999),
   );
 
   const url = sorted[0]?.gallery_url;
+
   return typeof url === 'string' && url.trim() !== ''
     ? url
     : '/noshop.svg';

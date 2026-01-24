@@ -3,8 +3,13 @@ import type { StoreRow } from '@/types/store-db';
 
 function selectImage(store_galleries: StoreRow['store_galleries']): string {
   if (!store_galleries?.length) return '/noshop.svg';
+  const activeOnly = store_galleries.filter((g) => g.is_active === true);
 
-  const sorted = [...store_galleries].sort((a, b) => (a.sort_order?? 999) - (b.sort_order?? 999));
+  if (!activeOnly.length) return '/noshop.svg';
+
+  const sorted = [...activeOnly].sort(
+    (a, b) => (a.sort_order ?? 999) - (b.sort_order ?? 999)
+  );
 
   return sorted[0]?.gallery_url ?? '/noshop.svg';
 }
