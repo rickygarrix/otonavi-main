@@ -39,28 +39,19 @@ export async function POST(req: Request) {
         <p>${name} 様</p>
 
         <p>
-          この度はオトナビへお問い合わせいただき、ありがとうございます。<br />
-          以下の内容でお問い合わせを受け付けました。
+          以下の内容でお問い合わせを受け付けました。<br />
+          内容を確認のうえ、<strong>3営業日以内</strong>にご連絡いたします。<br />
         </p>
-
-        <hr />
-
         <p><strong>■ お名前</strong><br />${name}</p>
         <p><strong>■ メールアドレス</strong><br />${email}</p>
         <p><strong>■ お問い合わせ内容</strong><br />${message.replace(/\n/g, "<br />")}</p>
 
-        <hr />
-
-      <p>
-       内容を確認のうえ、<strong>3営業日以内</strong>にご連絡いたします。<br />
-       今しばらくお待ちください。<br /><br />
-       オトナビ運営
-     </p>
+        <p>オトナビ運営</p>
 
         <hr />
 
         <p style="font-size:12px; color:#666;">
-          ※本メールは送信専用です。<br />
+          ※本メールは送信専用です。
           ご不明な点がございましたら
           <a href="mailto:contact@otnv.jp">contact@otnv.jp</a>
           までご連絡ください。
