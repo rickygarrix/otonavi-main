@@ -92,127 +92,68 @@ export default function AboutPage() {
         </section>
 
         {/* How to use */}
-        <section className="self-stretch bg-Brand-Light-1">
-          <div className="mx-auto flex w-full max-w-[600px] flex-col items-center gap-10 bg-Brand-Light-2 px-4 py-10">
-            <div className="flex w-full flex-col items-start gap-8">
-              <div className="text-xs font-normal leading-4 tracking-wide text-Brand-Dark-5 font-['Tsukimi_Rounded']">
-                How to use
-              </div>
+        <svg className="w-full h-12 pt-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 40" fill="none" preserveAspectRatio="none">
+          <path d="M195 0C263.263 0 328.862 11.401 390 32.4004V40H0V32.4004C61.1378 11.4009 126.737 0 195 0Z" fill="#E8ECF1" />
+        </svg>
 
-              <h2 className="text-2xl font-bold leading-9 tracking-widest text-Brand-Dark-5 font-['Zen_Kaku_Gothic_New']">
-                はじめての使い方ガイド
-              </h2>
-            </div>
+        <section className="px-4 py-10 text-left flex flex-col gap-10 bg-light-2">
 
-            <div className="flex w-full flex-col items-start gap-8">
-              {/* 01 */}
-              <div className="flex w-full items-start gap-4">
-                <div className="flex w-8 flex-col items-center gap-2 rounded bg-Brand-Dark-2 py-4">
-                  <div className="text-base font-semibold leading-6 text-Brand-Light-1 font-['Tsukimi_Rounded']">
-                    01
-                  </div>
-                  <div className="text-center text-base font-bold leading-6 tracking-wider text-Brand-Light-1 font-['Zen_Kaku_Gothic_New']">
-                    さ
-                    <br />
-                    が
-                    <br />
-                    す
-                  </div>
-                </div>
-
-                <div className="flex flex-1 flex-col items-start gap-2">
-                  <div className="text-base font-bold leading-8 text-Brand-Dark-5 font-['Zen_Kaku_Gothic_New']">
-                    🔍 相性のいいお店を探そう
-                  </div>
-                  <p className="text-sm font-normal leading-6 text-Brand-Dark-5 font-['Zen_Kaku_Gothic_New']">
-                    人それぞれ状況や好みが異なるように、お店も音楽ジャンルや店内の雰囲気はそれぞれです。
-                    自分と相性のいいお店を見つけるために、エリアやジャンルで絞り込んで検索してみましょう。
-                  </p>
-                </div>
-              </div>
-
-              {/* 02 */}
-              <div className="flex w-full items-start gap-4">
-                <div className="flex w-8 flex-col items-center gap-2 rounded bg-Brand-Dark-2 py-4">
-                  <div className="text-base font-semibold leading-6 text-Brand-Light-1 font-['Tsukimi_Rounded']">
-                    02
-                  </div>
-                  <div className="text-center text-base font-bold leading-6 tracking-wider text-Brand-Light-1 font-['Zen_Kaku_Gothic_New']">
-                    チ
-                    <br />
-                    ェ
-                    <br />
-                    ッ
-                    <br />
-                    ク
-                  </div>
-                </div>
-
-                <div className="flex flex-1 flex-col items-start gap-2">
-                  <div className="text-base font-bold leading-8 text-Brand-Dark-5 font-['Zen_Kaku_Gothic_New']">
-                    🍸 お店の特徴をつかもう
-                  </div>
-                  <p className="text-sm font-normal leading-6 text-Brand-Dark-5 font-['Zen_Kaku_Gothic_New']">
-                    気になるお店を見つけたら店舗ページをのぞいてみよう。
-                    場所や営業時間はもちろん、音楽ジャンルやお店ならではの特徴がわかります。
-                    写真や口コミから雰囲気を想像して、自分がそこで過ごす姿をイメージするとワクワクが広がります！
-                  </p>
-                </div>
-              </div>
-
-              {/* 03 */}
-              <div className="flex w-full items-start gap-4">
-                <div className="flex w-8 flex-col items-center gap-2 rounded bg-Brand-Dark-2 py-4">
-                  <div className="text-base font-semibold leading-6 text-Brand-Light-1 font-['Tsukimi_Rounded']">
-                    03
-                  </div>
-                  <div className="text-center text-base font-bold leading-6 tracking-wider text-Brand-Light-1 font-['Zen_Kaku_Gothic_New']">
-                    来
-                    <br />
-                    店
-                  </div>
-                </div>
-
-                <div className="flex flex-1 flex-col items-start gap-2">
-                  <div className="text-base font-bold leading-8 text-Brand-Dark-5 font-['Zen_Kaku_Gothic_New']">
-                    🔊 自分なりの楽しみ方を見つけよう
-                  </div>
-                  <p className="text-sm font-normal leading-6 text-Brand-Dark-5 font-['Zen_Kaku_Gothic_New']">
-                    行ってみたいお店が決まったらいざ夜の街へ！
-                    音楽に身をゆだねるもよし、バーカウンターでゆったり過ごすもよし。
-                    友達と一緒でも、一人でふらっとでも、気軽に「自分なりの楽しみ方」を見つけてみてください。
-                  </p>
-                </div>
-              </div>
-
-              {/* 04 */}
-              <div className="flex w-full items-start gap-4">
-                <div className="flex w-8 flex-col items-center gap-2 rounded bg-Brand-Dark-2 py-4">
-                  <div className="text-base font-semibold leading-6 text-Brand-Light-1 font-['Tsukimi_Rounded']">
-                    04
-                  </div>
-                  <div className="text-center text-base font-bold leading-6 tracking-wider text-Brand-Light-1 font-['Zen_Kaku_Gothic_New']">
-                    投
-                    <br />
-                    稿
-                  </div>
-                </div>
-
-                <div className="flex flex-1 flex-col items-start gap-2">
-                  <div className="text-base font-bold leading-8 text-Brand-Dark-5 font-['Zen_Kaku_Gothic_New']">
-                    💬 体験をシェアして記録しよう
-                  </div>
-                  <p className="text-sm font-normal leading-6 text-Brand-Dark-5 font-['Zen_Kaku_Gothic_New']">
-                    遊んだあとはその体験をシェアしよう。
-                    お店の雰囲気や良かったポイントを投稿すると、これから行く人の参考になりますし、
-                    自分自身の夜遊び記録にもなります。
-                    小さなひとことでもOK。積み重ねていくことで、あなただけの音楽ライフログができあがっていきます。
-                  </p>
-                </div>
-              </div>
-            </div>
+          <div className="flex flex-col gap-8">
+            <span className="text-xs leading-[1.5] tracking-widest">How to use</span>
+            <h2 className="text-2xl font-bold leading-[1.5] tracking-widest">はじめての使い方ガイド</h2>
           </div>
+
+          <ol className="flex flex-col gap-8">
+            {/* 01 */}
+            <li className="flex gap-4 items-start">
+              <div className="flex w-8 flex-col items-center gap-2 rounded bg-dark-2 py-4 text-light-1">
+                <div className="font-semibold">01</div>
+                <div className="[writing-mode:vertical-rl] tracking-[.5em] font-bold">さがす</div>
+              </div>
+
+              <div className="flex flex-1 flex-col gap-2 py-1">
+                <div className="font-bold ">🔍 相性のいいお店を探そう</div>
+                <p className="text-sm leading-[1.8] text-justify">
+                  人それぞれ状況や好みが異なるように、お店も音楽ジャンルや店内の雰囲気はそれぞれです。自分と相性のいいお店を見つけるために、エリアやジャンルで絞り込んで検索してみましょう。
+                </p>
+              </div>
+            </li>
+
+            {/* 02 */}
+            <li className="flex gap-4 items-start">
+              <div className="flex w-8 flex-col items-center gap-2 rounded bg-dark-2 py-4 text-light-1">
+                <div className="font-semibold">02</div>
+                <div className="[writing-mode:vertical-rl] tracking-[.5em] font-bold">チェック</div>
+              </div>
+
+              <div className="flex flex-1 flex-col gap-2 py-1">
+                <div className="font-bold ">🍸 お店の特徴をつかもう</div>
+                <p className="text-sm leading-[1.8] text-justify">
+                  気になるお店を見つけたら店舗ページをのぞいてみよう。場所や営業時間はもちろん、音楽ジャンルやお店ならではの特徴がわかります。写真や口コミから雰囲気を想像して、自分がそこで過ごす姿をイメージするとワクワクが広がります！
+                </p>
+              </div>
+            </li>
+
+            {/* 03 */}
+            <li className="flex gap-4 items-start">
+              <div className="flex w-8 flex-col items-center gap-2 rounded bg-dark-2 py-4 text-light-1">
+                <div className="font-semibold">03</div>
+                <div className="[writing-mode:vertical-rl] tracking-[.5em] font-bold">来店</div>
+              </div>
+
+              <div className="flex flex-1 flex-col gap-2 py-1">
+                <div className="font-bold ">🔊 自分なりの楽しみ方を見つけよう</div>
+                <p className="text-sm leading-[1.8] text-justify">
+                  行ってみたいお店が決まったらいざ夜の街へ！音楽に身をゆだねるもよし、バーカウンターでゆったり過ごすもよし。友達と一緒でも、一人でふらっとでも、気軽に「自分なりの楽しみ方」を見つけてみてください。
+                </p>
+              </div>
+            </li>
+          </ol>
         </section>
+
+        <svg className="w-full h-12 pt-2 bg-dark-5 scale-y-[-1]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 40" fill="none" preserveAspectRatio="none">
+          <path d="M195 0C263.263 0 328.862 11.401 390 32.4004V40H0V32.4004C61.1378 11.4009 126.737 0 195 0Z" fill="#E8ECF1" />
+        </svg>
 
         {/* YouTube */}
         <section className="self-stretch bg-dark-5 px-6 py-20 text-light-3">
