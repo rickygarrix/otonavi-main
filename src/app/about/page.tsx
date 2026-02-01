@@ -116,7 +116,7 @@ export default function AboutPage() {
               <div className="flex flex-1 flex-col gap-2 py-1">
                 <div className="font-bold ">🔍 相性のいいお店を探そう</div>
                 <p className="text-sm leading-[1.8] text-justify">
-                  人それぞれ状況や好みが異なるように、お店も音楽ジャンルや店内の雰囲気はそれぞれです。自分と相性のいいお店を見つけるために、エリアやジャンルで絞り込んで検索してみましょう。
+                  人それぞれ状況や好みが異なるように、お店も音楽ジャンルや店内の雰囲気はそれぞれです。自分と相性のいいお店を見つけるために、エリアやこだわり条件で絞り込んで検索してみましょう。
                 </p>
               </div>
             </li>
@@ -131,7 +131,7 @@ export default function AboutPage() {
               <div className="flex flex-1 flex-col gap-2 py-1">
                 <div className="font-bold ">🍸 お店の特徴をつかもう</div>
                 <p className="text-sm leading-[1.8] text-justify">
-                  気になるお店を見つけたら店舗ページをのぞいてみよう。場所や営業時間はもちろん、音楽ジャンルやお店ならではの特徴がわかります。写真や口コミから雰囲気を想像して、自分がそこで過ごす姿をイメージするとワクワクが広がります！
+                  気になるお店を見つけたら店舗ページをのぞいてみよう。場所や営業時間はもちろん、お店ならではの特徴やイベントの傾向などがわかります。公式SNSから雰囲気をチェックして、自分がそこで過ごす姿をイメージするとワクワクが広がります！
                 </p>
               </div>
             </li>
@@ -146,7 +146,7 @@ export default function AboutPage() {
               <div className="flex flex-1 flex-col gap-2 py-1">
                 <div className="font-bold ">🔊 自分なりの楽しみ方を見つけよう</div>
                 <p className="text-sm leading-[1.8] text-justify">
-                  行ってみたいお店が決まったらいざ夜の街へ！音楽に身をゆだねるもよし、バーカウンターでゆったり過ごすもよし。友達と一緒でも、一人でふらっとでも、気軽に「自分なりの楽しみ方」を見つけてみてください。
+                  行ってみたいお店が決まったらいざ夜の街へ！音楽に身をゆだねるもよし、バーカウンターでゆったり過ごすもよし。友達と一緒でも、一人でふらっとでも、気軽に自分なりの楽しみ方を見つけてみてください。
                 </p>
               </div>
             </li>
